@@ -1,0 +1,49 @@
+{
+  "name": "SQL-for-Files Development",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      // Extensions to install inside the container
+      "extensions": [
+        "Anthropic.claude-code",            // Claude Code - AI pair programming
+        "dbaeumer.vscode-eslint",           // ESLint for code quality
+        "esbenp.prettier-vscode",           // Code formatting
+        "bradlc.vscode-tailwindcss",        // Tailwind CSS IntelliSense
+        "ms-vscode.vscode-typescript-next", // Latest TypeScript features
+        "dsznajder.es7-react-js-snippets"   // React snippets
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        }
+      }
+    }
+  },
+
+  // Forward Vite dev server port to your host machine
+  "forwardPorts": [5173],
+
+  // Label for the forwarded port
+  "portsAttributes": {
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "notify"
+    }
+  },
+
+  // Use 'postCreateCommand' to run commands after the container is created
+  // We'll install dependencies after we initialize the project
+  // "postCreateCommand": "npm install",
+
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  // Comment out to connect as root instead
+  "remoteUser": "node"
+}
