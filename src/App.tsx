@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { DuckDBProvider } from './contexts/DuckDBContext';
+import FileUploader from './components/FileUploader/FileUploader';
+import SQLEditor from './components/SQLEditor/SQLEditor';
+import TableList from './components/DatabaseManager/TableList';
 
+/**
+ * Main App Component
+ *
+ * Layout:
+ * - Header with app title
+ * - Left sidebar: Table list
+ * - Main content: File uploader + SQL editor + results
+ */
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <DuckDBProvider>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white shadow">
+          <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 className="text-3xl font-bold text-gray-900">
+              SQL for Files
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Query CSV, JSON, and Parquet files using SQL — entirely in your browser
+            </p>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Sidebar - Table List */}
+            <div className="lg:col-span-3">
+              <div className="bg-white rounded-lg shadow p-4 sticky top-6">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900">
+                  Tables
+                </h2>
+                <TableList />
+              </div>
+            </div>
+
+            {/* Main Content Area */}
+            <div className="lg:col-span-9 space-y-6">
+              {/* File Upload Section */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900">
+                  Upload Data
+                </h2>
+                <FileUploader />
+              </div>
+
+              {/* SQL Editor Section */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900">
+                  SQL Query
+                </h2>
+                <SQLEditor />
+              </div>
+            </div>
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="mt-12 pb-6 text-center text-sm text-gray-500">
+          <p>
+            Your data never leaves your device. All processing happens in your browser.
+          </p>
+        </footer>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </DuckDBProvider>
+  );
 }
 
-export default App
+export default App;
