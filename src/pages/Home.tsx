@@ -26,9 +26,15 @@ function HomeContent() {
         {/* Left Column - File Upload + Tables */}
         <div className="lg:col-span-1 space-y-6">
           {/* File Upload Section */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-6">
-            <div className="flex items-center gap-2 mb-5">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-2">
+            <div className="flex items-center gap-2 mb-2">
               <h2 className="text-lg font-bold text-slate-800">Upload Data</h2>
+            </div>
+            <div className="mb-2 text-sm text-slate-600">
+              <p>
+                Your data never leaves your device, everything is done inside
+                your browser
+              </p>
             </div>
             <FileUploader />
           </div>
@@ -110,67 +116,67 @@ function HomeContent() {
 
           {/* Results Table */}
           {result.rowCount > 0 ? (
-                <div className="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
-                  <table className="min-w-full divide-y divide-slate-200">
-                    <thead>
-                      <tr className="bg-gradient-to-r from-slate-50 to-slate-100">
-                        {result.columns.map((col) => (
-                          <th
-                            key={col}
-                            className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-300"
-                          >
-                            {col}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-slate-100">
-                      {result.data.map((row, rowIndex) => (
-                        <tr
-                          key={rowIndex}
-                          className="hover:bg-blue-50/50 transition-colors"
-                        >
-                          {result.columns.map((col) => (
-                            <td
-                              key={col}
-                              className="px-4 py-3 text-sm text-slate-800 whitespace-nowrap"
-                            >
-                              {row[col] !== null && row[col] !== undefined ? (
-                                String(row[col])
-                              ) : (
-                                <span className="text-slate-400 italic font-medium">
-                                  null
-                                </span>
-                              )}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-12 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-lg">
-                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-4">
-                    <svg
-                      className="w-8 h-8 text-slate-400"
-                      width="32"
-                      height="32"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+            <div className="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
+              <table className="min-w-full divide-y divide-slate-200">
+                <thead>
+                  <tr className="bg-gradient-to-r from-slate-50 to-slate-100">
+                    {result.columns.map((col) => (
+                      <th
+                        key={col}
+                        className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-300"
+                      >
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-slate-100">
+                  {result.data.map((row, rowIndex) => (
+                    <tr
+                      key={rowIndex}
+                      className="hover:bg-blue-50/50 transition-colors"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-slate-600 font-medium">
-                    Query executed successfully but returned no rows.
-                  </p>
+                      {result.columns.map((col) => (
+                        <td
+                          key={col}
+                          className="px-4 py-3 text-sm text-slate-800 whitespace-nowrap"
+                        >
+                          {row[col] !== null && row[col] !== undefined ? (
+                            String(row[col])
+                          ) : (
+                            <span className="text-slate-400 italic font-medium">
+                              null
+                            </span>
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-lg">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-4">
+                <svg
+                  className="w-8 h-8 text-slate-400"
+                  width="32"
+                  height="32"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  />
+                </svg>
+              </div>
+              <p className="text-slate-600 font-medium">
+                Query executed successfully but returned no rows.
+              </p>
             </div>
           )}
         </div>
