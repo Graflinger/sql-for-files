@@ -1,14 +1,6 @@
 import { useState } from 'react';
-import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
-import { Table } from 'apache-arrow';
-
-// Shape of query results returned to UI
-interface QueryResult {
-  data: any[];           // Rows as JavaScript objects
-  columns: string[];     // Column names
-  rowCount: number;      // Number of rows returned
-  executionTime: number; // Query execution time in milliseconds
-}
+import type { AsyncDuckDB } from '@duckdb/duckdb-wasm';
+import type { QueryResult } from '../types/query';
 
 /**
  * useQueryExecution Hook
@@ -38,6 +30,7 @@ export function useQueryExecution(db: AsyncDuckDB | null) {
 
     setExecuting(true);
     setError(null);
+    setResult(null);
 
     const startTime = performance.now();
 
@@ -47,21 +40,21 @@ export function useQueryExecution(db: AsyncDuckDB | null) {
 
       // Execute the query
       // Returns an Apache Arrow Table (columnar data format)
-      const arrowResult: Table = await conn.query(sql);
+      const arrowResult = await conn.query(sql);
 
       // Convert Arrow table to JavaScript objects
       // Arrow is efficient for large datasets but we need plain objects for display
-      const data = arrowResult.toArray().map(row => {
+      const data = arrowResult.toArray().map((row: any) => {
         const obj: any = {};
         // Iterate through each column and extract the value
-        arrowResult.schema.fields.forEach(field => {
+        arrowResult.schema.fields.forEach((field: any) => {
           obj[field.name] = row[field.name];
         });
         return obj;
       });
 
       // Extract column names from Arrow schema
-      const columns = arrowResult.schema.fields.map(f => f.name);
+      const columns = arrowResult.schema.fields.map((f: any) => f.name);
 
       // Calculate execution time
       const executionTime = performance.now() - startTime;
