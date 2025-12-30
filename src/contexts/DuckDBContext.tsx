@@ -98,6 +98,7 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
  * Usage:
  *   const { db, loading, tables, refreshTables } = useDuckDBContext();
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useDuckDBContext() {
   const context = useContext(DuckDBContext);
   if (!context) {
