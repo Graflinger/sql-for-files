@@ -81,7 +81,14 @@ export default function Docs() {
             </h2>
             <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
               <li>
-                Table names are automatically derived from your file names
+                Table names are automatically derived from your file names. If a
+                file name starts with a number, the prefix 'table_' is
+                automatically added (e.g., '2023_sales.csv' becomes
+                'table_2023_sales')
+              </li>
+              <li>
+                All queries are automatically limited to 1000 rows unless you
+                specify a different LIMIT for performance optimization
               </li>
               <li>
                 All processing happens in your browser - your data stays private
