@@ -87,7 +87,7 @@ export default function FileUploader() {
       <div
         {...getRootProps()}
         className={`
-          relative border-2 border-dashed rounded-xl p-12 text-center cursor-pointer
+          relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
           transition-all duration-300 overflow-hidden group
           ${
             isDragActive
@@ -112,20 +112,20 @@ export default function FileUploader() {
 
         {/* Icon */}
         <div
-          className={`relative mx-auto w-20 h-20 mb-4 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+          className={`relative mx-auto w-14 h-14 mb-3 rounded-xl flex items-center justify-center transition-all duration-300 ${
             isDragActive
               ? "bg-gradient-to-br from-blue-500 to-indigo-600 scale-110 shadow-lg"
               : "bg-gradient-to-br from-slate-200 to-slate-300 group-hover:from-blue-400 group-hover:to-indigo-500 group-hover:scale-105"
           }`}
         >
           <svg
-            className={`h-10 w-10 transition-colors duration-300 ${
+            className={`h-8 w-8 transition-colors duration-300 ${
               isDragActive
                 ? "text-white"
                 : "text-slate-600 group-hover:text-white"
             }`}
-            width="40"
-            height="40"
+            width="32"
+            height="32"
             stroke="currentColor"
             fill="none"
             viewBox="0 0 48 48"
