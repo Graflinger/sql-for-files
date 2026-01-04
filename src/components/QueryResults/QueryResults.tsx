@@ -5,6 +5,65 @@ interface QueryResultsProps {
   error: Error | null;
 }
 
+/**
+ * Convert query results to CSV format
+ */
+function convertToCSV(result: QueryResult): string {
+  if (!result || !result.data || result.data.length === 0) {
+    return '';
+  }
+
+  // Create header row
+  const headers = result.columns.join(',');
+
+  // Create data rows
+  const rows = result.data.map(row => {
+    return result.columns.map(col => {
+      const value = row[col];
+
+      // Handle null/undefined
+      if (value === null || value === undefined) {
+        return '';
+      }
+
+      // Convert to string
+      const stringValue = String(value);
+
+      // Escape quotes and wrap in quotes if contains comma, quote, or newline
+      if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        return `"${stringValue.replace(/"/g, '""')}"`;
+      }
+
+      return stringValue;
+    }).join(',');
+  });
+
+  return [headers, ...rows].join('\n');
+}
+
+/**
+ * Download CSV file
+ */
+function downloadCSV(result: QueryResult) {
+  const csv = convertToCSV(result);
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+
+  // Create download link
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `query_results_${new Date().getTime()}.csv`);
+  link.style.visibility = 'hidden';
+
+  // Trigger download
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  // Clean up
+  URL.revokeObjectURL(url);
+}
+
 export default function QueryResults({ result, error }: QueryResultsProps) {
   return (
     <div className="bg-white/90 backdrop-blur-sm border border-slate-200/50 rounded-xl shadow-lg p-6">
@@ -74,6 +133,30 @@ export default function QueryResults({ result, error }: QueryResultsProps) {
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
                 {result.executionTime.toFixed(2)}ms
               </span>
+              {result.rowCount > 0 && (
+                <button
+                  onClick={() => downloadCSV(result)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-sm font-semibold rounded-lg hover:from-indigo-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+                  title="Export results as CSV"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    width="16"
+                    height="16"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                  </svg>
+                  Export CSV
+                </button>
+              )}
             </div>
           </div>
 

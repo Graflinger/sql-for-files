@@ -2,16 +2,18 @@ import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useFileUpload } from "../../hooks/useFileUpload";
+import { useNotifications } from "../../contexts/NotificationContext";
 
 /**
  * FileUploader Component
  *
  * Provides a drag-and-drop zone for uploading CSV, JSON, and Parquet files.
- * Shows upload progress and refreshes the table list after successful upload.
+ * Shows toast notifications for upload progress and errors.
  */
 export default function FileUploader() {
   const { db, refreshTables } = useDuckDBContext();
-  const { uploadFile, progress, clearProgress } = useFileUpload(db);
+  const { uploadFile } = useFileUpload(db);
+  const { addNotification, updateNotification } = useNotifications();
 
   /**
    * Handle dropped files
@@ -19,23 +21,49 @@ export default function FileUploader() {
    */
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      // Clear previous progress
-      clearProgress();
-
       // Upload each file sequentially
       for (const file of acceptedFiles) {
+        // Show uploading notification
+        const notificationId = addNotification({
+          type: 'uploading',
+          title: file.name,
+          message: 'Uploading file...',
+        });
+
         try {
+          // Update to processing
+          updateNotification(notificationId, {
+            type: 'processing',
+            message: 'Creating table...',
+          });
+
           const tableName = await uploadFile(file);
-          console.log(`✅ Created table: ${tableName}`);
+
+          // Update to success
+          updateNotification(notificationId, {
+            type: 'success',
+            title: file.name,
+            message: `Table "${tableName}" created successfully`,
+            autoClose: true,
+          });
 
           // Refresh the table list in the sidebar
           await refreshTables();
         } catch (error) {
-          console.error(`❌ Failed to upload ${file.name}:`, error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+          // Update to error
+          updateNotification(notificationId, {
+            type: 'error',
+            title: `Failed to upload ${file.name}`,
+            message: 'Click "Show details" to see the error',
+            error: errorMessage,
+            autoClose: false,
+          });
         }
       }
     },
-    [uploadFile, refreshTables, clearProgress]
+    [uploadFile, refreshTables, addNotification, updateNotification]
   );
 
   /**
@@ -143,92 +171,6 @@ export default function FileUploader() {
         )}
       </div>
 
-      {/* Upload Progress */}
-      {progress.length > 0 && (
-        <div className="space-y-3">
-          {progress.map((item, index) => (
-            <div
-              key={index}
-              className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <svg
-                    className="w-5 h-5 text-slate-400 flex-shrink-0"
-                    width="20"
-                    height="20"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  <span className="text-sm font-semibold text-slate-700 truncate">
-                    {item.fileName}
-                  </span>
-                </div>
-                <span
-                  className={`text-sm font-medium whitespace-nowrap ml-3 ${
-                    item.status === "done"
-                      ? "text-green-600"
-                      : item.status === "error"
-                      ? "text-red-600"
-                      : "text-blue-600"
-                  }`}
-                >
-                  {item.status === "done" && (
-                    <span className="inline-flex items-center gap-1">
-                      <svg
-                        className="w-4 h-4"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Complete
-                    </span>
-                  )}
-                  {item.status === "uploading" && "⬆️ Uploading..."}
-                  {item.status === "processing" && "⚙️ Creating table..."}
-                  {item.status === "error" && "❌ Error"}
-                </span>
-              </div>
-
-              {/* Progress Bar */}
-              {item.status !== "error" && (
-                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      item.status === "done"
-                        ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                        : "bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse"
-                    }`}
-                    style={{ width: `${item.progress}%` }}
-                  />
-                </div>
-              )}
-
-              {/* Error Message */}
-              {item.error && (
-                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-700">{item.error}</p>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

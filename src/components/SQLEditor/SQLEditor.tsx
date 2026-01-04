@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Editor from "@monaco-editor/react";
+import { useDuckDBContext } from "../../contexts/DuckDBContext";
+import type { editor } from "monaco-editor";
 
 interface SQLEditorProps {
   onExecute: (sql: string) => Promise<void>;
@@ -20,17 +22,221 @@ export default function SQLEditor({
   // SQL query text
   const [sql, setSql] = useState("SELECT * FROM your_table LIMIT 10;");
 
+  // Get DuckDB context
+  const { db, tables } = useDuckDBContext();
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const [tableColumns, setTableColumns] = useState<
+    Record<string, Array<{ name: string; type: string }>>
+  >({});
+
+  // Use refs to store latest values for the completion provider
+  const tablesRef = useRef(tables);
+  const tableColumnsRef = useRef(tableColumns);
+
+  // Update refs when state changes
+  useEffect(() => {
+    tablesRef.current = tables;
+  }, [tables]);
+
+  useEffect(() => {
+    tableColumnsRef.current = tableColumns;
+  }, [tableColumns]);
+
+  // Fetch columns for all tables when tables change
+  useEffect(() => {
+    async function fetchColumns() {
+      if (!db || tables.length === 0) return;
+
+      const columnsMap: Record<
+        string,
+        Array<{ name: string; type: string }>
+      > = {};
+
+      for (const tableName of tables) {
+        try {
+          const conn = await db.connect();
+          const result = await conn.query(`
+            SELECT column_name, data_type
+            FROM information_schema.columns
+            WHERE table_name = '${tableName}'
+            ORDER BY ordinal_position
+          `);
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          columnsMap[tableName] = result.toArray().map((row: any) => ({
+            name: row.column_name as string,
+            type: row.data_type as string,
+          }));
+
+          await conn.close();
+        } catch (err) {
+          console.error(`Failed to fetch columns for ${tableName}:`, err);
+        }
+      }
+
+      setTableColumns(columnsMap);
+    }
+
+    fetchColumns();
+  }, [db, tables]);
+
+  /**
+   * Handle editor mount - register autocomplete provider
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleEditorMount = (
+    editorInstance: editor.IStandaloneCodeEditor,
+    monaco: any
+  ) => {
+    editorRef.current = editorInstance;
+
+    // Register SQL completion provider
+    monaco.languages.registerCompletionItemProvider("sql", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      provideCompletionItems: (_model: any, position: any) => {
+        const suggestions = [];
+
+        // Use refs to get latest values (fixes closure issue)
+        const currentTables = tablesRef.current;
+        const currentTableColumns = tableColumnsRef.current;
+
+        // Add table names
+        for (const tableName of currentTables) {
+          suggestions.push({
+            label: tableName,
+            kind: monaco.languages.CompletionItemKind.Class,
+            detail: "Table",
+            insertText: tableName,
+            range: {
+              startLineNumber: position.lineNumber,
+              endLineNumber: position.lineNumber,
+              startColumn: position.column,
+              endColumn: position.column,
+            },
+          });
+
+          // Add columns for each table
+          const columns = currentTableColumns[tableName] || [];
+          for (const column of columns) {
+            suggestions.push({
+              label: `${tableName}.${column.name}`,
+              kind: monaco.languages.CompletionItemKind.Field,
+              detail: `${tableName} (${column.type})`,
+              insertText: `${tableName}.${column.name}`,
+              documentation: `Column: ${column.name}\nType: ${column.type}\nTable: ${tableName}`,
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: position.column,
+                endColumn: position.column,
+              },
+            });
+
+            // Also add just the column name
+            suggestions.push({
+              label: column.name,
+              kind: monaco.languages.CompletionItemKind.Field,
+              detail: `${column.type} (from ${tableName})`,
+              insertText: column.name,
+              documentation: `Column: ${column.name}\nType: ${column.type}\nTable: ${tableName}`,
+              range: {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: position.column,
+                endColumn: position.column,
+              },
+            });
+          }
+        }
+
+        // Add common SQL keywords
+        const sqlKeywords = [
+          "SELECT",
+          "FROM",
+          "WHERE",
+          "GROUP BY",
+          "ORDER BY",
+          "HAVING",
+          "JOIN",
+          "LEFT JOIN",
+          "RIGHT JOIN",
+          "INNER JOIN",
+          "OUTER JOIN",
+          "LIMIT",
+          "OFFSET",
+          "AS",
+          "DISTINCT",
+          "COUNT",
+          "SUM",
+          "AVG",
+          "MAX",
+          "MIN",
+          "AND",
+          "OR",
+          "NOT",
+          "IN",
+          "BETWEEN",
+          "LIKE",
+          "IS NULL",
+          "IS NOT NULL",
+          "CASE",
+          "WHEN",
+          "THEN",
+          "ELSE",
+          "END",
+        ];
+
+        for (const keyword of sqlKeywords) {
+          suggestions.push({
+            label: keyword,
+            kind: monaco.languages.CompletionItemKind.Keyword,
+            detail: "SQL Keyword",
+            insertText: keyword,
+            range: {
+              startLineNumber: position.lineNumber,
+              endLineNumber: position.lineNumber,
+              startColumn: position.column,
+              endColumn: position.column,
+            },
+          });
+        }
+
+        return { suggestions };
+      },
+    });
+  };
+
   /**
    * Handle query execution
    * Triggered by "Run Query" button or Ctrl+Enter
+   *
+   * If text is selected, executes only the selection.
+   * Otherwise, executes the entire query.
    */
   const handleRunQuery = async () => {
-    if (!sql.trim()) {
+    let queryToExecute = sql;
+
+    // Check if there's a text selection in the editor
+    if (editorRef.current) {
+      const selection = editorRef.current.getSelection();
+      const model = editorRef.current.getModel();
+
+      // If there's a selection (not just cursor position)
+      if (selection && model && !selection.isEmpty()) {
+        // Get the selected text
+        const selectedText = model.getValueInRange(selection);
+        if (selectedText.trim()) {
+          queryToExecute = selectedText;
+        }
+      }
+    }
+
+    if (!queryToExecute.trim()) {
       alert("Please enter a SQL query");
       return;
     }
 
-    await onExecute(sql);
+    await onExecute(queryToExecute);
   };
 
   /**
@@ -56,6 +262,7 @@ export default function SQLEditor({
           defaultLanguage="sql"
           value={sql}
           onChange={(value) => setSql(value || "")}
+          onMount={handleEditorMount}
           theme="vs-light"
           options={{
             minimap: { enabled: false },
@@ -64,6 +271,8 @@ export default function SQLEditor({
             scrollBeyondLastLine: false,
             automaticLayout: true,
             tabSize: 2,
+            suggestOnTriggerCharacters: true,
+            quickSuggestions: true,
           }}
         />
       </div>
@@ -142,6 +351,7 @@ export default function SQLEditor({
             Ctrl+Enter
           </kbd>
           <span>to run</span>
+          <span className="text-slate-400 ml-2">(selection or full query)</span>
         </div>
       </div>
     </div>
