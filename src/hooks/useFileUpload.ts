@@ -36,9 +36,14 @@ export function useFileUpload(db: AsyncDuckDB | null) {
 
     const fileName = file.name;
     // Clean table name: remove extension and replace invalid chars with underscore
-    const tableName = fileName
+    let tableName = fileName
       .replace(/\.[^/.]+$/, '')        // Remove extension (.csv -> '')
       .replace(/[^a-zA-Z0-9_]/g, '_'); // Replace special chars with _
+
+    // Table names cannot start with a number, prefix with 'table_' if needed
+    if (/^[0-9]/.test(tableName)) {
+      tableName = `table_${tableName}`;
+    }
 
     // Initialize progress tracking
     setProgress(prev => [...prev, {
