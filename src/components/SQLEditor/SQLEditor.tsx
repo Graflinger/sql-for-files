@@ -83,7 +83,7 @@ export default function SQLEditor({
   /**
    * Handle editor mount - register autocomplete provider
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const handleEditorMount = (
     editorInstance: editor.IStandaloneCodeEditor,
     monaco: any
@@ -240,6 +240,34 @@ export default function SQLEditor({
   };
 
   /**
+   * Handle saving query as .sql file
+   */
+  const handleSaveQuery = () => {
+    if (!sql.trim()) {
+      alert("No query to save");
+      return;
+    }
+
+    // Create a blob with the SQL content
+    const blob = new Blob([sql], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary link and trigger download
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `query_${new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace(/:/g, "-")}.txt`;
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  /**
    * Handle keyboard shortcuts
    * Ctrl+Enter / Cmd+Enter = Run query
    */
@@ -277,47 +305,81 @@ export default function SQLEditor({
         />
       </div>
 
-      {/* Run Button */}
+      {/* Action Buttons */}
       <div className="flex items-center justify-between">
-        <button
-          onClick={handleRunQuery}
-          disabled={executing || disabled}
-          className={`
-            group relative px-8 py-3 rounded-xl font-semibold transition-all duration-200 overflow-hidden
-            ${
-              executing || disabled
-                ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl active:scale-95"
-            }
-          `}
-        >
-          {executing ? (
-            <span className="flex items-center gap-2 justify-center sm:justify-start">
-              <svg
-                className="animate-spin h-4 w-4"
-                width="16"
-                height="16"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRunQuery}
+            disabled={executing || disabled}
+            className={`
+              group relative px-5 py-2 rounded-lg font-semibold transition-all duration-200 overflow-hidden text-sm
+              ${
+                executing || disabled
+                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl active:scale-95"
+              }
+            `}
+          >
+            {executing ? (
+              <span className="flex items-center gap-2 justify-center sm:justify-start">
+                <svg
+                  className="animate-spin h-4 w-4"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Executing...
+              </span>
+            ) : (
+              <span className="flex items-center gap-2 justify-center sm:justify-start">
+                <svg
+                  className="w-4 h-4"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  viewBox="0 0 24 24"
                   stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              Executing...
-            </span>
-          ) : (
-            <span className="flex items-center gap-2 justify-center sm:justify-start">
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                Run Query
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={handleSaveQuery}
+            disabled={disabled}
+            className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:scale-95 shadow-sm hover:shadow-md"
+            title="Save query as .sql file"
+          >
+            <span className="flex items-center gap-2">
               <svg
                 className="w-4 h-4"
                 width="16"
@@ -330,19 +392,13 @@ export default function SQLEditor({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                 />
               </svg>
-              Run Query
+              <span className="hidden sm:inline">Save</span>
             </span>
-          )}
-        </button>
+          </button>
+        </div>
 
         {/* Keyboard Shortcut Hint */}
         <div className=" items-center gap-2 text-sm text-slate-600 hidden sm:flex">
