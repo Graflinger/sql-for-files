@@ -24,7 +24,7 @@ dist-ssr
 *.sw?
 
 *.md
-!agent.md
+!claude.md
 !README.md
 
 
