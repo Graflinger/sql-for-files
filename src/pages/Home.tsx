@@ -21,9 +21,9 @@ function HomeContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:py-8 lg:px-8">
+    <div className="max-w-7xl mx-auto py-4 px-4 sm:pt-6 sm:px-6 lg:pt-8 lg:px-8">
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - File Upload + Tables */}
         <div className="lg:col-span-1 space-y-6">
           {/* File Upload Section */}
