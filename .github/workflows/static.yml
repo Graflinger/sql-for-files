@@ -38,7 +38,7 @@ jobs:
       - name: build vite
         run: npm run build
         env:
-          VITE_BASE_PATH: /SQL-for-Files/
+          VITE_BASE_PATH: /sql-for-files/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
