@@ -87,8 +87,8 @@ export default function Docs() {
                 'table_2023_sales')
               </li>
               <li>
-                All queries are automatically limited to 1000 rows unless you
-                specify a different LIMIT for performance optimization
+                Query results are limited to displaying 1000 rows in the UI for
+                performance, but CSV exports include all rows from your query
               </li>
               <li>
                 All processing happens in your browser - your data stays private
@@ -102,6 +102,98 @@ export default function Docs() {
                 CTEs
               </li>
             </ul>
+
+            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
+              Memory & Performance Limits
+            </h2>
+            <p className="text-slate-700 mb-4">
+              SQL for Files runs entirely in your browser for privacy and
+              convenience, but this comes with memory constraints:
+            </p>
+
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-4">
+              <h4 className="text-lg font-semibold text-amber-800 mb-2">
+                Browser Memory Limits
+              </h4>
+              <p className="text-amber-900 mb-2">
+                Browsers have hard memory limits (typically 4GB), with a
+                practical working limit of 2-3GB for data processing.
+              </p>
+            </div>
+
+            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
+              How We Handle Large Results
+            </h3>
+            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
+              <li>
+                <strong>Display Optimization:</strong> Only the first 1,000 rows
+                are converted to JavaScript objects and displayed in the table.
+                This keeps the UI responsive even with large query results.
+              </li>
+              <li>
+                <strong>Full Data Export:</strong> When you export to CSV, all
+                rows from your query are included, not just the displayed 1,000.
+              </li>
+              <li>
+                <strong>Automatic Warnings:</strong> The console will warn you
+                when results exceed 100,000 rows and alert you about potential
+                memory issues when results exceed 1,000,000 rows.
+              </li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
+              Best Practices for Large Files
+            </h3>
+            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
+              <li>
+                <strong>Start Small:</strong> Test your queries with{" "}
+                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
+                  LIMIT 100
+                </code>{" "}
+                first to verify correctness before running on the full dataset
+              </li>
+              <li>
+                <strong>Use Aggregations:</strong> Instead of retrieving all
+                rows, use{" "}
+                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
+                  GROUP BY
+                </code>
+                ,{" "}
+                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
+                  COUNT
+                </code>
+                , and other aggregations to summarize data
+              </li>
+              <li>
+                <strong>Filter Early:</strong> Use{" "}
+                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
+                  WHERE
+                </code>{" "}
+                clauses to reduce the result set before processing
+              </li>
+              <li>
+                <strong>Parquet Format:</strong> For files over 100MB, use
+                Parquet format which is more memory-efficient than CSV or JSON
+              </li>
+              <li>
+                <strong>Watch File Sizes:</strong> Files over 200MB may cause
+                performance issues. Consider splitting them or using aggregations
+              </li>
+            </ul>
+
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+              <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                Why These Limits Exist
+              </h4>
+              <p className="text-blue-900">
+                Unlike server-based SQL tools, browser applications cannot use
+                disk storage for temporary data ("spilling to disk"). All query
+                processing must happen in RAM. This makes the tool more private
+                and convenient (no server needed!), but means very large datasets
+                may need to be processed in chunks or on a traditional database
+                server.
+              </p>
+            </div>
             <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
               SQL Examples
             </h2>
