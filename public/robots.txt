@@ -1,0 +1,38 @@
+# robots.txt for SQL for Files
+# https://sqlforfiles.app/robots.txt
+
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Disallow crawling of API endpoints or user data (if any in future)
+# Disallow: /api/
+
+# Sitemap location
+Sitemap: https://sqlforfiles.app/sitemap.xml
+
+# Crawl-delay for polite crawling (optional, in seconds)
+# Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block AI scrapers if desired (optional - uncomment if you want to block)
+# User-agent: GPTBot
+# Disallow: /
+#
+# User-agent: ChatGPT-User
+# Disallow: /
+#
+# User-agent: CCBot
+# Disallow: /
+#
+# User-agent: anthropic-ai
+# Disallow: /

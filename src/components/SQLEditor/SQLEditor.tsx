@@ -92,6 +92,7 @@ export default function SQLEditor({
 
     // Register SQL completion provider
     monaco.languages.registerCompletionItemProvider("sql", {
+      triggerCharacters: [" ", ".", ","],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       provideCompletionItems: (_model: any, position: any) => {
         const suggestions = [];
@@ -300,7 +301,16 @@ export default function SQLEditor({
             automaticLayout: true,
             tabSize: 2,
             suggestOnTriggerCharacters: true,
-            quickSuggestions: true,
+            quickSuggestions: {
+              other: true,
+              comments: false,
+              strings: false,
+            },
+            wordBasedSuggestions: "off",
+            suggest: {
+              showWords: false,
+              showKeywords: true,
+            },
           }}
         />
       </div>

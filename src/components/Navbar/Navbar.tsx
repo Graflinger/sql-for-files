@@ -22,7 +22,11 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0" onClick={closeMobileMenu}>
+          <Link
+            to="/"
+            className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
+            onClick={closeMobileMenu}
+          >
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
               <svg
                 className="w-5 h-5 sm:w-6 sm:h-6 text-white"
@@ -53,12 +57,13 @@ export default function Navbar() {
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center gap-2">
             <Link
-              to="/"
+              to="/editor"
               className={`
                 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
-                ${isActive("/")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                ${
+                  isActive("/editor")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -83,9 +88,10 @@ export default function Navbar() {
               to="/docs"
               className={`
                 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
-                ${isActive("/docs")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                ${
+                  isActive("/docs")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -107,12 +113,13 @@ export default function Navbar() {
               Docs
             </Link>
             <Link
-              to="/about"
+              to="/"
               className={`
                 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
-                ${isActive("/about")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                ${
+                  isActive("/")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -181,9 +188,10 @@ export default function Navbar() {
               onClick={closeMobileMenu}
               className={`
                 block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
-                ${isActive("/")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                ${
+                  isActive("/")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -207,9 +215,10 @@ export default function Navbar() {
               onClick={closeMobileMenu}
               className={`
                 block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
-                ${isActive("/docs")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                ${
+                  isActive("/docs")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -233,9 +242,10 @@ export default function Navbar() {
               onClick={closeMobileMenu}
               className={`
                 block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
-                ${isActive("/about")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                ${
+                  isActive("/about")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
