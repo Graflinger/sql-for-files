@@ -92,14 +92,22 @@ export default function SQLEditor({
 
     // Register SQL completion provider
     monaco.languages.registerCompletionItemProvider("sql", {
-      triggerCharacters: [" ", ".", ","],
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      provideCompletionItems: (_model: any, position: any) => {
+      provideCompletionItems: (model: any, position: any) => {
         const suggestions = [];
 
         // Use refs to get latest values (fixes closure issue)
         const currentTables = tablesRef.current;
         const currentTableColumns = tableColumnsRef.current;
+
+        // Get the word being typed to determine the replacement range
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
 
         // Add table names
         for (const tableName of currentTables) {
@@ -108,12 +116,7 @@ export default function SQLEditor({
             kind: monaco.languages.CompletionItemKind.Class,
             detail: "Table",
             insertText: tableName,
-            range: {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: position.column,
-              endColumn: position.column,
-            },
+            range: range,
           });
 
           // Add columns for each table
@@ -125,12 +128,7 @@ export default function SQLEditor({
               detail: `${tableName} (${column.type})`,
               insertText: `${tableName}.${column.name}`,
               documentation: `Column: ${column.name}\nType: ${column.type}\nTable: ${tableName}`,
-              range: {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: position.column,
-                endColumn: position.column,
-              },
+              range: range,
             });
 
             // Also add just the column name
@@ -140,12 +138,7 @@ export default function SQLEditor({
               detail: `${column.type} (from ${tableName})`,
               insertText: column.name,
               documentation: `Column: ${column.name}\nType: ${column.type}\nTable: ${tableName}`,
-              range: {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: position.column,
-                endColumn: position.column,
-              },
+              range: range,
             });
           }
         }
@@ -193,12 +186,7 @@ export default function SQLEditor({
             kind: monaco.languages.CompletionItemKind.Keyword,
             detail: "SQL Keyword",
             insertText: keyword,
-            range: {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: position.column,
-              endColumn: position.column,
-            },
+            range: range,
           });
         }
 
