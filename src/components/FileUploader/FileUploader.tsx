@@ -89,6 +89,7 @@ export default function FileUploader() {
         className={`
           relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
           transition-all duration-300 overflow-hidden group
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
           ${
             isDragActive
               ? "border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg scale-[1.02]"
@@ -96,7 +97,7 @@ export default function FileUploader() {
           }
         `}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} aria-label="Upload data files" />
 
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">

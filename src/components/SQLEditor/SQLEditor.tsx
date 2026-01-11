@@ -21,6 +21,8 @@ export default function SQLEditor({
 }: SQLEditorProps) {
   // SQL query text
   const [sql, setSql] = useState("SELECT * FROM your_table LIMIT 10;");
+  const [editorHeight, setEditorHeight] = useState(200);
+  const [isResizing, setIsResizing] = useState(false);
 
   // Get DuckDB context
   const { db, tables } = useDuckDBContext();
@@ -267,15 +269,44 @@ export default function SQLEditor({
     }
   };
 
+  /**
+   * Handle editor resize
+   */
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newHeight = Math.max(150, Math.min(600, editorHeight + e.movementY));
+      setEditorHeight(newHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing, editorHeight]);
+
   return (
     <div className="space-y-4">
       {/* Editor Container */}
       <div
-        className="border border-slate-300 rounded-xl overflow-hidden shadow-sm hover:border-blue-400 transition-colors"
+        className="border border-slate-300 rounded-xl overflow-hidden shadow-sm hover:border-blue-400 transition-colors relative"
         onKeyDown={handleEditorKeyDown}
       >
         <Editor
-          height="200px"
+          height={`${editorHeight}px`}
           defaultLanguage="sql"
           value={sql}
           onChange={(value) => setSql(value || "")}
@@ -301,6 +332,17 @@ export default function SQLEditor({
             },
           }}
         />
+        {/* Resize Handle */}
+        <div
+          onMouseDown={handleResizeStart}
+          className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-slate-200 hover:bg-blue-400 transition-colors ${
+            isResizing ? "bg-blue-500" : ""
+          } group`}
+        >
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
+            <div className="w-12 h-1 bg-slate-400 rounded-full group-hover:bg-blue-600 transition-colors"></div>
+          </div>
+        </div>
       </div>
 
       {/* Action Buttons */}
@@ -309,8 +351,10 @@ export default function SQLEditor({
           <button
             onClick={handleRunQuery}
             disabled={executing || disabled}
+            aria-label="Run SQL query"
             className={`
               group relative px-5 py-2 rounded-lg font-semibold transition-all duration-200 overflow-hidden text-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
               ${
                 executing || disabled
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed"
@@ -374,7 +418,8 @@ export default function SQLEditor({
           <button
             onClick={handleSaveQuery}
             disabled={disabled}
-            className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:scale-95 shadow-sm hover:shadow-md"
+            aria-label="Save query"
+            className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:scale-95 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             title="Save query as .sql file"
           >
             <span className="flex items-center gap-2">

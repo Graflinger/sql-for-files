@@ -15,7 +15,11 @@ interface ColumnInfo {
   null: string;
 }
 
-export default function TableList() {
+interface TableListProps {
+  onPreviewTable?: (tableName: string) => void;
+}
+
+export default function TableList({ onPreviewTable }: TableListProps = {}) {
   const { db, tables, loading, error } = useDuckDBContext();
   const { exportDatabase, importDatabase } = usePersistence();
   const [expandedTable, setExpandedTable] = useState<string | null>(null);
@@ -180,7 +184,8 @@ export default function TableList() {
         <button
           onClick={handleExport}
           disabled={tables.length === 0}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all duration-200"
+          aria-label="Export database"
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -189,7 +194,8 @@ export default function TableList() {
         </button>
         <button
           onClick={handleImport}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-blue-400 transition-all duration-200"
+          aria-label="Import database"
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-blue-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -218,9 +224,17 @@ export default function TableList() {
             className="bg-gradient-to-r from-slate-50 to-transparent border border-slate-200 rounded-lg overflow-hidden transition-all duration-200 hover:from-blue-50 hover:border-blue-300"
           >
             {/* Table Header - Clickable */}
-            <div
+            <button
               onClick={() => handleToggleExpand(tableName)}
-              className="group relative flex items-center gap-3 p-3 cursor-pointer"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleToggleExpand(tableName);
+                }
+              }}
+              aria-expanded={isExpanded}
+              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${tableName} table schema`}
+              className="group relative flex items-center gap-3 p-3 cursor-pointer w-full text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 rounded-lg"
             >
               {/* Expand/Collapse Icon */}
               <div className="flex-shrink-0">
@@ -262,7 +276,25 @@ export default function TableList() {
               <span className="text-sm font-semibold text-slate-700 group-hover:text-blue-700 transition-colors duration-200 truncate flex-1">
                 {tableName}
               </span>
-            </div>
+
+              {/* Preview Button */}
+              {onPreviewTable && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPreviewTable(tableName);
+                  }}
+                  aria-label={`Preview ${tableName} table`}
+                  className="flex-shrink-0 p-1.5 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  title="Quick preview (first 10 rows)"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+              )}
+            </button>
 
             {/* Schema Details - Expandable */}
             {isExpanded && (
