@@ -16,6 +16,7 @@
     "apache-arrow": "^21.1.0",
     "duckdb-wasm-kit": "^0.1.39",
     "idb-keyval": "^6.2.2",
+    "jszip": "^3.10.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-dropzone": "^14.3.8",

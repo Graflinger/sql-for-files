@@ -17,9 +17,11 @@ interface ColumnInfo {
 
 export default function TableList() {
   const { db, tables, loading, error } = useDuckDBContext();
+  const { exportDatabase, importDatabase } = usePersistence();
   const [expandedTable, setExpandedTable] = useState<string | null>(null);
   const [schemas, setSchemas] = useState<Record<string, ColumnInfo[]>>({});
   const [loadingSchema, setLoadingSchema] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   /**
    * Toggle table expansion and fetch schema if not already cached
@@ -61,6 +63,32 @@ export default function TableList() {
       console.error(`Failed to fetch schema for ${tableName}:`, err);
     } finally {
       setLoadingSchema(null);
+    }
+  };
+
+  /**
+   * Handle database export
+   */
+  const handleExport = async () => {
+    await exportDatabase();
+  };
+
+  /**
+   * Handle database import
+   */
+  const handleImport = () => {
+    fileInputRef.current?.click();
+  };
+
+  /**
+   * Handle file selection for import
+   */
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await importDatabase(file);
+      // Reset input so the same file can be selected again
+      e.target.value = '';
     }
   };
 
@@ -113,19 +141,72 @@ export default function TableList() {
   // Empty state
   if (tables.length === 0) {
     return (
-      <div className="text-center py-10">
-        <div className="mx-auto w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-4"></div>
-        <p className="text-sm font-semibold text-slate-700 mb-1">
-          No tables yet
-        </p>
-        <p className="text-xs text-slate-500">Upload a file to get started</p>
-      </div>
+      <>
+        {/* Import button even when empty */}
+        <div className="mb-4 pb-4 border-b border-slate-200">
+          <button
+            onClick={handleImport}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-blue-400 transition-all duration-200"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            Import Database
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".zip"
+            onChange={handleFileSelect}
+            className="hidden"
+          />
+        </div>
+        <div className="text-center py-10">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-4"></div>
+          <p className="text-sm font-semibold text-slate-700 mb-1">
+            No tables yet
+          </p>
+          <p className="text-xs text-slate-500">Upload a file or import a database to get started</p>
+        </div>
+      </>
     );
   }
 
   // Table list
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
+      {/* Database Management Actions */}
+      <div className="flex gap-2 pb-4 border-b border-slate-200">
+        <button
+          onClick={handleExport}
+          disabled={tables.length === 0}
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all duration-200"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export
+        </button>
+        <button
+          onClick={handleImport}
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-blue-400 transition-all duration-200"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          </svg>
+          Import
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".zip"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+      </div>
+
+      {/* Tables List */}
+      <div className="space-y-2">
       {tables.map((tableName) => {
         const isExpanded = expandedTable === tableName;
         const schema = schemas[tableName];
@@ -231,6 +312,7 @@ export default function TableList() {
           </div>
         );
       })}
+      </div>
     </div>
   );
 }
