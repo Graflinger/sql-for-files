@@ -26,6 +26,10 @@ export default function Docs() {
               <li>
                 Your files will automatically be converted to database tables
               </li>
+              <li>
+                Expand the table list card to view the schema (column names and
+                types) for each table
+              </li>
               <li>Write SQL queries in the editor</li>
               <li>Click "Run Query" or press Ctrl+Enter to execute</li>
               <li>View your results in the table below</li>
