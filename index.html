@@ -76,12 +76,22 @@
     }
     </script>
 
-    <!-- Preload Critical Resources -->
+    <!-- Performance Optimizations -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- Preload critical assets -->
+    <link rel="modulepreload" href="/src/main.tsx" />
+
+    <!-- Resource hints for faster loading -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Deferred Analytics (Add your analytics here) -->
+    <!-- Example: Plausible, Simple Analytics, or Umami -->
   </body>
 </html>

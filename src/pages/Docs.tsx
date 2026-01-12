@@ -63,6 +63,72 @@ export default function Docs() {
             </p>
 
             <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
+              Query History
+            </h2>
+            <p className="text-slate-700 mb-4">
+              SQL for Files automatically saves your query history to help you track and reuse your work:
+            </p>
+            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
+              <li>
+                <strong>Auto-save:</strong> Every query you execute is automatically saved to your browser's local storage
+              </li>
+              <li>
+                <strong>Quick access:</strong> Click the "History" button next to the Run Query button to view all saved queries
+              </li>
+              <li>
+                <strong>Load queries:</strong> Click any query in the history to load it back into the editor
+              </li>
+              <li>
+                <strong>Status tracking:</strong> See success/error status and row counts for each executed query
+              </li>
+              <li>
+                <strong>Download queries:</strong> Save any query as a .sql file for sharing or backup
+              </li>
+              <li>
+                <strong>Clear history:</strong> Remove individual queries or clear all history at once
+              </li>
+            </ul>
+
+            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
+              Database Export & Import
+            </h2>
+            <p className="text-slate-700 mb-4">
+              Save your work and restore it later using the database export/import feature:
+            </p>
+
+            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
+              Export Database
+            </h3>
+            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
+              <li>Click the "Export" button in the Tables section to download all your tables</li>
+              <li>Creates a ZIP file containing all table data in JSON format</li>
+              <li>Includes metadata with table schemas, column types, and row counts</li>
+              <li>Perfect for backing up your work or sharing datasets with others</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
+              Import Database
+            </h3>
+            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
+              <li>Click the "Import" button to restore a previously exported database</li>
+              <li>Select the ZIP file you exported earlier</li>
+              <li>All tables and data will be automatically recreated</li>
+              <li>Original files are stored in browser storage for persistence</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
+              Table Preview
+            </h2>
+            <p className="text-slate-700 mb-4">
+              Quickly preview table contents without writing a query:
+            </p>
+            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
+              <li>Click the eye icon next to any table name in the Tables list</li>
+              <li>Automatically runs <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">SELECT * FROM table LIMIT 10</code></li>
+              <li>Great for quickly inspecting table structure and sample data</li>
+            </ul>
+
+            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
               Keyboard Shortcuts
             </h2>
             <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
@@ -70,13 +136,23 @@ export default function Docs() {
                 <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
                   Ctrl+Enter
                 </kbd>{" "}
-                - Execute query
+                (or{" "}
+                <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
+                  Cmd+Enter
+                </kbd>{" "}
+                on Mac) - Execute query or selected text
               </li>
               <li>
                 <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
                   Ctrl+/
                 </kbd>{" "}
                 - Toggle comment (in editor)
+              </li>
+              <li>
+                <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
+                  Escape
+                </kbd>{" "}
+                - Close query history dropdown
               </li>
             </ul>
 
@@ -244,6 +320,171 @@ FROM orders o
 JOIN customers c ON o.customer_id = c.id
 WHERE o.total_amount > 100;`}</code>
             </pre>
+
+            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
+              Frequently Asked Questions (FAQ)
+            </h2>
+
+            <div className="space-y-4">
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                  Q: Is my data really private?
+                </h4>
+                <p className="text-blue-900">
+                  <strong>A:</strong> Yes! All data processing happens entirely in your browser using WebAssembly. Your files never leave your device and are never sent to any server. You can verify this by checking your browser's network tab - no data uploads occur.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                  Q: What happens if I refresh the page?
+                </h4>
+                <p className="text-blue-900">
+                  <strong>A:</strong> Your query history is automatically saved to browser storage and will persist across sessions. However, your uploaded files and tables are currently lost on refresh unless you export your database first. We recommend exporting your database before closing if you want to continue your work later.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                  Q: Can I use this with Excel (.xlsx) files?
+                </h4>
+                <p className="text-blue-900">
+                  <strong>A:</strong> Unfortunately, Excel files (.xlsx) are not currently supported due to limitations in the DuckDB WASM implementation. However, you can easily convert Excel files to CSV using Excel's "Save As" feature or online converters, then upload the CSV file.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                  Q: How large can my files be?
+                </h4>
+                <p className="text-blue-900">
+                  <strong>A:</strong> Browser memory limits typically cap working data at 2-3GB. Files up to 200MB generally work well. For larger files, consider using Parquet format (more memory-efficient) or filtering/aggregating your data to reduce result set sizes.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                  Q: Can I execute multiple queries at once?
+                </h4>
+                <p className="text-blue-900">
+                  <strong>A:</strong> You can write multiple SQL statements separated by semicolons, but only the last statement's results will be displayed. If you want to see results from multiple queries, execute them one at a time. You can also select specific SQL text in the editor and press Ctrl+Enter to run just that selection.
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-blue-800 mb-2">
+                  Q: Does this work offline?
+                </h4>
+                <p className="text-blue-900">
+                  <strong>A:</strong> Once the page is loaded, most functionality works offline since everything runs in your browser. However, the initial page load requires an internet connection to download the application and DuckDB WASM files (~150MB).
+                </p>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
+              Troubleshooting
+            </h2>
+
+            <div className="space-y-4">
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-amber-800 mb-2">
+                  Issue: "Out of memory" error
+                </h4>
+                <p className="text-amber-900 mb-2">
+                  <strong>Solutions:</strong>
+                </p>
+                <ul className="list-disc list-inside text-amber-900 space-y-1">
+                  <li>Use LIMIT to reduce the number of rows returned</li>
+                  <li>Use aggregation queries (GROUP BY, COUNT) instead of selecting all rows</li>
+                  <li>Close other browser tabs to free up memory</li>
+                  <li>Try using Parquet format instead of CSV for large files</li>
+                  <li>Split large files into smaller chunks</li>
+                </ul>
+              </div>
+
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-amber-800 mb-2">
+                  Issue: File upload fails or table creation errors
+                </h4>
+                <p className="text-amber-900 mb-2">
+                  <strong>Solutions:</strong>
+                </p>
+                <ul className="list-disc list-inside text-amber-900 space-y-1">
+                  <li>Ensure your CSV file has a header row with column names</li>
+                  <li>Check that your JSON file is valid (array of objects or newline-delimited JSON)</li>
+                  <li>Verify the file isn't corrupted by opening it in a text editor</li>
+                  <li>Try renaming the file if it contains special characters</li>
+                  <li>Check browser console (F12) for detailed error messages</li>
+                </ul>
+              </div>
+
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-amber-800 mb-2">
+                  Issue: Query runs forever or browser becomes unresponsive
+                </h4>
+                <p className="text-amber-900 mb-2">
+                  <strong>Solutions:</strong>
+                </p>
+                <ul className="list-disc list-inside text-amber-900 space-y-1">
+                  <li>Queries timeout after 30 seconds automatically</li>
+                  <li>Add LIMIT clauses to test queries before running on full dataset</li>
+                  <li>Use WHERE clauses to filter data early in the query</li>
+                  <li>Avoid cartesian joins (missing JOIN conditions)</li>
+                  <li>If browser freezes, refresh the page and start over</li>
+                </ul>
+              </div>
+
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-amber-800 mb-2">
+                  Issue: Table names don't appear or autocomplete doesn't work
+                </h4>
+                <p className="text-amber-900 mb-2">
+                  <strong>Solutions:</strong>
+                </p>
+                <ul className="list-disc list-inside text-amber-900 space-y-1">
+                  <li>Wait a few seconds after upload for tables to be registered</li>
+                  <li>Try refreshing the page (note: you'll need to re-upload files)</li>
+                  <li>Check the Tables section to verify your tables were created</li>
+                  <li>Type a few characters to trigger autocomplete suggestions</li>
+                </ul>
+              </div>
+
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
+                <h4 className="text-lg font-semibold text-amber-800 mb-2">
+                  Issue: Page is slow to load
+                </h4>
+                <p className="text-amber-900 mb-2">
+                  <strong>Solutions:</strong>
+                </p>
+                <ul className="list-disc list-inside text-amber-900 space-y-1">
+                  <li>First load downloads ~150MB of DuckDB WASM files - this is normal</li>
+                  <li>Subsequent loads should be faster thanks to browser caching</li>
+                  <li>Check your internet connection speed</li>
+                  <li>Try using a modern browser (Chrome, Firefox, Safari, Edge)</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
+              <h3 className="text-lg font-bold text-blue-800 mb-2">
+                Still having issues?
+              </h3>
+              <p className="text-blue-900 mb-4">
+                Check the browser console (press F12 → Console tab) for detailed error messages.
+                These often provide specific information about what went wrong and can help you
+                debug issues with your queries or data files.
+              </p>
+              <p className="text-blue-900">
+                You can also reach out to{" "}
+                <a
+                  href="mailto:info@sqlforfiles.app"
+                  className="underline hover:text-blue-700 font-medium"
+                >
+                  info@sqlforfiles.app
+                </a>{" "}
+                if problems occur. There's no guarantee, but I try to help.
+              </p>
+            </div>
           </div>
         </div>
       </div>

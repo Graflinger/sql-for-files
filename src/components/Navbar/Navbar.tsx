@@ -59,7 +59,7 @@ export default function Navbar() {
             <Link
               to="/editor"
               className={`
-                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
+                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors duration-200
                 ${
                   isActive("/editor")
                     ? "bg-blue-600 text-white"
@@ -87,7 +87,7 @@ export default function Navbar() {
             <Link
               to="/docs"
               className={`
-                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
+                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors duration-200
                 ${
                   isActive("/docs")
                     ? "bg-blue-600 text-white"
@@ -115,7 +115,7 @@ export default function Navbar() {
             <Link
               to="/"
               className={`
-                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
+                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors duration-200
                 ${
                   isActive("/")
                     ? "bg-blue-600 text-white"
@@ -184,12 +184,12 @@ export default function Navbar() {
         {mobileMenuOpen && (
           <div className="lg:hidden py-4 space-y-2 border-t border-slate-200">
             <Link
-              to="/"
+              to="/editor"
               onClick={closeMobileMenu}
               className={`
-                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
+                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-colors duration-200
                 ${
-                  isActive("/")
+                  isActive("/editor")
                     ? "bg-blue-600 text-white"
                     : "text-slate-600 hover:bg-slate-100"
                 }
@@ -214,7 +214,7 @@ export default function Navbar() {
               to="/docs"
               onClick={closeMobileMenu}
               className={`
-                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
+                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-colors duration-200
                 ${
                   isActive("/docs")
                     ? "bg-blue-600 text-white"
@@ -238,12 +238,12 @@ export default function Navbar() {
               Docs
             </Link>
             <Link
-              to="/about"
+              to="/"
               onClick={closeMobileMenu}
               className={`
-                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
+                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-colors duration-200
                 ${
-                  isActive("/about")
+                  isActive("/")
                     ? "bg-blue-600 text-white"
                     : "text-slate-600 hover:bg-slate-100"
                 }

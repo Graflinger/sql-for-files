@@ -52,26 +52,6 @@ export default function Legal() {
             </div>
           </section>
 
-          {/* Responsible for content */}
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">
-              Responsible for content according to § 55 Abs. 2 RStV
-            </h2>
-            <div className="bg-slate-50 p-6 rounded-lg">
-              <p className="text-slate-700">
-                Stefan Graf
-                <br />
-                c/o Online-Impressum.de #20871
-                <br />
-                Europaring 90
-                <br />
-                53757 Sankt Augustin
-                <br />
-                Germany
-              </p>
-            </div>
-          </section>
-
           {/* Disclaimer */}
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-4">

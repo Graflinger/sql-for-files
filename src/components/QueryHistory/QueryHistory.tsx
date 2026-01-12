@@ -207,7 +207,7 @@ export default function QueryHistory({ onLoadQuery }: QueryHistoryProps) {
         disabled={loading}
         aria-label="Query history"
         aria-expanded={isOpen}
-        className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:scale-95 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="px-4 py-2 rounded-lg font-semibold transition-colors duration-200 text-sm bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:scale-95 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         title="View query history"
       >
         <span className="flex items-center gap-2">

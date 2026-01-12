@@ -25,7 +25,7 @@ export default function About() {
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6">
             Use SQL with your{" "}
             <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-all duration-500">
+              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-opacity duration-500">
                 {fileTypes[currentType]}
               </span>
             </span>{" "}
@@ -40,7 +40,7 @@ export default function About() {
           {/* CTA Button */}
           <Link
             to="/editor"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-lg px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-lg px-8 py-4 rounded-full shadow-lg transition-colors duration-200"
           >
             Jump Right In
             <svg
@@ -344,7 +344,7 @@ export default function About() {
           <div className="flex justify-center">
             <Link
               to="/"
-              className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+              className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-colors duration-200"
             >
               Try It Now
               <svg
