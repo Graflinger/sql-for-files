@@ -4,6 +4,7 @@ import SQLEditor from "../components/SQLEditor/SQLEditor";
 import TableList from "../components/DatabaseManager/TableList";
 import QueryResults from "../components/QueryResults/QueryResults";
 import { useQueryExecution } from "../hooks/useQueryExecution";
+import { useQueryHistory } from "../hooks/useQueryHistory";
 
 /**
  * Home Page Content
@@ -14,7 +15,13 @@ import { useQueryExecution } from "../hooks/useQueryExecution";
  */
 function HomeContent() {
   const { db } = useDuckDBContext();
-  const { executeQuery, executing, result, error } = useQueryExecution(db);
+  const { addQuery } = useQueryHistory();
+
+  const { executeQuery, executing, result, error } = useQueryExecution(db, {
+    onQueryExecuted: async (params) => {
+      await addQuery(params);
+    },
+  });
 
   const handleExecute = async (sql: string) => {
     await executeQuery(sql);

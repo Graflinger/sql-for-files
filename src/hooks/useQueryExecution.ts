@@ -6,6 +6,16 @@ const DISPLAY_LIMIT = 1000; // Max rows to convert to JS for UI display
 const LARGE_RESULT_WARNING = 100000; // Warn if result exceeds this
 const MEMORY_DANGER_THRESHOLD = 1000000; // Strong warning for very large results
 
+interface UseQueryExecutionOptions {
+  onQueryExecuted?: (params: {
+    query: string;
+    status: 'success' | 'error';
+    rowCount?: number;
+    executionTime?: number;
+    error?: string;
+  }) => void;
+}
+
 /**
  * useQueryExecution Hook
  *
@@ -14,9 +24,10 @@ const MEMORY_DANGER_THRESHOLD = 1000000; // Strong warning for very large result
  * first 1000 rows to JavaScript objects for UI display.
  *
  * @param db - The DuckDB instance from DuckDBContext
+ * @param options - Optional configuration including history callback
  * @returns {executeQuery, executing, result, error}
  */
-export function useQueryExecution(db: AsyncDuckDB | null) {
+export function useQueryExecution(db: AsyncDuckDB | null, options?: UseQueryExecutionOptions) {
   const [executing, setExecuting] = useState(false);
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<Error | null>(null);
@@ -97,10 +108,31 @@ export function useQueryExecution(db: AsyncDuckDB | null) {
       setResult(queryResult);
       await conn.close();
 
+      // Notify callback of successful execution (for history)
+      if (options?.onQueryExecuted) {
+        options.onQueryExecuted({
+          query: sql,
+          status: 'success',
+          rowCount: actualRowCount,
+          executionTime,
+        });
+      }
+
       return queryResult;
     } catch (err) {
       console.error("Query execution failed:", err);
-      setError(err as Error);
+      const errorObj = err as Error;
+      setError(errorObj);
+
+      // Notify callback of failed execution (for history)
+      if (options?.onQueryExecuted) {
+        options.onQueryExecuted({
+          query: sql,
+          status: 'error',
+          error: errorObj.message,
+        });
+      }
+
       return null;
     } finally {
       setExecuting(false);

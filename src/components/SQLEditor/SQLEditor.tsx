@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
+import QueryHistory from "../QueryHistory/QueryHistory";
 import type { editor } from "monaco-editor";
 
 interface SQLEditorProps {
@@ -230,33 +231,6 @@ export default function SQLEditor({
     await onExecute(queryToExecute);
   };
 
-  /**
-   * Handle saving query as .sql file
-   */
-  const handleSaveQuery = () => {
-    if (!sql.trim()) {
-      alert("No query to save");
-      return;
-    }
-
-    // Create a blob with the SQL content
-    const blob = new Blob([sql], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-
-    // Create a temporary link and trigger download
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `query_${new Date()
-      .toISOString()
-      .slice(0, 19)
-      .replace(/:/g, "-")}.txt`;
-    document.body.appendChild(link);
-    link.click();
-
-    // Cleanup
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
 
   /**
    * Handle keyboard shortcuts
@@ -266,6 +240,17 @@ export default function SQLEditor({
     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
       event.preventDefault();
       handleRunQuery();
+    }
+  };
+
+  /**
+   * Handle loading query from history
+   */
+  const handleLoadQuery = (query: string) => {
+    setSql(query);
+    // Optionally focus the editor
+    if (editorRef.current) {
+      editorRef.current.focus();
     }
   };
 
@@ -415,32 +400,7 @@ export default function SQLEditor({
             )}
           </button>
 
-          <button
-            onClick={handleSaveQuery}
-            disabled={disabled}
-            aria-label="Save query"
-            className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:scale-95 shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            title="Save query as .sql file"
-          >
-            <span className="flex items-center gap-2">
-              <svg
-                className="w-4 h-4"
-                width="16"
-                height="16"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                />
-              </svg>
-              <span className="hidden sm:inline">Save</span>
-            </span>
-          </button>
+          <QueryHistory onLoadQuery={handleLoadQuery} />
         </div>
 
         {/* Keyboard Shortcut Hint */}
