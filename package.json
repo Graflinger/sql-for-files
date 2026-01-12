@@ -3,6 +3,12 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "Browser-based SQL query interface for CSV, JSON, and Parquet files using DuckDB WASM",
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/graflinger/sql-for-files.git"
+  },
   "scripts": {
     "dev": "vite --host",
     "build": "tsc -b && vite build",
