@@ -37,26 +37,48 @@ export default function About() {
             in your browser
           </p>
 
-          {/* CTA Button */}
-          <Link
-            to="/editor"
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-lg px-8 py-4 rounded-full shadow-lg transition-colors duration-200"
-          >
-            Jump Right In
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/editor"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-lg px-8 py-4 rounded-full shadow-lg transition-colors duration-200"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7l5 5m0 0l-5 5m5-5H6"
-              />
-            </svg>
-          </Link>
+              Jump Right In
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </Link>
+            <a
+              href="/sample_data.csv"
+              download="sample_data.csv"
+              className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-800 font-semibold text-lg px-8 py-4 rounded-full shadow-lg border-2 border-slate-200 transition-colors duration-200"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Download Sample Data
+            </a>
+          </div>
         </div>
 
         {/* Privacy Badge */}
@@ -255,7 +277,7 @@ export default function About() {
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
 
           <div className="relative z-10">
-            <div className="flex items-start gap-4 mb-6">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6 mb-6">
               <div className="flex-shrink-0 w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
                 <svg
                   className="w-8 h-8 text-white"
@@ -271,7 +293,7 @@ export default function About() {
                   />
                 </svg>
               </div>
-              <div className="flex-1">
+              <div className="flex-1 text-center md:text-left">
                 <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
                   Use AI-Generated SQL — Stay Compliant
                 </h2>
@@ -336,10 +358,10 @@ export default function About() {
             How It Works
           </h2>
           <p className="text-lg text-slate-700 text-center max-w-3xl mx-auto mb-8">
-            SQL for Files leverages cutting-edge WebAssembly technology to run a
-            complete SQL database engine directly in your browser. Upload your
-            files, write queries, and get results instantly — all without ever
-            sending your data anywhere.
+            SQL for Files leverages WebAssembly technology to run a complete SQL
+            database engine directly in your browser. Upload your files, write
+            queries, and get results instantly — all without ever sending your
+            data anywhere.
           </p>
           <div className="flex justify-center">
             <Link

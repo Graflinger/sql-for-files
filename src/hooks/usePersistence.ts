@@ -14,6 +14,62 @@ interface DatabaseMetadata {
   }[];
 }
 
+/**
+ * Convert array of objects to CSV string
+ * Handles special cases: nulls, quotes, commas, BigInts
+ */
+function convertToCSV(data: any[], columnNames: string[]): string {
+  if (data.length === 0) {
+    return columnNames.join(",") + "\n";
+  }
+
+  // Helper to escape CSV values
+  const escapeCSVValue = (value: any): string => {
+    if (value === null || value === undefined) {
+      return "";
+    }
+
+    // Convert BigInt to number
+    if (typeof value === "bigint") {
+      value = Number(value);
+    }
+
+    // Convert dates to ISO string
+    if (value instanceof Date) {
+      value = value.toISOString();
+    }
+
+    // Convert to string
+    const stringValue = String(value);
+
+    // If value contains comma, quote, or newline, wrap in quotes and escape quotes
+    if (
+      stringValue.includes(",") ||
+      stringValue.includes('"') ||
+      stringValue.includes("\n") ||
+      stringValue.includes("\r")
+    ) {
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    }
+
+    return stringValue;
+  };
+
+  // Build CSV string
+  const lines: string[] = [];
+
+  // Header row
+  lines.push(columnNames.map(escapeCSVValue).join(","));
+
+  // Data rows
+  for (const row of data) {
+    const values = columnNames.map((colName) => escapeCSVValue(row[colName]));
+    lines.push(values.join(","));
+  }
+
+  return lines.join("\n");
+}
+
 export const usePersistence = () => {
   const { db, tables: tableNames, refreshTables } = useDuckDBContext();
   const { addNotification, removeNotification } = useNotifications();
@@ -75,25 +131,19 @@ export const usePersistence = () => {
             columns,
           });
 
-          // Export table data as JSON
+          // Export table data as CSV
           // Query all data from the table
           const dataResult = await conn.query(`SELECT * FROM ${tableName}`);
 
-          // Convert to JSON array
+          // Convert to array of objects
           const data = dataResult.toArray();
 
-          // Serialize to JSON with BigInt handling
-          // Replacer function converts BigInt to number
-          const jsonData = JSON.stringify(
-            data,
-            (_key, value) =>
-              typeof value === "bigint" ? Number(value) : value,
-            2
-          );
+          // Convert to CSV format
+          const csvData = convertToCSV(data, columns.map((col) => col.name));
 
-          // Add to ZIP with .json extension
-          const fileName = `${tableName}.json`;
-          zip.file(fileName, jsonData);
+          // Add to ZIP with .csv extension
+          const fileName = `${tableName}.csv`;
+          zip.file(fileName, csvData);
         } catch (error) {
           console.error(`Error exporting table ${tableName}:`, error);
           addNotification({
@@ -183,30 +233,24 @@ export const usePersistence = () => {
       // Import each table
       for (const tableInfo of metadata.tables) {
         try {
-          const fileName = `${tableInfo.name}.json`;
-          const jsonFile = zip.file(fileName);
+          const fileName = `${tableInfo.name}.csv`;
+          const csvFile = zip.file(fileName);
 
-          if (!jsonFile) {
+          if (!csvFile) {
             console.warn(`Table file not found: ${fileName}`);
             continue;
           }
 
-          // Get JSON file as text
-          const jsonText = await jsonFile.async("text");
-          const jsonData = JSON.parse(jsonText);
+          // Get CSV file as text
+          const csvText = await csvFile.async("text");
 
-          // Convert JSON data to NDJSON (newline-delimited JSON) for DuckDB
-          const ndjson = jsonData
-            .map((row: any) => JSON.stringify(row))
-            .join("\n");
+          // Register the CSV buffer with DuckDB
+          const csvBuffer = new TextEncoder().encode(csvText);
+          await db.registerFileBuffer(fileName, csvBuffer);
 
-          // Register the JSON buffer with DuckDB
-          const jsonBuffer = new TextEncoder().encode(ndjson);
-          await db.registerFileBuffer(fileName, jsonBuffer);
-
-          // Create table from JSON data using read_json
+          // Create table from CSV data using read_csv_auto
           await conn.query(
-            `CREATE TABLE ${tableInfo.name} AS SELECT * FROM read_json('${fileName}', auto_detect=true, format='newline_delimited')`
+            `CREATE TABLE ${tableInfo.name} AS SELECT * FROM read_csv_auto('${fileName}')`
           );
 
           importedCount++;

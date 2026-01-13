@@ -17,6 +17,22 @@ export default function Navbar() {
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
+  // Feedback email template
+  const feedbackMailto = `mailto:feedback@example.com?subject=${encodeURIComponent(
+    "SQL for Files - Feedback"
+  )}&body=${encodeURIComponent(
+    `Hi,
+
+I'd like to share feedback about SQL for Files:
+
+[Please describe your feedback, suggestions, or issues here]
+
+---
+Browser: ${navigator.userAgent}
+Page: ${window.location.href}
+`
+  )}`;
+
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -140,6 +156,29 @@ export default function Navbar() {
               </svg>
               About
             </Link>
+
+            {/* Feedback Button */}
+            <a
+              href={feedbackMailto}
+              className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200 border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-600"
+            >
+              <svg
+                className="w-4 h-4"
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              Feedback
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -264,6 +303,28 @@ export default function Navbar() {
               </svg>
               About
             </Link>
+
+            {/* Feedback Button - Mobile */}
+            <a
+              href={feedbackMailto}
+              onClick={closeMobileMenu}
+              className="block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200 border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-600"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              Send Feedback
+            </a>
           </div>
         )}
       </div>

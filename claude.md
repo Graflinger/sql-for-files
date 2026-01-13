@@ -99,7 +99,7 @@ Database Export/Import
 ### ✅ Phase 3: Data Management (Complete)
 - ✅ Table list in sidebar with expandable schemas
 - ✅ Schema viewer using DESCRIBE (column names, types, nullability)
-- ✅ **Database Export**: Export all tables as JSON in ZIP bundle
+- ✅ **Database Export**: Export all tables as CSV in ZIP bundle (human-readable)
 - ✅ **Database Import**: Restore tables from exported ZIP
 - ✅ Multi-table JOINs (DuckDB native support)
 - ✅ Comprehensive notification system (5 states: uploading, processing, success, error, info)
@@ -123,18 +123,18 @@ await exportDatabase();
 ```
 **Process**:
 1. Query all tables with `DESCRIBE` and `SELECT *`
-2. Serialize each table to JSON format
+2. Convert each table to CSV format (human-readable)
 3. Create metadata.json with table schemas, row counts
-4. Bundle all JSON files into ZIP
+4. Bundle all CSV files into ZIP
 5. Download as `database-export-YYYY-MM-DD.zip`
 
 **ZIP Structure**:
 ```
-database-export-2026-01-11.zip
+database-export-2026-01-13.zip
 ├── metadata.json         # Table metadata, schemas, row counts
-├── table1.json          # Table data (JSON array)
-├── table2.json
-└── table3.json
+├── table1.csv           # Table data (CSV format - opens in Excel/Sheets)
+├── table2.csv
+└── table3.csv
 ```
 
 ### Import Database
@@ -144,8 +144,8 @@ await importDatabase(zipFile);
 ```
 **Process**:
 1. Extract ZIP and read metadata.json
-2. For each table: extract JSON → convert to NDJSON → register with DuckDB
-3. Execute `CREATE TABLE ... FROM read_json(..., format='newline_delimited')`
+2. For each table: extract CSV → register with DuckDB
+3. Execute `CREATE TABLE ... FROM read_csv_auto(...)`
 4. Refresh table registry
 5. Show success notification with import stats
 
@@ -174,9 +174,8 @@ CREATE TABLE name AS SELECT * FROM read_json_auto('file.json')
 // Parquet - columnar format with predicate pushdown
 CREATE TABLE name AS SELECT * FROM read_parquet('file.parquet')
 
-// Import from database export (NDJSON)
-CREATE TABLE name AS SELECT * FROM read_json('file.json',
-  auto_detect=true, format='newline_delimited')
+// Import from database export (CSV)
+CREATE TABLE name AS SELECT * FROM read_csv_auto('file.csv')
 ```
 
 ### Error Handling
