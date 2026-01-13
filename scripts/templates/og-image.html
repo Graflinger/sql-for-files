@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SQL for Files - OG Image</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+          "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+      }
+
+      .container {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 60px;
+        position: relative;
+      }
+
+      /* Subtle pattern overlay */
+      .container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: radial-gradient(
+            circle at 20% 50%,
+            rgba(255, 255, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(255, 255, 255, 0.08) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+      }
+
+      .content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        color: white;
+      }
+
+      .logo {
+        width: 120px;
+        height: 120px;
+        background: white;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 40px;
+        font-size: 64px;
+        font-weight: 900;
+        color: #2563eb;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      h1 {
+        font-size: 80px;
+        font-weight: 900;
+        margin-bottom: 20px;
+        letter-spacing: -2px;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .tagline {
+        font-size: 36px;
+        font-weight: 500;
+        margin-bottom: 40px;
+        opacity: 0.95;
+        line-height: 1.4;
+      }
+
+      .features {
+        display: flex;
+        gap: 40px;
+        justify-content: center;
+        margin-top: 30px;
+      }
+
+      .feature {
+        font-size: 24px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 12px 28px;
+        border-radius: 50px;
+        backdrop-filter: blur(10px);
+      }
+
+      .emoji {
+        font-size: 28px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+        <div class="logo">
+          <svg
+            width="70"
+            height="70"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="#2563eb"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+            />
+          </svg>
+        </div>
+        <h1>SQL for Files</h1>
+        <div class="tagline">
+          Query CSV, JSON & Parquet<br />
+          locally in Your Browser
+        </div>
+        <div class="features">
+          <div class="feature">
+            <span class="emoji">🔒</span>
+            <span>100% Private</span>
+          </div>
+          <div class="feature">
+            <span class="emoji">⚡</span>
+            <span>Powered by DuckDB</span>
+          </div>
+          <div class="feature">
+            <span class="emoji">🆓</span>
+            <span>Free & Open Source</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
