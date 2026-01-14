@@ -1,0 +1,26 @@
+order_id,customer_name,product_category,product_name,quantity,unit_price,order_date,shipping_country,payment_method
+1001,Alice Johnson,Electronics,Wireless Mouse,2,29.99,2024-01-15,USA,Credit Card
+1002,Bob Smith,Books,SQL Fundamentals,1,45.00,2024-01-16,Canada,PayPal
+1003,Carol Davis,Electronics,USB-C Cable,3,12.99,2024-01-16,USA,Credit Card
+1004,David Wilson,Furniture,Office Chair,1,299.99,2024-01-17,UK,Debit Card
+1005,Eva Martinez,Books,Data Science Guide,2,39.99,2024-01-17,Spain,Credit Card
+1006,Frank Lee,Electronics,Keyboard,1,89.99,2024-01-18,USA,PayPal
+1007,Grace Chen,Furniture,Standing Desk,1,599.99,2024-01-18,Canada,Credit Card
+1008,Henry Brown,Books,Python Programming,1,52.50,2024-01-19,UK,Credit Card
+1009,Iris Taylor,Electronics,Monitor Stand,2,34.99,2024-01-19,USA,Debit Card
+1010,Jack Anderson,Furniture,Desk Lamp,3,24.99,2024-01-20,Germany,PayPal
+1011,Alice Johnson,Books,Database Design,1,48.00,2024-01-21,USA,Credit Card
+1012,Bob Smith,Electronics,Webcam,1,79.99,2024-01-21,Canada,Credit Card
+1013,Carol Davis,Furniture,Bookshelf,1,149.99,2024-01-22,USA,PayPal
+1014,David Wilson,Electronics,Headphones,2,59.99,2024-01-22,UK,Debit Card
+1015,Eva Martinez,Books,Web Development,1,44.99,2024-01-23,Spain,Credit Card
+1016,Frank Lee,Electronics,Mouse Pad,4,9.99,2024-01-23,USA,Credit Card
+1017,Grace Chen,Furniture,File Cabinet,1,199.99,2024-01-24,Canada,PayPal
+1018,Henry Brown,Electronics,External SSD,1,129.99,2024-01-24,UK,Debit Card
+1019,Iris Taylor,Books,Cloud Computing,2,41.99,2024-01-25,USA,Credit Card
+1020,Jack Anderson,Electronics,Laptop Stand,1,49.99,2024-01-25,Germany,PayPal
+1021,Alice Johnson,Furniture,Ergonomic Mat,1,39.99,2024-01-26,USA,Debit Card
+1022,Bob Smith,Electronics,Cable Organizer,5,7.99,2024-01-26,Canada,Credit Card
+1023,Carol Davis,Books,Machine Learning,1,54.99,2024-01-27,USA,PayPal
+1024,David Wilson,Electronics,Power Bank,2,34.99,2024-01-27,UK,Credit Card
+1025,Eva Martinez,Furniture,Monitor Arm,1,89.99,2024-01-28,Spain,Debit Card

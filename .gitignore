@@ -26,6 +26,3 @@ dist-ssr
 *.md
 !claude.md
 !README.md
-
-
-sample_data.csv
