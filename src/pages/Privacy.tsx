@@ -20,7 +20,7 @@ export default function Privacy() {
               <p className="text-slate-700">
                 <strong>sqlforfiles - Stefan Graf</strong>
                 <br />
-                c/o Online-Impressum.de #20871
+                c/o Online-Impressum.de #1285
                 <br />
                 Europaring 90
                 <br />
