@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
+import QueryHistory from "../QueryHistory/QueryHistory";
 import type { editor } from "monaco-editor";
 
 interface SQLEditorProps {
@@ -21,6 +22,9 @@ export default function SQLEditor({
 }: SQLEditorProps) {
   // SQL query text
   const [sql, setSql] = useState("SELECT * FROM your_table LIMIT 10;");
+  const [editorHeight, setEditorHeight] = useState(200);
+  const [isResizing, setIsResizing] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   // Get DuckDB context
   const { db, tables } = useDuckDBContext();
@@ -93,12 +97,21 @@ export default function SQLEditor({
     // Register SQL completion provider
     monaco.languages.registerCompletionItemProvider("sql", {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      provideCompletionItems: (_model: any, position: any) => {
+      provideCompletionItems: (model: any, position: any) => {
         const suggestions = [];
 
         // Use refs to get latest values (fixes closure issue)
         const currentTables = tablesRef.current;
         const currentTableColumns = tableColumnsRef.current;
+
+        // Get the word being typed to determine the replacement range
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber: position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn: word.endColumn,
+        };
 
         // Add table names
         for (const tableName of currentTables) {
@@ -107,12 +120,7 @@ export default function SQLEditor({
             kind: monaco.languages.CompletionItemKind.Class,
             detail: "Table",
             insertText: tableName,
-            range: {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: position.column,
-              endColumn: position.column,
-            },
+            range: range,
           });
 
           // Add columns for each table
@@ -124,12 +132,7 @@ export default function SQLEditor({
               detail: `${tableName} (${column.type})`,
               insertText: `${tableName}.${column.name}`,
               documentation: `Column: ${column.name}\nType: ${column.type}\nTable: ${tableName}`,
-              range: {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: position.column,
-                endColumn: position.column,
-              },
+              range: range,
             });
 
             // Also add just the column name
@@ -139,12 +142,7 @@ export default function SQLEditor({
               detail: `${column.type} (from ${tableName})`,
               insertText: column.name,
               documentation: `Column: ${column.name}\nType: ${column.type}\nTable: ${tableName}`,
-              range: {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: position.column,
-                endColumn: position.column,
-              },
+              range: range,
             });
           }
         }
@@ -192,12 +190,7 @@ export default function SQLEditor({
             kind: monaco.languages.CompletionItemKind.Keyword,
             detail: "SQL Keyword",
             insertText: keyword,
-            range: {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: position.column,
-              endColumn: position.column,
-            },
+            range: range,
           });
         }
 
@@ -239,33 +232,6 @@ export default function SQLEditor({
     await onExecute(queryToExecute);
   };
 
-  /**
-   * Handle saving query as .sql file
-   */
-  const handleSaveQuery = () => {
-    if (!sql.trim()) {
-      alert("No query to save");
-      return;
-    }
-
-    // Create a blob with the SQL content
-    const blob = new Blob([sql], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-
-    // Create a temporary link and trigger download
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `query_${new Date()
-      .toISOString()
-      .slice(0, 19)
-      .replace(/:/g, "-")}.txt`;
-    document.body.appendChild(link);
-    link.click();
-
-    // Cleanup
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
 
   /**
    * Handle keyboard shortcuts
@@ -278,15 +244,55 @@ export default function SQLEditor({
     }
   };
 
+  /**
+   * Handle loading query from history
+   */
+  const handleLoadQuery = (query: string) => {
+    setSql(query);
+    // Optionally focus the editor
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+  };
+
+  /**
+   * Handle editor resize
+   */
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newHeight = Math.max(150, Math.min(600, editorHeight + e.movementY));
+      setEditorHeight(newHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing, editorHeight]);
+
   return (
     <div className="space-y-4">
       {/* Editor Container */}
       <div
-        className="border border-slate-300 rounded-xl overflow-hidden shadow-sm hover:border-blue-400 transition-colors"
+        className="border border-slate-300 rounded-xl overflow-hidden shadow-sm hover:border-blue-400 transition-colors relative"
         onKeyDown={handleEditorKeyDown}
       >
         <Editor
-          height="200px"
+          height={`${editorHeight}px`}
           defaultLanguage="sql"
           value={sql}
           onChange={(value) => setSql(value || "")}
@@ -300,9 +306,29 @@ export default function SQLEditor({
             automaticLayout: true,
             tabSize: 2,
             suggestOnTriggerCharacters: true,
-            quickSuggestions: true,
+            quickSuggestions: {
+              other: true,
+              comments: false,
+              strings: false,
+            },
+            wordBasedSuggestions: "off",
+            suggest: {
+              showWords: false,
+              showKeywords: true,
+            },
           }}
         />
+        {/* Resize Handle */}
+        <div
+          onMouseDown={handleResizeStart}
+          className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-slate-200 hover:bg-blue-400 transition-colors ${
+            isResizing ? "bg-blue-500" : ""
+          } group`}
+        >
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
+            <div className="w-12 h-1 bg-slate-400 rounded-full group-hover:bg-blue-600 transition-colors"></div>
+          </div>
+        </div>
       </div>
 
       {/* Action Buttons */}
@@ -311,12 +337,14 @@ export default function SQLEditor({
           <button
             onClick={handleRunQuery}
             disabled={executing || disabled}
+            aria-label="Run SQL query"
             className={`
-              group relative px-5 py-2 rounded-lg font-semibold transition-all duration-200 overflow-hidden text-sm
+              group relative px-5 py-2 rounded-lg font-semibold transition-colors duration-200 overflow-hidden text-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
               ${
                 executing || disabled
                   ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl active:scale-95"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg active:scale-95"
               }
             `}
           >
@@ -373,41 +401,108 @@ export default function SQLEditor({
             )}
           </button>
 
-          <button
-            onClick={handleSaveQuery}
-            disabled={disabled}
-            className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm bg-white border-2 border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:scale-95 shadow-sm hover:shadow-md"
-            title="Save query as .sql file"
-          >
-            <span className="flex items-center gap-2">
-              <svg
-                className="w-4 h-4"
-                width="16"
-                height="16"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                />
-              </svg>
-              <span className="hidden sm:inline">Save</span>
-            </span>
-          </button>
+          <QueryHistory onLoadQuery={handleLoadQuery} />
         </div>
 
-        {/* Keyboard Shortcut Hint */}
-        <div className=" items-center gap-2 text-sm text-slate-600 hidden sm:flex">
+        {/* Keyboard Shortcut Hint with Info Popover */}
+        <div className="items-center gap-2 text-sm text-slate-600 hidden sm:flex relative">
           <span>Press</span>
           <kbd className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono text-xs font-semibold shadow-sm">
             Ctrl+Enter
           </kbd>
           <span>to run</span>
           <span className="text-slate-400 ml-2">(selection or full query)</span>
+
+          {/* Info Icon for Shortcuts */}
+          <div className="relative ml-2">
+            <button
+              onClick={() => setShowShortcuts(!showShortcuts)}
+              onBlur={() => setTimeout(() => setShowShortcuts(false), 200)}
+              className="p-1 rounded-full hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="View all keyboard shortcuts"
+              title="View all shortcuts"
+            >
+              <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+
+            {/* Shortcuts Popover */}
+            {showShortcuts && (
+              <div className="absolute right-0 top-8 z-50 w-80 bg-white border border-slate-300 rounded-lg shadow-2xl p-4">
+                <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
+                  <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                    Keyboard Shortcuts
+                  </h4>
+                  <button
+                    onClick={() => setShowShortcuts(false)}
+                    className="text-slate-400 hover:text-slate-600"
+                    aria-label="Close shortcuts"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-700">Execute query</span>
+                    <div className="flex items-center gap-1">
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
+                      <span className="text-slate-400">+</span>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Enter</kbd>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-700">Toggle comment</span>
+                    <div className="flex items-center gap-1">
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
+                      <span className="text-slate-400">+</span>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">/</kbd>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-700">Trigger autocomplete</span>
+                    <div className="flex items-center gap-1">
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
+                      <span className="text-slate-400">+</span>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Space</kbd>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                    <span className="text-slate-700">Find in editor</span>
+                    <div className="flex items-center gap-1">
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
+                      <span className="text-slate-400">+</span>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">F</kbd>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-slate-700">Multi-cursor edit</span>
+                    <div className="flex items-center gap-1">
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Alt</kbd>
+                      <span className="text-slate-400">+</span>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Click</kbd>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-slate-200">
+                  <p className="text-xs text-slate-500 italic">
+                    💡 Use <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono">Cmd</kbd> instead of <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono">Ctrl</kbd> on Mac
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

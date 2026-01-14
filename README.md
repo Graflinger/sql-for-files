@@ -1,73 +1,186 @@
-# React + TypeScript + Vite
+# SQL for Files 🗄️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Query CSV, JSON, and Parquet files with SQL directly in your browser**
 
-Currently, two official plugins are available:
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Made with React](https://img.shields.io/badge/Made%20with-React-61DAFB?logo=react)](https://reactjs.org/)
+[![Powered by DuckDB](https://img.shields.io/badge/Powered%20by-DuckDB-yellow)](https://duckdb.org/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Overview
 
-## React Compiler
+**SQL for Files** is a privacy-first, browser-based SQL query interface that allows you to analyze your data files without uploading them anywhere. All processing happens locally in your browser using WebAssembly technology.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Perfect for data analysts, developers, and anyone who needs to quickly query data files without installing database software or uploading sensitive data to cloud services.
 
-## Expanding the ESLint configuration
+🔗 **[Try it now](https://sqlforfiles.app)**
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ Key Features
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 🔒 100% Private & Secure
+- **Zero server uploads** - Your data never leaves your device
+- All processing happens client-side in your browser
+- No data collection, no tracking, no analytics
+- Files stored locally in IndexedDB for session persistence
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 📊 Multiple File Formats
+- **CSV** - Automatic delimiter detection and type inference
+- **JSON** - JSON arrays and newline-delimited JSON (NDJSON)
+- **Parquet** - Columnar format with built-in compression
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 🎯 Professional SQL Editor
+- **Monaco Editor** (VS Code's editor) with SQL syntax highlighting
+- Smart autocomplete for tables, columns, and SQL keywords
+- Keyboard shortcuts (Ctrl/Cmd + Enter to execute)
+- Execute selected SQL or entire query
+
+### 🔧 Full DuckDB SQL Support
+- Complex queries with JOINs across multiple files
+- Window functions and aggregations
+- CTEs (Common Table Expressions) and subqueries
+- Complete analytical SQL capabilities
+
+### 💾 Data Management
+- Export query results to CSV (with full dataset, not just displayed rows)
+- Export/import entire database as ZIP bundles
+- View table schemas with column types and nullability
+- Multi-file table management
+
+## 🎯 Use Cases
+
+- **Data Analysis** - Explore CSV/JSON exports, analyze API responses, join multiple data sources
+- **Data Engineering** - Test SQL queries, validate transformations, debug pipeline outputs
+- **Business Intelligence** - Ad-hoc analysis, data quality checks, combine data from different systems
+- **Education** - Learn and practice SQL without database installation
+
+## 🛠️ Technology Stack
+
+- **Frontend Framework**: React 19 + TypeScript
+- **Build Tool**: Vite 7
+- **Database Engine**: DuckDB WASM 1.33
+- **SQL Editor**: Monaco Editor
+- **Data Processing**: Apache Arrow
+- **File Handling**: React Dropzone
+- **Styling**: Tailwind CSS 4
+- **State Management**: React Context API
+- **Persistence**: IndexedDB (via idb-keyval)
+
+## 🚀 Getting Started
+
+### Try Online
+Visit **[sqlforfiles.app](https://sqlforfiles.app)** and start querying immediately - no installation required!
+
+### Run Locally
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/graflinger/sql-for-files.git
+   cd sql-for-files
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open in browser**
+   ```
+   Navigate to http://localhost:5173
+   ```
+
+### Build for Production
+
+```bash
+npm run build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 📖 Usage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. Upload a data file (CSV, JSON, or Parquet)
+2. Select a table from the sidebar to view its schema
+3. Write a SQL query in the editor
+4. Press **Ctrl/Cmd + Enter** to execute
+5. Export results to CSV or save the entire database as a ZIP
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Example Queries
+
+```sql
+-- Query a CSV file
+SELECT * FROM my_data LIMIT 10;
+
+-- Aggregate data
+SELECT category, COUNT(*), AVG(price)
+FROM products
+GROUP BY category
+ORDER BY AVG(price) DESC;
+
+-- Join multiple files
+SELECT o.order_id, c.customer_name, o.total
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+WHERE o.order_date > '2024-01-01';
+
+-- Window functions
+SELECT
+  name,
+  salary,
+  RANK() OVER (ORDER BY salary DESC) as salary_rank
+FROM employees;
 ```
+
+## 🔐 Privacy & Security
+
+- **Client-side processing** - All data processing happens in your browser
+- **Local storage only** - Files stored in IndexedDB, never sent to servers
+- **No tracking** - Zero analytics, no usage data collection
+- **Open source** - Audit the entire codebase on GitHub
+
+## 🤝 Contributing
+
+Contributions are welcome! By contributing, you agree that your contributions will be licensed under the AGPL v3 license.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/YourFeature`)
+3. Commit your changes (`git commit -m 'Add YourFeature'`)
+4. Push to the branch (`git push origin feature/YourFeature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)** - see the [LICENSE](LICENSE) file for details.
+
+### Why AGPL v3?
+
+AGPL v3 is specifically designed for web applications and ensures that:
+- ✅ **You can freely use, modify, and study** the code
+- ✅ **Anyone who deploys a modified version publicly must share their source code** with users
+- ✅ **Prevents proprietary forks** - competitors can't take the code and run closed-source versions
+- ✅ **Protects the commons** - improvements benefit everyone in the community
+
+This license ensures SQL for Files remains open source while preventing others from running proprietary versions of the service.
+
+## 🙏 Acknowledgments
+
+- [DuckDB](https://duckdb.org/) - High-performance analytical database
+- [DuckDB WASM](https://github.com/duckdb/duckdb-wasm) - WebAssembly port
+- [Monaco Editor](https://microsoft.github.io/monaco-editor/) - Code editor
+- [Apache Arrow](https://arrow.apache.org/) - Columnar data format
+- [React](https://reactjs.org/) - UI framework
+
+## 🗺️ Roadmap
+
+- Query history and saved queries
+- Parquet and JSON export from query results
+- Dark mode support
+- Query result visualization (charts)
+- Table preview with sampling
+
+## 📧 Support
+
+- **Website**: [sqlforfiles.app](https://sqlforfiles.app)
+- **Issues**: [GitHub Issues](https://github.com/graflinger/sql-for-files/issues)

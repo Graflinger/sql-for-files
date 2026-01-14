@@ -1,0 +1,89 @@
+{
+  "name": "SQL for Files - Query Data Files with SQL",
+  "short_name": "SQL for Files",
+  "description": "Query CSV, JSON, and Parquet files with SQL directly in your browser. 100% private - your data never leaves your device.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities",
+    "business",
+    "developer tools"
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Open SQL Editor",
+      "short_name": "Editor",
+      "description": "Open the SQL query editor",
+      "url": "/editor",
+      "icons": [
+        {
+          "src": "/favicon-32x32.png",
+          "sizes": "32x32",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/editor",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "data",
+          "accept": [
+            "text/csv",
+            ".csv",
+            "application/json",
+            ".json",
+            "application/parquet",
+            ".parquet"
+          ]
+        }
+      ]
+    }
+  }
+}

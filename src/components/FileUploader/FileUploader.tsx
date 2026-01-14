@@ -89,6 +89,7 @@ export default function FileUploader() {
         className={`
           relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
           transition-all duration-300 overflow-hidden group
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
           ${
             isDragActive
               ? "border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg scale-[1.02]"
@@ -96,7 +97,7 @@ export default function FileUploader() {
           }
         `}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} aria-label="Upload data files" />
 
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -171,6 +172,30 @@ export default function FileUploader() {
         )}
       </div>
 
+      {/* Sample Data Download */}
+      <div className="flex items-center justify-center gap-2 text-sm text-slate-600">
+        <span>Don't have a file?</span>
+        <a
+          href="/sample_data.csv"
+          download="sample_data.csv"
+          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          Download sample data
+        </a>
+      </div>
     </div>
   );
 }

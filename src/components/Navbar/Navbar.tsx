@@ -17,12 +17,32 @@ export default function Navbar() {
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
+  // Feedback email template
+  const feedbackMailto = `mailto:feedback@example.com?subject=${encodeURIComponent(
+    "SQL for Files - Feedback"
+  )}&body=${encodeURIComponent(
+    `Hi,
+
+I'd like to share feedback about SQL for Files:
+
+[Please describe your feedback, suggestions, or issues here]
+
+---
+Browser: ${navigator.userAgent}
+Page: ${window.location.href}
+`
+  )}`;
+
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo and Brand */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0" onClick={closeMobileMenu}>
+          <Link
+            to="/"
+            className="flex items-center gap-2 sm:gap-3 flex-shrink-0"
+            onClick={closeMobileMenu}
+          >
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
               <svg
                 className="w-5 h-5 sm:w-6 sm:h-6 text-white"
@@ -53,12 +73,13 @@ export default function Navbar() {
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center gap-2">
             <Link
-              to="/"
+              to="/editor"
               className={`
-                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
-                ${isActive("/")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors duration-200
+                ${
+                  isActive("/editor")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -82,10 +103,11 @@ export default function Navbar() {
             <Link
               to="/docs"
               className={`
-                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
-                ${isActive("/docs")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors duration-200
+                ${
+                  isActive("/docs")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -107,12 +129,13 @@ export default function Navbar() {
               Docs
             </Link>
             <Link
-              to="/about"
+              to="/"
               className={`
-                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200
-                ${isActive("/about")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors duration-200
+                ${
+                  isActive("/")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -133,6 +156,29 @@ export default function Navbar() {
               </svg>
               About
             </Link>
+
+            {/* Feedback Button */}
+            <a
+              href={feedbackMailto}
+              className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all duration-200 border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-600"
+            >
+              <svg
+                className="w-4 h-4"
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              Feedback
+            </a>
           </div>
 
           {/* Mobile Menu Button */}
@@ -177,13 +223,14 @@ export default function Navbar() {
         {mobileMenuOpen && (
           <div className="lg:hidden py-4 space-y-2 border-t border-slate-200">
             <Link
-              to="/"
+              to="/editor"
               onClick={closeMobileMenu}
               className={`
-                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
-                ${isActive("/")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-colors duration-200
+                ${
+                  isActive("/editor")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -206,10 +253,11 @@ export default function Navbar() {
               to="/docs"
               onClick={closeMobileMenu}
               className={`
-                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
-                ${isActive("/docs")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-colors duration-200
+                ${
+                  isActive("/docs")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -229,13 +277,14 @@ export default function Navbar() {
               Docs
             </Link>
             <Link
-              to="/about"
+              to="/"
               onClick={closeMobileMenu}
               className={`
-                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200
-                ${isActive("/about")
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-colors duration-200
+                ${
+                  isActive("/")
+                    ? "bg-blue-600 text-white"
+                    : "text-slate-600 hover:bg-slate-100"
                 }
               `}
             >
@@ -254,6 +303,28 @@ export default function Navbar() {
               </svg>
               About
             </Link>
+
+            {/* Feedback Button - Mobile */}
+            <a
+              href={feedbackMailto}
+              onClick={closeMobileMenu}
+              className="block px-4 py-3 rounded-lg text-sm font-semibold flex items-center gap-3 transition-all duration-200 border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:border-emerald-600"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              Send Feedback
+            </a>
           </div>
         )}
       </div>
