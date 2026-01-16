@@ -83,10 +83,50 @@ export default function FileUploader() {
 
   return (
     <div className="space-y-4">
-      {/* Dropzone */}
+      {/* Mobile: Simple Button */}
+      <div className="md:hidden">
+        <button
+          {...getRootProps()}
+          className="w-full relative bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <input {...getInputProps()} aria-label="Upload data files" />
+
+          <div className="flex items-center justify-center gap-3">
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+            <span className="font-semibold text-lg">Choose Files</span>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/20 text-white">
+              CSV
+            </span>
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/20 text-white">
+              JSON
+            </span>
+            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/20 text-white">
+              Parquet
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {/* Desktop: Drag & Drop Area */}
       <div
         {...getRootProps()}
         className={`
+          hidden md:block
           relative border-2 border-dashed rounded-xl p-6 text-center cursor-pointer
           transition-all duration-300 overflow-hidden group
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
