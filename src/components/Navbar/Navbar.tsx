@@ -18,7 +18,7 @@ export default function Navbar() {
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
   // Feedback email template
-  const feedbackMailto = `mailto:feedback@example.com?subject=${encodeURIComponent(
+  const feedbackMailto = `info@sqlforfiles.app?subject=${encodeURIComponent(
     "SQL for Files - Feedback"
   )}&body=${encodeURIComponent(
     `Hi,
