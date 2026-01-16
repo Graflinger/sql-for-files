@@ -25,7 +25,10 @@ export default function About() {
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6">
             Use SQL with your{" "}
             <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-opacity duration-500">
+              {/* Invisible placeholder to reserve space for longest word */}
+              <span className="invisible">Parquet</span>
+              {/* Visible animated text overlaid on top */}
+              <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent transition-opacity duration-500">
                 {fileTypes[currentType]}
               </span>
             </span>{" "}
