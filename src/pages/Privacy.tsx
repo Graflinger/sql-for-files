@@ -138,6 +138,50 @@ export default function Privacy() {
             </ul>
           </section>
 
+          {/* Cloudflare Web Analytics */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">
+              Cloudflare Web Analytics
+            </h2>
+            <p className="text-slate-700 mb-4">
+              Diese Website nutzt Cloudflare Web Analytics zur Erhebung von
+              Nutzungskennzahlen. Im Gegensatz zu vielen anderen
+              Analytics-Anbietern verfolgt Cloudflare ein datenschutzfreundliches
+              Modell:
+            </p>
+            <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
+              <li>
+                Es werden <strong>keine clientseitigen Informationen</strong>{" "}
+                verwendet, die etwa mithilfe von Cookies oder localStorage erfasst
+                werden
+              </li>
+              <li>
+                Es werden <strong>keine "Fingerabdrücke"</strong> von
+                Einzelpersonen in Form ihrer IP-Adresse, User Agent Strings oder
+                anderer Daten für Analysezwecke erstellt
+              </li>
+              <li>
+                Es werden <strong>keine Besucherprofile</strong> erstellt und
+                Besucher werden nicht mit Werbung erneut angesprochen
+              </li>
+            </ul>
+            <p className="text-slate-700 mt-4">
+              Die Analytics sind nicht invasiv und respektieren die Privatsphäre
+              der Besucher.
+            </p>
+            <p className="text-slate-700 mt-4">
+              Weitere Informationen:{" "}
+              <a
+                href="https://www.cloudflare.com/de-de/web-analytics/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-700"
+              >
+                Cloudflare Web Analytics
+              </a>
+            </p>
+          </section>
+
           {/* Technical Data */}
           <section className="mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-4">
