@@ -1,3 +1,5 @@
+import SEO from "../components/SEO/SEO";
+
 /**
  * Privacy Policy Page
  *
@@ -5,12 +7,20 @@
  */
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/50 p-8 md:p-12">
-          <h1 className="text-4xl font-bold text-slate-900 mb-8">
-            Privacy Policy
-          </h1>
+    <>
+      <SEO
+        title="Privacy Policy | SQL for Files"
+        description="Learn how SQL for Files protects your privacy with 100% local, in-browser data processing."
+        canonicalPath="/privacy"
+        ogType="article"
+        imageAlt="SQL for Files privacy policy"
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/50 p-8 md:p-12">
+            <h1 className="text-4xl font-bold text-slate-900 mb-8">
+              Privacy Policy
+            </h1>
 
           {/* Contact Section */}
           <section className="mb-8">
@@ -352,8 +362,9 @@ export default function Privacy() {
               <strong>Last Updated:</strong> January 9, 2026
             </p>
           </section>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

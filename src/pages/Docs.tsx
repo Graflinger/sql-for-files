@@ -1,18 +1,76 @@
+import SEO from "../components/SEO/SEO";
+
 /**
  * Documentation Page
  *
  * User guide and documentation for SQL for Files
  */
 export default function Docs() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
-      <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6">
-            Documentation
-          </h1>
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "Is my data really private?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. All data processing happens entirely in your browser using WebAssembly. Your files never leave your device.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "What happens if I refresh the page?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Your query history is saved locally, but uploaded files and tables are lost on refresh unless you export your database first.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Can I use this with Excel (.xlsx) files?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "No. Excel files are not supported in DuckDB WASM. Convert .xlsx files to CSV before uploading.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How large can my files be?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Browser memory limits typically allow 2 to 3GB of working data. Files up to 200MB generally work best.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does this work offline?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "After the initial load, most functionality works offline. The first load requires an internet connection to download DuckDB WASM files.",
+        },
+      },
+    ],
+  };
 
-          <div className="prose prose-slate max-w-none">
+  return (
+    <>
+      <SEO
+        title="Documentation | SQL for Files"
+        description="Learn how to upload CSV, JSON, and Parquet files, run SQL queries, and export results in SQL for Files."
+        canonicalPath="/docs"
+        ogType="article"
+        imageAlt="SQL for Files documentation"
+        structuredData={faqSchema}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+        <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6">
+              Documentation
+            </h1>
+
+            <div className="prose prose-slate max-w-none">
             <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
               Getting Started
             </h2>
@@ -582,8 +640,9 @@ WHERE o.total_amount > 100;`}</code>
               </p>
             </div>
           </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
