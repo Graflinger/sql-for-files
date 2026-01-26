@@ -5,6 +5,7 @@ import TableList from "../components/DatabaseManager/TableList";
 import QueryResults from "../components/QueryResults/QueryResults";
 import { useQueryExecution } from "../hooks/useQueryExecution";
 import { useQueryHistory } from "../hooks/useQueryHistory";
+import SEO from "../components/SEO/SEO";
 
 /**
  * Home Page Content
@@ -33,6 +34,7 @@ function HomeContent() {
 
   return (
     <div className="max-w-7xl mx-auto py-4 px-4 sm:pt-6 sm:px-6 lg:pt-8 lg:px-8">
+      <h1 className="sr-only">SQL Editor</h1>
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Left Column - File Upload + Tables */}
@@ -128,6 +130,13 @@ function HomeContent() {
 export default function SqlEditor() {
   return (
     <DuckDBProvider>
+      <SEO
+        title="SQL Editor for CSV, JSON & Parquet | SQL for Files"
+        description="Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Private, client-side data processing powered by DuckDB WASM."
+        canonicalPath="/editor"
+        ogType="website"
+        imageAlt="SQL for Files SQL editor"
+      />
       <HomeContent />
     </DuckDBProvider>
   );

@@ -61,9 +61,9 @@ Page: ${window.location.href}
               </svg>
             </div>
             <div className="min-w-0">
-              <h1 className="text-base sm:text-xl font-bold text-slate-800 truncate">
+              <span className="block text-base sm:text-xl font-bold text-slate-800 truncate">
                 SQL for Files
-              </h1>
+              </span>
               <p className="text-xs text-slate-500 hidden sm:block">
                 Query data in your browser
               </p>
