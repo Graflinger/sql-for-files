@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import SEO from "../components/SEO/SEO";
 
 /**
  * About Page - Modern Landing Page
@@ -9,6 +10,41 @@ import { Link } from "react-router-dom";
 export default function About() {
   const fileTypes = ["CSV", "JSON", "Parquet"];
   const [currentType, setCurrentType] = useState(0);
+  const preloadSqlEditor = () => import("./SQLEditor");
+  const webApplicationSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "SQL for Files",
+    alternateName: "SQL Query Tool for Data Files",
+    url: "https://sqlforfiles.app/",
+    description:
+      "Query CSV, JSON, and Parquet files with SQL in your browser. All processing happens locally for privacy.",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web Browser",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    browserRequirements: "Requires JavaScript and WebAssembly.",
+    featureList: [
+      "Query CSV files with SQL",
+      "Query JSON files with SQL",
+      "Query Parquet files with SQL",
+      "100% client-side processing",
+      "Private and secure data handling",
+      "SQL syntax highlighting and autocomplete",
+      "Support for joins, aggregations, and window functions",
+      "Export query results to CSV",
+      "Zero installation required",
+    ],
+    screenshot: "https://sqlforfiles.app/og-image.png",
+    softwareVersion: "1.0",
+    author: {
+      "@type": "Organization",
+      name: "SQL for Files",
+    },
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -18,7 +54,16 @@ export default function About() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <>
+      <SEO
+        title="SQL for Files - Query CSV, JSON & Parquet in Your Browser"
+        description="Query CSV, JSON, and Parquet files with SQL in your browser. 100% private, client-side processing powered by DuckDB WASM."
+        canonicalPath="/"
+        ogType="website"
+        imageAlt="SQL for Files - browser SQL query tool"
+        structuredData={webApplicationSchema}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Hero Section */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-4">
         <div className="text-center">
@@ -45,6 +90,8 @@ export default function About() {
             <Link
               to="/editor"
               className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-lg px-8 py-4 rounded-full shadow-lg transition-colors duration-200"
+              onMouseEnter={preloadSqlEditor}
+              onFocus={preloadSqlEditor}
             >
               Jump Right In
               <svg
@@ -369,6 +416,7 @@ export default function About() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
