@@ -4,13 +4,19 @@ import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useFileUpload } from "../../hooks/useFileUpload";
 import { useNotifications } from "../../contexts/NotificationContext";
 
+interface FileUploaderProps {
+  compact?: boolean;
+}
+
 /**
  * FileUploader Component
  *
  * Provides a drag-and-drop zone for uploading CSV, JSON, and Parquet files.
  * Shows toast notifications for upload progress and errors.
+ *
+ * @param compact - When true, renders a simplified version for sidebar use
  */
-export default function FileUploader() {
+export default function FileUploader({ compact = false }: FileUploaderProps) {
   const { db, refreshTables } = useDuckDBContext();
   const { uploadFile } = useFileUpload(db);
   const { addNotification, updateNotification } = useNotifications();
@@ -81,6 +87,77 @@ export default function FileUploader() {
     multiple: true,
   });
 
+  // Compact mode for sidebar
+  if (compact) {
+    return (
+      <div className="space-y-3">
+        {/* Compact Upload Button */}
+        <div
+          {...getRootProps()}
+          className={`
+            relative border-2 border-dashed rounded-lg p-3 text-center cursor-pointer
+            transition-all duration-200 group
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
+            ${
+              isDragActive
+                ? "border-blue-500 bg-blue-50"
+                : "border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50"
+            }
+          `}
+        >
+          <input {...getInputProps()} aria-label="Upload data files" />
+
+          <div className="flex items-center justify-center gap-2">
+            <svg
+              className={`h-5 w-5 transition-colors ${
+                isDragActive ? "text-blue-600" : "text-slate-500 group-hover:text-blue-600"
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              />
+            </svg>
+            <span className={`text-sm font-medium ${isDragActive ? "text-blue-700" : "text-slate-700"}`}>
+              {isDragActive ? "Drop files here" : "Drop or click to upload"}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-center gap-1.5 mt-2">
+            <span className="text-xs text-slate-500">CSV</span>
+            <span className="text-slate-300">|</span>
+            <span className="text-xs text-slate-500">JSON</span>
+            <span className="text-slate-300">|</span>
+            <span className="text-xs text-slate-500">Parquet</span>
+          </div>
+        </div>
+
+        {/* Sample Data Link */}
+        <a
+          href="/sample_data.csv"
+          download="sample_data.csv"
+          className="flex items-center justify-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          Try sample data
+        </a>
+      </div>
+    );
+  }
+
+  // Full mode (original layout)
   return (
     <div className="space-y-4">
       {/* Mobile: Simple Button */}

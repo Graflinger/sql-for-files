@@ -8,6 +8,8 @@ interface SQLEditorProps {
   onExecute: (sql: string) => Promise<void>;
   executing: boolean;
   disabled?: boolean;
+  /** When true, the editor fills its container height */
+  flexHeight?: boolean;
 }
 
 /**
@@ -19,6 +21,7 @@ export default function SQLEditor({
   onExecute,
   executing,
   disabled = false,
+  flexHeight = false,
 }: SQLEditorProps) {
   // SQL query text
   const [sql, setSql] = useState("SELECT * FROM your_table LIMIT 10;");
@@ -285,14 +288,18 @@ export default function SQLEditor({
   }, [isResizing, editorHeight]);
 
   return (
-    <div className="space-y-4">
+    <div className={`${flexHeight ? "flex flex-col flex-1 min-h-0" : "space-y-4"}`}>
       {/* Editor Container */}
       <div
-        className="border border-slate-300 rounded-xl overflow-hidden shadow-sm hover:border-blue-400 transition-colors relative"
+        className={`
+          ${flexHeight ? "flex-1 min-h-0 flex flex-col" : ""}
+          ${flexHeight ? "" : "border border-slate-300 rounded-xl shadow-sm hover:border-blue-400"}
+          overflow-hidden transition-colors relative
+        `}
         onKeyDown={handleEditorKeyDown}
       >
         <Editor
-          height={`${editorHeight}px`}
+          height={flexHeight ? "100%" : `${editorHeight}px`}
           defaultLanguage="sql"
           value={sql}
           onChange={(value) => setSql(value || "")}
@@ -318,21 +325,23 @@ export default function SQLEditor({
             },
           }}
         />
-        {/* Resize Handle */}
-        <div
-          onMouseDown={handleResizeStart}
-          className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-slate-200 hover:bg-blue-400 transition-colors ${
-            isResizing ? "bg-blue-500" : ""
-          } group`}
-        >
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
-            <div className="w-12 h-1 bg-slate-400 rounded-full group-hover:bg-blue-600 transition-colors"></div>
+        {/* Resize Handle - Only shown when not in flexHeight mode */}
+        {!flexHeight && (
+          <div
+            onMouseDown={handleResizeStart}
+            className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-slate-200 hover:bg-blue-400 transition-colors ${
+              isResizing ? "bg-blue-500" : ""
+            } group`}
+          >
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
+              <div className="w-12 h-1 bg-slate-400 rounded-full group-hover:bg-blue-600 transition-colors"></div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between">
+      <div className={`flex items-center justify-between ${flexHeight ? "flex-shrink-0 px-4 py-2 border-t border-slate-200 bg-white" : ""}`}>
         <div className="flex items-center gap-3">
           <button
             onClick={handleRunQuery}
