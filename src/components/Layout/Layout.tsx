@@ -13,10 +13,10 @@ interface LayoutProps {
  */
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 flex flex-col">
       <Navbar />
-      <main>{children}</main>
-      <footer className="pt-8 pb-8">
+      <main className="flex-1 min-h-0">{children}</main>
+      <footer className="pt-3 pb-3">
         {/* Footer Links */}
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="flex flex-wrap justify-center items-center gap-4 text-sm text-slate-600">
