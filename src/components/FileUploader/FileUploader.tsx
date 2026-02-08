@@ -1,8 +1,9 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useFileUpload } from "../../hooks/useFileUpload";
 import { useNotifications } from "../../contexts/NotificationContext";
+import AdvancedUploadModal from "./AdvancedUploadModal";
 
 interface FileUploaderProps {
   compact?: boolean;
@@ -20,6 +21,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
   const { db, refreshTables } = useDuckDBContext();
   const { uploadFile } = useFileUpload(db);
   const { addNotification, updateNotification } = useNotifications();
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   /**
    * Handle dropped files
@@ -72,6 +74,64 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
     [uploadFile, refreshTables, addNotification, updateNotification]
   );
 
+  const handleAdvancedCreate = useCallback(
+    async (params: {
+      file: File;
+      tableName: string;
+      csvOptions?: {
+        skip?: number;
+        header?: boolean;
+        delim?: string;
+        quote?: string;
+        escape?: string;
+        nullStr?: string;
+        dateformat?: string;
+        decimal_separator?: string;
+      };
+    }) => {
+      const { file, tableName, csvOptions } = params;
+      const notificationId = addNotification({
+        type: "uploading",
+        title: file.name,
+        message: "Uploading file...",
+      });
+
+      try {
+        updateNotification(notificationId, {
+          type: "processing",
+          message: "Creating table...",
+        });
+
+        const createdTable = await uploadFile(file, {
+          tableNameOverride: tableName,
+          csvOptions,
+        });
+
+        updateNotification(notificationId, {
+          type: "success",
+          title: file.name,
+          message: `Table "${createdTable}" created successfully`,
+          autoClose: true,
+        });
+
+        await refreshTables();
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error occurred";
+
+        updateNotification(notificationId, {
+          type: "error",
+          title: `Failed to upload ${file.name}`,
+          message: 'Click "Show details" to see the error',
+          error: errorMessage,
+          autoClose: false,
+        });
+        throw error;
+      }
+    },
+    [addNotification, refreshTables, updateNotification, uploadFile]
+  );
+
   /**
    * Configure react-dropzone
    * - Accept only .csv, .json, .parquet files
@@ -88,77 +148,88 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
   });
 
   // Compact mode for sidebar
-  if (compact) {
-    return (
-      <div className="space-y-3">
-        {/* Compact Upload Button */}
-        <div
-          {...getRootProps()}
-          className={`
-            relative border-2 border-dashed rounded-lg p-3 text-center cursor-pointer
-            transition-all duration-200 group
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
-            ${
-              isDragActive
-                ? "border-blue-500 bg-blue-50"
-                : "border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50"
-            }
-          `}
-        >
-          <input {...getInputProps()} aria-label="Upload data files" />
+  const uploaderContent = compact ? (
+    <div className="space-y-3">
+      {/* Compact Upload Button */}
+      <div
+        {...getRootProps()}
+        className={`
+          relative border-2 border-dashed rounded-lg p-3 text-center cursor-pointer
+          transition-all duration-200 group
+          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
+          ${
+            isDragActive
+              ? "border-blue-500 bg-blue-50"
+              : "border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50"
+          }
+        `}
+      >
+        <input {...getInputProps()} aria-label="Upload data files" />
 
-          <div className="flex items-center justify-center gap-2">
-            <svg
-              className={`h-5 w-5 transition-colors ${
-                isDragActive ? "text-blue-600" : "text-slate-500 group-hover:text-blue-600"
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              />
-            </svg>
-            <span className={`text-sm font-medium ${isDragActive ? "text-blue-700" : "text-slate-700"}`}>
-              {isDragActive ? "Drop files here" : "Drop or click to upload"}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-center gap-1.5 mt-2">
-            <span className="text-xs text-slate-500">CSV</span>
-            <span className="text-slate-300">|</span>
-            <span className="text-xs text-slate-500">JSON</span>
-            <span className="text-slate-300">|</span>
-            <span className="text-xs text-slate-500">Parquet</span>
-          </div>
-        </div>
-
-        {/* Sample Data Link */}
-        <a
-          href="/sample_data.csv"
-          download="sample_data.csv"
-          className="flex items-center justify-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 hover:underline transition-colors"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center justify-center gap-2">
+          <svg
+            className={`h-5 w-5 transition-colors ${
+              isDragActive ? "text-blue-600" : "text-slate-500 group-hover:text-blue-600"
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
             />
           </svg>
-          Try sample data
-        </a>
-      </div>
-    );
-  }
+          <span className={`text-sm font-medium ${isDragActive ? "text-blue-700" : "text-slate-700"}`}>
+            {isDragActive ? "Drop files here" : "Drop or click to upload"}
+          </span>
+        </div>
 
-  // Full mode (original layout)
-  return (
+        <div className="flex items-center justify-center gap-1.5 mt-2">
+          <span className="text-xs text-slate-500">CSV</span>
+          <span className="text-slate-300">|</span>
+          <span className="text-xs text-slate-500">JSON</span>
+          <span className="text-slate-300">|</span>
+          <span className="text-xs text-slate-500">Parquet</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setAdvancedOpen(true)}
+        className="w-full flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-100 hover:border-blue-300 transition-colors"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
+          />
+        </svg>
+        Advanced upload
+      </button>
+
+      {/* Sample Data Link */}
+      <a
+        href="/sample_data.csv"
+        download="sample_data.csv"
+        className="flex items-center justify-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+        Try sample data
+      </a>
+    </div>
+  ) : (
     <div className="space-y-4">
       {/* Mobile: Simple Button */}
       <div className="md:hidden">
@@ -196,6 +267,21 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
               Parquet
             </span>
           </div>
+        </button>
+        <button
+          type="button"
+          onClick={() => setAdvancedOpen(true)}
+          className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 hover:border-blue-300 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
+            />
+          </svg>
+          Advanced upload
         </button>
       </div>
 
@@ -289,30 +375,62 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
         )}
       </div>
 
-      {/* Sample Data Download */}
-      <div className="flex items-center justify-center gap-2 text-sm text-slate-600">
-        <span>Don't have a file?</span>
-        <a
-          href="/sample_data.csv"
-          download="sample_data.csv"
-          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
+      <div className="hidden md:flex items-center justify-center">
+        <button
+          type="button"
+          onClick={() => setAdvancedOpen(true)}
+          className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 hover:border-blue-300 transition-colors"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
             />
           </svg>
-          Download sample data
-        </a>
+          Advanced upload
+        </button>
+      </div>
+
+      {/* Sample Data Download */}
+      <div className="flex flex-col items-center justify-center gap-2 text-sm text-slate-600">
+        <div className="flex items-center gap-2">
+          <span>Don't have a file?</span>
+          <a
+            href="/sample_data.csv"
+            download="sample_data.csv"
+            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            Download sample data
+          </a>
+        </div>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {uploaderContent}
+      <AdvancedUploadModal
+        isOpen={advancedOpen}
+        onClose={() => setAdvancedOpen(false)}
+        db={db}
+        onCreateTable={handleAdvancedCreate}
+      />
+    </>
   );
 }

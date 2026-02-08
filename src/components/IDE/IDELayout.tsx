@@ -122,7 +122,7 @@ export default function IDELayout({
   return (
     <>
       {/* Desktop Layout */}
-      <div className="hidden md:flex h-[calc(100vh-10rem)] overflow-hidden">
+      <div className="hidden md:flex h-[calc(100vh-8rem)] overflow-hidden">
         {/* Sidebar */}
         <Sidebar
           isCollapsed={sidebarCollapsed}
@@ -203,7 +203,7 @@ export default function IDELayout({
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden flex flex-col h-[calc(100vh-10rem)]">
+      <div className="md:hidden flex flex-col h-[calc(100vh-8rem)]">
         {/* Mobile Toggle Button */}
         <button
           onClick={() => setMobileDrawerOpen(true)}

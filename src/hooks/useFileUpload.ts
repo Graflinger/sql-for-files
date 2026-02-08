@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 import { set as idbSet } from 'idb-keyval';
+import { defaultTableNameFromFile, sanitizeTableName } from '../utils/tableName';
 
 // Track progress for each file being uploaded
 interface UploadProgress {
@@ -19,6 +20,22 @@ interface UploadProgress {
  * @param db - The DuckDB instance from DuckDBContext
  * @returns {uploadFile, uploading, progress, clearProgress}
  */
+interface CsvUploadOptions {
+  skip?: number;
+  header?: boolean;
+  delim?: string;
+  quote?: string;
+  escape?: string;
+  nullStr?: string;
+  dateformat?: string;
+  decimal_separator?: string;
+}
+
+interface UploadOptions {
+  tableNameOverride?: string;
+  csvOptions?: CsvUploadOptions;
+}
+
 export function useFileUpload(db: AsyncDuckDB | null) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState<UploadProgress[]>([]);
@@ -31,19 +48,14 @@ export function useFileUpload(db: AsyncDuckDB | null) {
    * 2. Register file buffer with DuckDB
    * 3. Create table using appropriate read_*_auto function
    */
-  async function uploadFile(file: File): Promise<string> {
+  async function uploadFile(file: File, options?: UploadOptions): Promise<string> {
     if (!db) throw new Error('Database not initialized');
 
     const fileName = file.name;
-    // Clean table name: remove extension and replace invalid chars with underscore
-    let tableName = fileName
-      .replace(/\.[^/.]+$/, '')        // Remove extension (.csv -> '')
-      .replace(/[^a-zA-Z0-9_]/g, '_'); // Replace special chars with _
-
-    // Table names cannot start with a number, prefix with 'table_' if needed
-    if (/^[0-9]/.test(tableName)) {
-      tableName = `table_${tableName}`;
-    }
+    const defaultTableName = defaultTableNameFromFile(fileName);
+    const tableName = options?.tableNameOverride
+      ? sanitizeTableName(options.tableNameOverride)
+      : defaultTableName;
 
     // Initialize progress tracking
     setProgress(prev => [...prev, {
@@ -78,10 +90,12 @@ export function useFileUpload(db: AsyncDuckDB | null) {
       const conn = await db.connect();
 
       if (fileName.endsWith('.csv')) {
+        const csvOptions = options?.csvOptions;
+        const csvOptionsSql = buildCsvOptionsSql(csvOptions);
         // read_csv_auto automatically detects delimiters, headers, types
         await conn.query(`
           CREATE TABLE ${tableName} AS
-          SELECT * FROM read_csv_auto('${fileName}')
+          SELECT * FROM read_csv_auto('${fileName}'${csvOptionsSql})
         `);
       } else if (fileName.endsWith('.json')) {
         // read_json_auto handles both JSON arrays and newline-delimited JSON
@@ -132,4 +146,49 @@ export function useFileUpload(db: AsyncDuckDB | null) {
   }
 
   return { uploadFile, uploading, progress, clearProgress };
+}
+
+function buildCsvOptionsSql(options?: CsvUploadOptions): string {
+  if (!options) return '';
+
+  const parts: string[] = [];
+
+  if (typeof options.skip === 'number') {
+    parts.push(`skip=${options.skip}`);
+  }
+
+  if (typeof options.header === 'boolean') {
+    parts.push(`header=${options.header}`);
+  }
+
+  if (options.delim) {
+    parts.push(`delim='${escapeSqlString(options.delim)}'`);
+  }
+
+  if (options.quote) {
+    parts.push(`quote='${escapeSqlString(options.quote)}'`);
+  }
+
+  if (options.escape) {
+    parts.push(`escape='${escapeSqlString(options.escape)}'`);
+  }
+
+  if (options.nullStr) {
+    parts.push(`nullstr='${escapeSqlString(options.nullStr)}'`);
+  }
+
+  if (options.dateformat) {
+    parts.push(`dateformat='${escapeSqlString(options.dateformat)}'`);
+  }
+
+  if (options.decimal_separator) {
+    parts.push(`decimal_separator='${escapeSqlString(options.decimal_separator)}'`);
+  }
+
+  if (parts.length === 0) return '';
+  return `, ${parts.join(', ')}`;
+}
+
+function escapeSqlString(value: string): string {
+  return value.replace(/'/g, "''");
 }
