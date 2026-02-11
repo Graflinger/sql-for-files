@@ -76,7 +76,9 @@ const outputPathForRoute = (route) => {
 
 const run = async () => {
   const server = await startServer();
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
 
   try {
     for (const route of routes) {
