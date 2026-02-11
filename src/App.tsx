@@ -7,6 +7,7 @@ import Privacy from "./pages/Privacy";
 import Legal from "./pages/Legal";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import { AccessProvider } from "./contexts/AccessContext";
 import NotificationContainer from "./components/Notification/NotificationContainer";
 
 const SqlEditor = lazy(() => import("./pages/SQLEditor"));
@@ -19,25 +20,27 @@ const SqlEditor = lazy(() => import("./pages/SQLEditor"));
 function App() {
   return (
     <NotificationProvider>
-      <ScrollToTop />
-      <NotificationContainer />
-      <Layout>
-        <Suspense
-          fallback={
-            <div className="mx-auto max-w-5xl px-4 py-16 text-center text-slate-600">
-              Loading the SQL editor...
-            </div>
-          }
-        >
-          <Routes>
-            <Route path="/editor" element={<SqlEditor />} />
-            <Route path="/" element={<About />} />
-            <Route path="/docs" element={<Docs />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/legal" element={<Legal />} />
-          </Routes>
-        </Suspense>
-      </Layout>
+      <AccessProvider>
+        <ScrollToTop />
+        <NotificationContainer />
+        <Layout>
+          <Suspense
+            fallback={
+              <div className="mx-auto max-w-5xl px-4 py-16 text-center text-slate-600">
+                Loading the SQL editor...
+              </div>
+            }
+          >
+            <Routes>
+              <Route path="/editor" element={<SqlEditor />} />
+              <Route path="/" element={<About />} />
+              <Route path="/docs" element={<Docs />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/legal" element={<Legal />} />
+            </Routes>
+          </Suspense>
+        </Layout>
+      </AccessProvider>
     </NotificationProvider>
   );
 }

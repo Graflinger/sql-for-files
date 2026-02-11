@@ -1,8 +1,9 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useFileUpload } from "../../hooks/useFileUpload";
 import { useNotifications } from "../../contexts/NotificationContext";
+import { useAccess } from "../../contexts/AccessContext";
 import AdvancedUploadModal from "./AdvancedUploadModal";
 
 interface FileUploaderProps {
@@ -21,7 +22,15 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
   const { db, refreshTables } = useDuckDBContext();
   const { uploadFile } = useFileUpload(db);
   const { addNotification, updateNotification } = useNotifications();
+  const { can } = useAccess();
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const canAdvancedUpload = can("advancedUpload");
+
+  useEffect(() => {
+    if (!canAdvancedUpload && advancedOpen) {
+      setAdvancedOpen(false);
+    }
+  }, [canAdvancedUpload, advancedOpen]);
 
   /**
    * Handle dropped files
@@ -89,6 +98,14 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
         decimal_separator?: string;
       };
     }) => {
+      if (!canAdvancedUpload) {
+        addNotification({
+          type: "info",
+          title: "Advanced upload is locked",
+          message: "Switch to Paid in Login to unlock advanced upload.",
+        });
+        return;
+      }
       const { file, tableName, csvOptions } = params;
       const notificationId = addNotification({
         type: "uploading",
@@ -129,8 +146,20 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
         throw error;
       }
     },
-    [addNotification, refreshTables, updateNotification, uploadFile]
+    [addNotification, canAdvancedUpload, refreshTables, updateNotification, uploadFile]
   );
+
+  const handleOpenAdvanced = useCallback(() => {
+    if (!canAdvancedUpload) {
+      addNotification({
+        type: "info",
+        title: "Advanced upload is locked",
+        message: "Switch to Paid in Login to unlock advanced upload.",
+      });
+      return;
+    }
+    setAdvancedOpen(true);
+  }, [addNotification, canAdvancedUpload]);
 
   /**
    * Configure react-dropzone
@@ -198,8 +227,14 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
 
       <button
         type="button"
-        onClick={() => setAdvancedOpen(true)}
-        className="w-full flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm hover:bg-blue-100 hover:border-blue-300 transition-colors"
+        onClick={handleOpenAdvanced}
+        aria-disabled={!canAdvancedUpload}
+        title={canAdvancedUpload ? "Advanced upload" : "Paid plan required"}
+        className={`w-full flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 shadow-sm transition-colors ${
+          canAdvancedUpload
+            ? "hover:bg-blue-100 hover:border-blue-300"
+            : "opacity-60 cursor-not-allowed"
+        }`}
       >
         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -210,6 +245,11 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
           />
         </svg>
         Advanced upload
+        {!canAdvancedUpload && (
+          <span className="text-[10px] uppercase tracking-wide text-blue-700/70">
+            Paid
+          </span>
+        )}
       </button>
 
       {/* Sample Data Link */}
@@ -270,8 +310,14 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
         </button>
         <button
           type="button"
-          onClick={() => setAdvancedOpen(true)}
-          className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 hover:border-blue-300 transition-colors"
+          onClick={handleOpenAdvanced}
+          aria-disabled={!canAdvancedUpload}
+          title={canAdvancedUpload ? "Advanced upload" : "Paid plan required"}
+          className={`mt-3 w-full flex items-center justify-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm transition-colors ${
+            canAdvancedUpload
+              ? "hover:bg-blue-100 hover:border-blue-300"
+              : "opacity-60 cursor-not-allowed"
+          }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -282,6 +328,11 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
             />
           </svg>
           Advanced upload
+          {!canAdvancedUpload && (
+            <span className="text-[10px] uppercase tracking-wide text-blue-700/70">
+              Paid
+            </span>
+          )}
         </button>
       </div>
 
@@ -378,8 +429,14 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
       <div className="hidden md:flex items-center justify-center">
         <button
           type="button"
-          onClick={() => setAdvancedOpen(true)}
-          className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-100 hover:border-blue-300 transition-colors"
+          onClick={handleOpenAdvanced}
+          aria-disabled={!canAdvancedUpload}
+          title={canAdvancedUpload ? "Advanced upload" : "Paid plan required"}
+          className={`inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-700 shadow-sm transition-colors ${
+            canAdvancedUpload
+              ? "hover:bg-blue-100 hover:border-blue-300"
+              : "opacity-60 cursor-not-allowed"
+          }`}
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -390,6 +447,11 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
             />
           </svg>
           Advanced upload
+          {!canAdvancedUpload && (
+            <span className="text-[10px] uppercase tracking-wide text-blue-700/70">
+              Paid
+            </span>
+          )}
         </button>
       </div>
 
@@ -426,7 +488,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
     <>
       {uploaderContent}
       <AdvancedUploadModal
-        isOpen={advancedOpen}
+        isOpen={advancedOpen && canAdvancedUpload}
         onClose={() => setAdvancedOpen(false)}
         db={db}
         onCreateTable={handleAdvancedCreate}
