@@ -341,14 +341,14 @@ export default function SQLEditor({
       </div>
 
       {/* Action Buttons */}
-      <div className={`flex items-center justify-between ${flexHeight ? "flex-shrink-0 px-4 py-2 border-t border-slate-200 bg-white" : ""}`}>
-        <div className="flex items-center gap-3">
+      <div className={`flex items-center justify-between flex-wrap gap-2 ${flexHeight ? "flex-shrink-0 px-3 sm:px-4 py-2 border-t border-slate-200 bg-white" : ""}`}>
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleRunQuery}
             disabled={executing || disabled}
             aria-label="Run SQL query"
             className={`
-              group relative px-5 py-2 rounded-lg font-semibold transition-colors duration-200 overflow-hidden text-sm
+              group relative px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors duration-200 overflow-hidden text-sm
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
               ${
                 executing || disabled
@@ -358,7 +358,7 @@ export default function SQLEditor({
             `}
           >
             {executing ? (
-              <span className="flex items-center gap-2 justify-center sm:justify-start">
+              <span className="flex items-center gap-2 justify-center">
                 <svg
                   className="animate-spin h-4 w-4"
                   width="16"
@@ -380,10 +380,10 @@ export default function SQLEditor({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Executing...
+                <span className="hidden sm:inline">Executing...</span>
               </span>
             ) : (
-              <span className="flex items-center gap-2 justify-center sm:justify-start">
+              <span className="flex items-center gap-2 justify-center">
                 <svg
                   className="w-4 h-4"
                   width="16"
@@ -405,7 +405,7 @@ export default function SQLEditor({
                     d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Run Query
+                <span className="hidden sm:inline">Run Query</span>
               </span>
             )}
           </button>
