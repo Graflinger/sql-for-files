@@ -26,6 +26,3 @@ dist-ssr
 *.md
 !claude.md
 !README.md
-
-# DuckDB worker JS (copied from node_modules via postinstall)
-public/duckdb-browser-*.worker.js
