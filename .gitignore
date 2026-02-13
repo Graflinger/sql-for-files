@@ -27,6 +27,5 @@ dist-ssr
 !claude.md
 !README.md
 
-# DuckDB WASM bundles (copied from node_modules via postinstall)
-public/duckdb-*.wasm
+# DuckDB worker JS (copied from node_modules via postinstall)
 public/duckdb-browser-*.worker.js

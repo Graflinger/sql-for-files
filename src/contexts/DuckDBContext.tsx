@@ -2,15 +2,18 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import * as duckdb from '@duckdb/duckdb-wasm';
 import { AsyncDuckDB, ConsoleLogger } from '@duckdb/duckdb-wasm';
 
-// Self-hosted bundles from public/ directory
-// These files are copied from node_modules/@duckdb/duckdb-wasm/dist/ via postinstall
+// Hybrid bundles: WASM from CDN (too large for Cloudflare Pages 25 MiB limit),
+// worker JS self-hosted from public/ (avoids CDN MIME type issues with script loading)
+const DUCKDB_VERSION = '1.33.1-dev5.0';
+const CDN_BASE = `https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@${DUCKDB_VERSION}/dist`;
+
 const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
   mvp: {
-    mainModule: new URL('/duckdb-mvp.wasm', import.meta.url).href,
+    mainModule: `${CDN_BASE}/duckdb-mvp.wasm`,
     mainWorker: new URL('/duckdb-browser-mvp.worker.js', import.meta.url).href,
   },
   eh: {
-    mainModule: new URL('/duckdb-eh.wasm', import.meta.url).href,
+    mainModule: `${CDN_BASE}/duckdb-eh.wasm`,
     mainWorker: new URL('/duckdb-browser-eh.worker.js', import.meta.url).href,
   },
 };
