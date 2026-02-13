@@ -1,6 +1,19 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
-import { getDuckDB, initializeDuckDb } from 'duckdb-wasm-kit';
+import * as duckdb from '@duckdb/duckdb-wasm';
+import { AsyncDuckDB, ConsoleLogger } from '@duckdb/duckdb-wasm';
+
+// Self-hosted bundles from public/ directory
+// These files are copied from node_modules/@duckdb/duckdb-wasm/dist/ via postinstall
+const MANUAL_BUNDLES: duckdb.DuckDBBundles = {
+  mvp: {
+    mainModule: new URL('/duckdb-mvp.wasm', import.meta.url).href,
+    mainWorker: new URL('/duckdb-browser-mvp.worker.js', import.meta.url).href,
+  },
+  eh: {
+    mainModule: new URL('/duckdb-eh.wasm', import.meta.url).href,
+    mainWorker: new URL('/duckdb-browser-eh.worker.js', import.meta.url).href,
+  },
+};
 
 // Define the shape of our context data
 interface DuckDBContextType {
@@ -30,14 +43,28 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     async function init() {
       try {
-        // Step 1: Initialize DuckDB-WASM (downloads and loads the WASM bundle)
-        await initializeDuckDb();
+        // Step 1: Select the best bundle for this browser (eh > mvp)
+        const bundle = await duckdb.selectBundle(MANUAL_BUNDLES);
 
-        // Step 2: Get the database instance
-        const dbInstance = await getDuckDB();
+        // Step 2: Create a Web Worker for DuckDB
+        const worker_url = URL.createObjectURL(
+          new Blob([`importScripts("${bundle.mainWorker}");`], {
+            type: 'text/javascript',
+          }),
+        );
+        const worker = new Worker(worker_url);
+
+        // Step 3: Instantiate the async DuckDB instance
+        const logger = new ConsoleLogger();
+        const dbInstance = new AsyncDuckDB(logger, worker);
+        await dbInstance.instantiate(bundle.mainModule, bundle.pthreadWorker);
+
+        // Clean up the blob URL
+        URL.revokeObjectURL(worker_url);
+
         setDb(dbInstance);
 
-        // Step 3: Load the initial table list (empty on first load)
+        // Step 4: Load the initial table list (empty on first load)
         await refreshTables(dbInstance);
       } catch (err) {
         console.error('Failed to initialize DuckDB:', err);
