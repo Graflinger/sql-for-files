@@ -5,10 +5,11 @@ import SidebarSection from "./SidebarSection";
 import ResizeHandle from "./ResizeHandle";
 import EditorPanel from "./EditorPanel";
 import ResultsPanel from "./ResultsPanel";
+import type { EditorTab } from "../../hooks/useEditorTabs";
 
 interface IDELayoutProps {
   sidebarContent: {
-    upload: ReactNode;
+    addData: ReactNode;
     tables: ReactNode;
     tableCount?: number;
   };
@@ -18,6 +19,14 @@ interface IDELayoutProps {
     rowCount?: number;
     executionTime?: number;
     hasError?: boolean;
+  };
+  editorTabs: {
+    tabs: EditorTab[];
+    activeTabId: string;
+    onSelectTab: (id: string) => void;
+    onAddTab: () => void;
+    onCloseTab: (id: string) => void;
+    onRenameTab: (id: string, name: string) => void;
   };
 }
 
@@ -50,6 +59,7 @@ export default function IDELayout({
   editorContent,
   resultsContent,
   resultStats,
+  editorTabs,
 }: IDELayoutProps) {
   // Layout state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -153,7 +163,7 @@ export default function IDELayout({
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         >
           <SidebarSection
-            title="Upload Data"
+            title="Add Data"
             icon={
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -169,7 +179,7 @@ export default function IDELayout({
             <div className="text-xs text-slate-500 mb-2">
               Your data never leaves your device
             </div>
-            {sidebarContent.upload}
+            {sidebarContent.addData}
           </SidebarSection>
 
           <SidebarSection
@@ -195,7 +205,16 @@ export default function IDELayout({
         <div className="flex-1 flex flex-col min-w-0 bg-slate-50">
           {/* Editor Panel - Flex grow to fill available space */}
           <div className="flex-1 min-h-0 flex flex-col">
-            <EditorPanel>{editorContent}</EditorPanel>
+            <EditorPanel
+              tabs={editorTabs.tabs}
+              activeTabId={editorTabs.activeTabId}
+              onSelectTab={editorTabs.onSelectTab}
+              onAddTab={editorTabs.onAddTab}
+              onCloseTab={editorTabs.onCloseTab}
+              onRenameTab={editorTabs.onRenameTab}
+            >
+              {editorContent}
+            </EditorPanel>
           </div>
 
           {/* Resize Handle */}
@@ -363,7 +382,7 @@ export default function IDELayout({
 
               {/* Sidebar Content */}
               <SidebarSection
-                title="Upload Data"
+                title="Add Data"
                 icon={
                   <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
@@ -378,7 +397,7 @@ export default function IDELayout({
                 <div className="text-xs text-slate-500 mb-2">
                   Your data never leaves your device
                 </div>
-                {sidebarContent.upload}
+                {sidebarContent.addData}
               </SidebarSection>
 
               <SidebarSection
@@ -406,7 +425,16 @@ export default function IDELayout({
           {/* Editor Tab */}
           {mobileActiveTab === "editor" && (
             <div className="flex-1 min-h-0 flex flex-col">
-              <EditorPanel>{editorContent}</EditorPanel>
+              <EditorPanel
+                tabs={editorTabs.tabs}
+                activeTabId={editorTabs.activeTabId}
+                onSelectTab={editorTabs.onSelectTab}
+                onAddTab={editorTabs.onAddTab}
+                onCloseTab={editorTabs.onCloseTab}
+                onRenameTab={editorTabs.onRenameTab}
+              >
+                {editorContent}
+              </EditorPanel>
             </div>
           )}
 

@@ -1,25 +1,25 @@
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
-import { useFileUpload } from "../../hooks/useFileUpload";
+import { useFileAdd } from "../../hooks/useFileAdd";
 import { useNotifications } from "../../contexts/NotificationContext";
-import AdvancedUploadModal from "./AdvancedUploadModal";
+import AdvancedAddModal from "./AdvancedAddModal";
 
-interface FileUploaderProps {
+interface FileAdderProps {
   compact?: boolean;
 }
 
 /**
- * FileUploader Component
+ * FileAdder Component
  *
- * Provides a drag-and-drop zone for uploading CSV, JSON, and Parquet files.
- * Shows toast notifications for upload progress and errors.
+ * Provides a drag-and-drop zone for adding CSV, JSON, and Parquet files.
+ * Shows toast notifications for progress and errors.
  *
  * @param compact - When true, renders a simplified version for sidebar use
  */
-export default function FileUploader({ compact = false }: FileUploaderProps) {
+export default function FileAdder({ compact = false }: FileAdderProps) {
   const { db, refreshTables } = useDuckDBContext();
-  const { uploadFile } = useFileUpload(db);
+  const { addFile } = useFileAdd(db);
   const { addNotification, updateNotification } = useNotifications();
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
@@ -29,13 +29,13 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
    */
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      // Upload each file sequentially
+      // Add each file sequentially
       for (const file of acceptedFiles) {
-        // Show uploading notification
+        // Show adding notification
         const notificationId = addNotification({
-          type: 'uploading',
+          type: 'adding',
           title: file.name,
-          message: 'Uploading file...',
+          message: 'Adding file...',
         });
 
         try {
@@ -45,7 +45,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
             message: 'Creating table...',
           });
 
-          const tableName = await uploadFile(file);
+          const tableName = await addFile(file);
 
           // Update to success
           updateNotification(notificationId, {
@@ -63,7 +63,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
           // Update to error
           updateNotification(notificationId, {
             type: 'error',
-            title: `Failed to upload ${file.name}`,
+            title: `Failed to add ${file.name}`,
             message: 'Click "Show details" to see the error',
             error: errorMessage,
             autoClose: false,
@@ -71,7 +71,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
         }
       }
     },
-    [uploadFile, refreshTables, addNotification, updateNotification]
+    [addFile, refreshTables, addNotification, updateNotification]
   );
 
   const handleAdvancedCreate = useCallback(
@@ -91,9 +91,9 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
     }) => {
       const { file, tableName, csvOptions } = params;
       const notificationId = addNotification({
-        type: "uploading",
+        type: "adding",
         title: file.name,
-        message: "Uploading file...",
+        message: "Adding file...",
       });
 
       try {
@@ -102,7 +102,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
           message: "Creating table...",
         });
 
-        const createdTable = await uploadFile(file, {
+        const createdTable = await addFile(file, {
           tableNameOverride: tableName,
           csvOptions,
         });
@@ -121,7 +121,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
 
         updateNotification(notificationId, {
           type: "error",
-          title: `Failed to upload ${file.name}`,
+          title: `Failed to add ${file.name}`,
           message: 'Click "Show details" to see the error',
           error: errorMessage,
           autoClose: false,
@@ -129,7 +129,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
         throw error;
       }
     },
-    [addNotification, refreshTables, updateNotification, uploadFile]
+    [addNotification, refreshTables, updateNotification, addFile]
   );
 
   /**
@@ -148,9 +148,9 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
   });
 
   // Compact mode for sidebar
-  const uploaderContent = compact ? (
+  const adderContent = compact ? (
     <div className="space-y-3">
-      {/* Compact Upload Button */}
+      {/* Compact Add Button */}
       <div
         {...getRootProps()}
         className={`
@@ -164,7 +164,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
           }
         `}
       >
-        <input {...getInputProps()} aria-label="Upload data files" />
+        <input {...getInputProps()} aria-label="Add data files" />
 
         <div className="flex items-center justify-center gap-2">
           <svg
@@ -183,7 +183,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
             />
           </svg>
           <span className={`text-sm font-medium ${isDragActive ? "text-blue-700" : "text-slate-700"}`}>
-            {isDragActive ? "Drop files here" : "Drop or click to upload"}
+            {isDragActive ? "Drop files here" : "Drop or click to add files"}
           </span>
         </div>
 
@@ -209,7 +209,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
             d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
           />
         </svg>
-        Advanced upload
+        Advanced options
       </button>
 
       {/* Sample Data Link */}
@@ -237,7 +237,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
           {...getRootProps()}
           className="w-full relative bg-gradient-to-br from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          <input {...getInputProps()} aria-label="Upload data files" />
+          <input {...getInputProps()} aria-label="Add data files" />
 
           <div className="flex items-center justify-center gap-3">
             <svg
@@ -281,7 +281,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
               d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
             />
           </svg>
-          Advanced upload
+          Advanced options
         </button>
       </div>
 
@@ -300,7 +300,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
           }
         `}
       >
-        <input {...getInputProps()} aria-label="Upload data files" />
+        <input {...getInputProps()} aria-label="Add data files" />
 
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -350,7 +350,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
             <p className="text-xl text-blue-700 font-bold mb-2">
               Drop the files here!
             </p>
-            <p className="text-sm text-blue-600">Release to upload</p>
+            <p className="text-sm text-blue-600">Release to add</p>
           </div>
         ) : (
           <div className="relative">
@@ -389,7 +389,7 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
               d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z"
             />
           </svg>
-          Advanced upload
+          Advanced options
         </button>
       </div>
 
@@ -424,8 +424,8 @@ export default function FileUploader({ compact = false }: FileUploaderProps) {
 
   return (
     <>
-      {uploaderContent}
-      <AdvancedUploadModal
+      {adderContent}
+      <AdvancedAddModal
         isOpen={advancedOpen}
         onClose={() => setAdvancedOpen(false)}
         db={db}

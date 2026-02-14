@@ -19,7 +19,7 @@ interface PreviewResult {
   rowCount: number;
 }
 
-interface AdvancedUploadModalProps {
+interface AdvancedAddModalProps {
   isOpen: boolean;
   onClose: () => void;
   db: AsyncDuckDB | null;
@@ -125,12 +125,12 @@ function getPreviewQuery(file: File, csvOptions?: CsvOptions) {
   return "";
 }
 
-export default function AdvancedUploadModal({
+export default function AdvancedAddModal({
   isOpen,
   onClose,
   db,
   onCreateTable,
-}: AdvancedUploadModalProps) {
+}: AdvancedAddModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [rawTableName, setRawTableName] = useState("");
   const [tableNameTouched, setTableNameTouched] = useState(false);
@@ -284,7 +284,7 @@ export default function AdvancedUploadModal({
         <div className="flex items-start justify-between px-6 py-4 border-b border-slate-200">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">
-              Advanced Upload
+              Advanced Options
             </h2>
             <p className="text-sm text-slate-500">
               Preview data and configure CSV settings before creating a table
@@ -293,7 +293,7 @@ export default function AdvancedUploadModal({
           <button
             onClick={onClose}
             className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-            aria-label="Close advanced upload"
+            aria-label="Close advanced options"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

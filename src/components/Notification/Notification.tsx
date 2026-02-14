@@ -40,7 +40,7 @@ export default function Notification({ notification }: NotificationProps) {
             />
           </svg>
         );
-      case "uploading":
+      case "adding":
         return (
           <svg
             className="w-5 h-5 text-blue-600 animate-pulse"
@@ -101,7 +101,7 @@ export default function Notification({ notification }: NotificationProps) {
         return "bg-green-50 border-green-200";
       case "error":
         return "bg-red-50 border-red-200";
-      case "uploading":
+      case "adding":
         return "bg-blue-50 border-blue-200";
       case "processing":
         return "bg-purple-50 border-purple-200";
@@ -116,7 +116,7 @@ export default function Notification({ notification }: NotificationProps) {
         return "text-green-800";
       case "error":
         return "text-red-800";
-      case "uploading":
+      case "adding":
         return "text-blue-800";
       case "processing":
         return "text-purple-800";
@@ -131,7 +131,7 @@ export default function Notification({ notification }: NotificationProps) {
         return "text-green-700";
       case "error":
         return "text-red-700";
-      case "uploading":
+      case "adding":
         return "text-blue-700";
       case "processing":
         return "text-purple-700";
@@ -144,7 +144,7 @@ export default function Notification({ notification }: NotificationProps) {
     switch (notification.type) {
       case "success":
         return "bg-green-500";
-      case "uploading":
+      case "adding":
         return "bg-blue-500";
       case "processing":
         return "bg-purple-500";

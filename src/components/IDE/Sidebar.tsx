@@ -67,11 +67,11 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
       {/* Collapsed Icons - Show when collapsed */}
       {isCollapsed && (
         <div className="flex flex-col items-center py-4 gap-4">
-          {/* Upload Icon */}
+          {/* Add Data Icon */}
           <button
             onClick={onToggle}
             className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-            title="Upload Data"
+            title="Add Data"
           >
             <svg
               className="w-5 h-5 text-slate-600"

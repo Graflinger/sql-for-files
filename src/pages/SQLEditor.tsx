@@ -1,5 +1,7 @@
-import { DuckDBProvider, useDuckDBContext } from "../contexts/DuckDBContext";
-import FileUploader from "../components/FileUploader/FileUploader";
+import { useCallback, useEffect, useRef } from "react";
+import { useDuckDBContext } from "../contexts/DuckDBContext";
+import { useEditorTabsContext } from "../contexts/EditorTabsContext";
+import FileAdder from "../components/FileAdder/FileAdder";
 import SQLEditor from "../components/SQLEditor/SQLEditor";
 import TableList from "../components/DatabaseManager/TableList";
 import QueryResults from "../components/QueryResults/QueryResults";
@@ -12,13 +14,29 @@ import SEO from "../components/SEO/SEO";
  * SQL Editor Page Content
  *
  * Uses the IDE layout with:
- * - Collapsible sidebar (file upload + table list)
- * - SQL editor panel (top)
- * - Resizable results panel (bottom)
+ * - Collapsible sidebar (file adder + table list)
+ * - SQL editor panel with tabs (top)
+ * - Resizable results panel with Data/Visualisation/Classification tabs (bottom)
+ *
+ * DuckDBProvider and EditorTabsProvider live in App.tsx (global)
+ * so state survives navigation between pages.
  */
 function SQLEditorContent() {
   const { db, tables } = useDuckDBContext();
   const { addQuery } = useQueryHistory();
+
+  // Editor tabs state (from global context)
+  const {
+    tabs,
+    activeTabId,
+    activeTab,
+    setActiveTab,
+    addTab,
+    closeTab,
+    updateTabSql,
+    updateTabResult,
+    renameTab,
+  } = useEditorTabsContext();
 
   const { executeQuery, executing, result, error } = useQueryExecution(db, {
     onQueryExecuted: async (params) => {
@@ -26,29 +44,63 @@ function SQLEditorContent() {
     },
   });
 
-  const handleExecute = async (sql: string) => {
-    await executeQuery(sql);
-  };
+  // Track which tab initiated the current query execution
+  const executingTabIdRef = useRef<string>(activeTabId);
 
-  const handlePreviewTable = async (tableName: string) => {
-    await executeQuery(`SELECT * FROM ${tableName} LIMIT 10`);
-  };
+  // Sync hook's result/error into the tab that initiated the query
+  useEffect(() => {
+    if (result) {
+      updateTabResult(executingTabIdRef.current, result, null);
+    }
+  }, [result, updateTabResult]);
 
-  // Result stats for the results panel header
-  const resultStats = result
+  useEffect(() => {
+    if (error) {
+      updateTabResult(executingTabIdRef.current, null, error);
+    }
+  }, [error, updateTabResult]);
+
+  const handleExecute = useCallback(
+    async (sql: string) => {
+      // Remember which tab started this execution
+      executingTabIdRef.current = activeTabId;
+      await executeQuery(sql);
+    },
+    [executeQuery, activeTabId]
+  );
+
+  const handlePreviewTable = useCallback(
+    async (tableName: string) => {
+      const sql = `SELECT * FROM ${tableName} LIMIT 100`;
+      const newTabId = addTab({ name: `Preview: ${tableName}`, sql });
+      executingTabIdRef.current = newTabId;
+      await executeQuery(sql);
+    },
+    [addTab, executeQuery]
+  );
+
+  const handleSqlChange = useCallback(
+    (sql: string) => {
+      updateTabSql(activeTabId, sql);
+    },
+    [activeTabId, updateTabSql]
+  );
+
+  // Result stats for the results panel header (from active tab)
+  const resultStats = activeTab.result
     ? {
-        rowCount: result.rowCount,
-        executionTime: result.executionTime,
+        rowCount: activeTab.result.rowCount,
+        executionTime: activeTab.result.executionTime,
         hasError: false,
       }
-    : error
+    : activeTab.error
     ? { hasError: true }
     : undefined;
 
   return (
     <IDELayout
       sidebarContent={{
-        upload: <FileUploader compact />,
+        addData: <FileAdder compact />,
         tables: <TableList onPreviewTable={handlePreviewTable} />,
         tableCount: tables.length > 0 ? tables.length : undefined,
       }}
@@ -58,10 +110,26 @@ function SQLEditorContent() {
           executing={executing}
           disabled={!db}
           flexHeight
+          value={activeTab.sql}
+          onChange={handleSqlChange}
         />
       }
-      resultsContent={<QueryResults result={result} error={error} embedded />}
+      resultsContent={
+        <QueryResults
+          result={activeTab.result}
+          error={activeTab.error}
+          embedded
+        />
+      }
       resultStats={resultStats}
+      editorTabs={{
+        tabs,
+        activeTabId,
+        onSelectTab: setActiveTab,
+        onAddTab: addTab,
+        onCloseTab: closeTab,
+        onRenameTab: renameTab,
+      }}
     />
   );
 }
@@ -69,11 +137,12 @@ function SQLEditorContent() {
 /**
  * SQL Editor Page
  *
- * Wraps content with DuckDB provider for database access.
+ * DuckDB and editor tab providers are global (in App.tsx),
+ * so this component is just SEO + content.
  */
 export default function SqlEditorPage() {
   return (
-    <DuckDBProvider>
+    <>
       <SEO
         title="SQL Editor for CSV, JSON & Parquet | SQL for Files"
         description="Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Private, client-side data processing powered by DuckDB WASM."
@@ -82,6 +151,6 @@ export default function SqlEditorPage() {
         imageAlt="SQL for Files SQL editor"
       />
       <SQLEditorContent />
-    </DuckDBProvider>
+    </>
   );
 }

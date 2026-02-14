@@ -10,6 +10,10 @@ interface SQLEditorProps {
   disabled?: boolean;
   /** When true, the editor fills its container height */
   flexHeight?: boolean;
+  /** Controlled value: SQL text managed by parent (for multi-tab support) */
+  value?: string;
+  /** Called when SQL text changes (for multi-tab support) */
+  onChange?: (sql: string) => void;
 }
 
 /**
@@ -22,9 +26,21 @@ export default function SQLEditor({
   executing,
   disabled = false,
   flexHeight = false,
+  value,
+  onChange,
 }: SQLEditorProps) {
-  // SQL query text
-  const [sql, setSql] = useState("SELECT * FROM your_table LIMIT 10;");
+  // Internal state used when not in controlled mode
+  const [internalSql, setInternalSql] = useState("SELECT * FROM your_table LIMIT 10;");
+
+  // Use controlled value if provided, otherwise internal state
+  const sql = value !== undefined ? value : internalSql;
+  const setSql = (newSql: string) => {
+    if (onChange) {
+      onChange(newSql);
+    } else {
+      setInternalSql(newSql);
+    }
+  };
   const [editorHeight, setEditorHeight] = useState(200);
   const [isResizing, setIsResizing] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);

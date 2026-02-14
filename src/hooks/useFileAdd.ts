@@ -3,24 +3,24 @@ import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 import { set as idbSet } from 'idb-keyval';
 import { defaultTableNameFromFile, sanitizeTableName } from '../utils/tableName';
 
-// Track progress for each file being uploaded
-interface UploadProgress {
+// Track progress for each file being added
+interface AddProgress {
   fileName: string;
   progress: number; // 0-100
-  status: 'uploading' | 'processing' | 'done' | 'error';
+  status: 'adding' | 'processing' | 'done' | 'error';
   error?: string;
 }
 
 /**
- * useFileUpload Hook
+ * useFileAdd Hook
  *
- * Provides file upload functionality with progress tracking.
+ * Provides file add functionality with progress tracking.
  * Handles CSV, JSON, and Parquet files.
  *
  * @param db - The DuckDB instance from DuckDBContext
- * @returns {uploadFile, uploading, progress, clearProgress}
+ * @returns {addFile, adding, progress, clearProgress}
  */
-interface CsvUploadOptions {
+interface CsvAddOptions {
   skip?: number;
   header?: boolean;
   delim?: string;
@@ -31,24 +31,24 @@ interface CsvUploadOptions {
   decimal_separator?: string;
 }
 
-interface UploadOptions {
+interface AddOptions {
   tableNameOverride?: string;
-  csvOptions?: CsvUploadOptions;
+  csvOptions?: CsvAddOptions;
 }
 
-export function useFileUpload(db: AsyncDuckDB | null) {
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState<UploadProgress[]>([]);
+export function useFileAdd(db: AsyncDuckDB | null) {
+  const [adding, setAdding] = useState(false);
+  const [progress, setProgress] = useState<AddProgress[]>([]);
 
   /**
-   * Upload a file and create a table in DuckDB
+   * Add a file and create a table in DuckDB
    *
    * Process:
    * 1. Store file in IndexedDB for persistence
    * 2. Register file buffer with DuckDB
    * 3. Create table using appropriate read_*_auto function
    */
-  async function uploadFile(file: File, options?: UploadOptions): Promise<string> {
+  async function addFile(file: File, options?: AddOptions): Promise<string> {
     if (!db) throw new Error('Database not initialized');
 
     const fileName = file.name;
@@ -61,11 +61,11 @@ export function useFileUpload(db: AsyncDuckDB | null) {
     setProgress(prev => [...prev, {
       fileName,
       progress: 0,
-      status: 'uploading'
+      status: 'adding'
     }]);
 
     try {
-      setUploading(true);
+      setAdding(true);
 
       // Step 1: Store original file in IndexedDB
       // This allows us to persist files across page refreshes
@@ -79,7 +79,7 @@ export function useFileUpload(db: AsyncDuckDB | null) {
       // This makes the file available to DuckDB's SQL functions
       await db.registerFileBuffer(fileName, uint8Array);
 
-      // Update progress: file uploaded
+      // Update progress: file registered
       setProgress(prev => prev.map(p =>
         p.fileName === fileName
           ? { ...p, progress: 50, status: 'processing' }
@@ -133,22 +133,22 @@ export function useFileUpload(db: AsyncDuckDB | null) {
       ));
       throw error;
     } finally {
-      setUploading(false);
+      setAdding(false);
     }
   }
 
   /**
    * Clear the progress list
-   * Useful after all uploads are complete
+   * Useful after all additions are complete
    */
   function clearProgress() {
     setProgress([]);
   }
 
-  return { uploadFile, uploading, progress, clearProgress };
+  return { addFile, adding, progress, clearProgress };
 }
 
-function buildCsvOptionsSql(options?: CsvUploadOptions): string {
+function buildCsvOptionsSql(options?: CsvAddOptions): string {
   if (!options) return '';
 
   const parts: string[] = [];
