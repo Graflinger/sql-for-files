@@ -332,7 +332,7 @@ export default function About() {
                     <span className="font-semibold">
                       ChatGPT, Gemini, and Claude
                     </span>{" "}
-                    can help you write powerful SQL queries — but uploading your
+                     can help you write powerful SQL queries — but sending your
                     sensitive data to these AI services can violate your data
                     protection policies and compliance requirements.
                   </p>
@@ -389,7 +389,7 @@ export default function About() {
           </h2>
           <p className="text-lg text-slate-700 text-center max-w-3xl mx-auto mb-8">
             SQL for Files leverages WebAssembly technology to run a complete SQL
-            database engine directly in your browser. Upload your files, write
+             database engine directly in your browser. Add your files, write
             queries, and get results instantly — all without ever sending your
             data anywhere.
           </p>

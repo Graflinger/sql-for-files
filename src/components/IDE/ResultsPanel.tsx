@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import ResultsTabsContainer from "./ResultsTabs";
 
 interface ResultsPanelProps {
   children: ReactNode;
@@ -14,6 +15,7 @@ interface ResultsPanelProps {
  *
  * Wrapper for query results with collapsible summary bar.
  * Shows row count and execution time when collapsed.
+ * Contains result tabs (Data / Visualisation / Classification).
  */
 export default function ResultsPanel({
   children,
@@ -97,9 +99,11 @@ export default function ResultsPanel({
         </span>
       </button>
 
-      {/* Results Content - Hidden when collapsed */}
+      {/* Results Content with Tabs - Hidden when collapsed */}
       {!isCollapsed && (
-        <div className="flex-1 min-h-0 overflow-auto">{children}</div>
+        <div className="flex-1 min-h-0">
+          <ResultsTabsContainer dataContent={children} />
+        </div>
       )}
     </div>
   );

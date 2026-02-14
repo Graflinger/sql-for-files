@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-export type NotificationType = 'success' | 'error' | 'info' | 'uploading' | 'processing';
+export type NotificationType = 'success' | 'error' | 'info' | 'adding' | 'processing';
 
 export interface Notification {
   id: string;
@@ -28,7 +28,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const id = `notification-${Date.now()}-${Math.random()}`;
     const newNotification: Notification = {
       id,
-      autoClose: notification.type === 'success' || notification.type === 'uploading' || notification.type === 'processing',
+      autoClose: notification.type === 'success' || notification.type === 'adding' || notification.type === 'processing',
       duration: 10000, // 10 seconds
       ...notification,
     };
