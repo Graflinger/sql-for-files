@@ -8,6 +8,12 @@ interface SQLEditorProps {
   onExecute: (sql: string) => Promise<void>;
   executing: boolean;
   disabled?: boolean;
+  /** When true, the editor fills its container height */
+  flexHeight?: boolean;
+  /** Controlled value: SQL text managed by parent (for multi-tab support) */
+  value?: string;
+  /** Called when SQL text changes (for multi-tab support) */
+  onChange?: (sql: string) => void;
 }
 
 /**
@@ -19,9 +25,22 @@ export default function SQLEditor({
   onExecute,
   executing,
   disabled = false,
+  flexHeight = false,
+  value,
+  onChange,
 }: SQLEditorProps) {
-  // SQL query text
-  const [sql, setSql] = useState("SELECT * FROM your_table LIMIT 10;");
+  // Internal state used when not in controlled mode
+  const [internalSql, setInternalSql] = useState("SELECT * FROM your_table LIMIT 10;");
+
+  // Use controlled value if provided, otherwise internal state
+  const sql = value !== undefined ? value : internalSql;
+  const setSql = (newSql: string) => {
+    if (onChange) {
+      onChange(newSql);
+    } else {
+      setInternalSql(newSql);
+    }
+  };
   const [editorHeight, setEditorHeight] = useState(200);
   const [isResizing, setIsResizing] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
@@ -285,14 +304,18 @@ export default function SQLEditor({
   }, [isResizing, editorHeight]);
 
   return (
-    <div className="space-y-4">
+    <div className={`${flexHeight ? "flex flex-col flex-1 min-h-0" : "space-y-4"}`}>
       {/* Editor Container */}
       <div
-        className="border border-slate-300 rounded-xl overflow-hidden shadow-sm hover:border-blue-400 transition-colors relative"
+        className={`
+          ${flexHeight ? "flex-1 min-h-0 flex flex-col" : ""}
+          ${flexHeight ? "" : "border border-slate-300 rounded-xl shadow-sm hover:border-blue-400"}
+          overflow-hidden transition-colors relative
+        `}
         onKeyDown={handleEditorKeyDown}
       >
         <Editor
-          height={`${editorHeight}px`}
+          height={flexHeight ? "100%" : `${editorHeight}px`}
           defaultLanguage="sql"
           value={sql}
           onChange={(value) => setSql(value || "")}
@@ -318,28 +341,30 @@ export default function SQLEditor({
             },
           }}
         />
-        {/* Resize Handle */}
-        <div
-          onMouseDown={handleResizeStart}
-          className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-slate-200 hover:bg-blue-400 transition-colors ${
-            isResizing ? "bg-blue-500" : ""
-          } group`}
-        >
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
-            <div className="w-12 h-1 bg-slate-400 rounded-full group-hover:bg-blue-600 transition-colors"></div>
+        {/* Resize Handle - Only shown when not in flexHeight mode */}
+        {!flexHeight && (
+          <div
+            onMouseDown={handleResizeStart}
+            className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-slate-200 hover:bg-blue-400 transition-colors ${
+              isResizing ? "bg-blue-500" : ""
+            } group`}
+          >
+            <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
+              <div className="w-12 h-1 bg-slate-400 rounded-full group-hover:bg-blue-600 transition-colors"></div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className={`flex items-center justify-between flex-wrap gap-2 ${flexHeight ? "flex-shrink-0 px-3 sm:px-4 py-2 border-t border-slate-200 bg-white" : ""}`}>
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleRunQuery}
             disabled={executing || disabled}
             aria-label="Run SQL query"
             className={`
-              group relative px-5 py-2 rounded-lg font-semibold transition-colors duration-200 overflow-hidden text-sm
+              group relative px-3 sm:px-5 py-2 rounded-lg font-semibold transition-colors duration-200 overflow-hidden text-sm
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
               ${
                 executing || disabled
@@ -349,7 +374,7 @@ export default function SQLEditor({
             `}
           >
             {executing ? (
-              <span className="flex items-center gap-2 justify-center sm:justify-start">
+              <span className="flex items-center gap-2 justify-center">
                 <svg
                   className="animate-spin h-4 w-4"
                   width="16"
@@ -371,10 +396,10 @@ export default function SQLEditor({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Executing...
+                <span className="hidden sm:inline">Executing...</span>
               </span>
             ) : (
-              <span className="flex items-center gap-2 justify-center sm:justify-start">
+              <span className="flex items-center gap-2 justify-center">
                 <svg
                   className="w-4 h-4"
                   width="16"
@@ -396,7 +421,7 @@ export default function SQLEditor({
                     d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Run Query
+                <span className="hidden sm:inline">Run Query</span>
               </span>
             )}
           </button>

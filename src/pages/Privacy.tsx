@@ -227,7 +227,7 @@ export default function Privacy() {
               SQL for Files uses your browser's IndexedDB to store:
             </p>
             <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
-              <li>Your uploaded files (stored locally on your device only)</li>
+               <li>Your added files (stored locally on your device only)</li>
               <li>
                 Your SQL query history (stored locally on your device only)
               </li>

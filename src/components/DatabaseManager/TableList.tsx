@@ -170,7 +170,7 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
           <p className="text-sm font-semibold text-slate-700 mb-1">
             No tables yet
           </p>
-          <p className="text-xs text-slate-500">Upload a file or import a database to get started</p>
+          <p className="text-xs text-slate-500">Add a file or import a database to get started</p>
         </div>
       </>
     );
