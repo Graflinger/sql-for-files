@@ -183,7 +183,7 @@ export default function IDELayout({
           </SidebarSection>
 
           <SidebarSection
-            title="Tables"
+            title="Database"
             icon={
               <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -401,7 +401,7 @@ export default function IDELayout({
               </SidebarSection>
 
               <SidebarSection
-                title="Tables"
+                title="Database"
                 icon={
                   <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path

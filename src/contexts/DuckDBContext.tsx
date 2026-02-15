@@ -1,6 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
 import { getDuckDB, initializeDuckDb } from 'duckdb-wasm-kit';
+
+import {
+  restoreDatabaseFromIndexedDB,
+  saveAllTablesToIndexedDB,
+} from '../utils/databasePersistence';
 
 // Define the shape of our context data
 interface DuckDBContextType {
@@ -9,6 +14,8 @@ interface DuckDBContextType {
   error: Error | null;              // Did initialization fail?
   tables: string[];                 // List of table names in the database
   refreshTables: () => Promise<void>; // Function to update the table list
+  saveDatabase: () => Promise<{ saved: string[]; errors: Array<{ table: string; error: string }>; warnings: string[] } | null>; // Persist all tables to IndexedDB
+  restoredMessage: string | null; // Set after auto-restore, consumed by notification display
 }
 
 // Create the context (initially undefined)
@@ -25,6 +32,7 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [tables, setTables] = useState<string[]>([]);
+  const [restoredMessage, setRestoredMessage] = useState<string | null>(null);
 
   // Initialize DuckDB when component mounts
   useEffect(() => {
@@ -37,7 +45,21 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
         const dbInstance = await getDuckDB();
         setDb(dbInstance);
 
-        // Step 3: Load the initial table list (empty on first load)
+        // Step 3: Restore persisted tables from IndexedDB (before refreshing sidebar)
+        try {
+          const { restoredCount, tableNames: restoredNames } =
+            await restoreDatabaseFromIndexedDB(dbInstance);
+          if (restoredCount > 0) {
+            console.log(`Restored ${restoredCount} table(s) from IndexedDB:`, restoredNames);
+            setRestoredMessage(
+              `Restored ${restoredCount} ${restoredCount === 1 ? "table" : "tables"} from previous session`
+            );
+          }
+        } catch (restoreErr) {
+          console.error("Failed to restore database from IndexedDB:", restoreErr);
+        }
+
+        // Step 4: Load the table list (includes any restored tables)
         await refreshTables(dbInstance);
       } catch (err) {
         console.error('Failed to initialize DuckDB:', err);
@@ -81,9 +103,20 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  /**
+   * saveDatabase Function
+   *
+   * Persists all current tables to IndexedDB as Parquet buffers.
+   * Called explicitly by the user via the "Save Database" button.
+   */
+  const saveDatabase = useCallback(async () => {
+    if (!db) return null;
+    return saveAllTablesToIndexedDB(db, tables);
+  }, [db, tables]);
+
   // Provide the context value to all children
   return (
-    <DuckDBContext.Provider value={{ db, loading, error, tables, refreshTables }}>
+    <DuckDBContext.Provider value={{ db, loading, error, tables, refreshTables, saveDatabase, restoredMessage }}>
       {children}
     </DuckDBContext.Provider>
   );
