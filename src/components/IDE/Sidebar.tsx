@@ -16,7 +16,7 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
   return (
     <aside
       className={`
-        relative flex-shrink-0 bg-white border-r border-slate-200
+        relative flex-shrink-0 bg-white border-r border-slate-100
         transition-all duration-200 ease-out
         ${isCollapsed ? "w-12" : "w-72"}
         flex flex-col

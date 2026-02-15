@@ -15,10 +15,10 @@ export default function Legal() {
         ogType="article"
         imageAlt="SQL for Files legal notice"
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12">
+      <div className="min-h-screen bg-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/50 p-8 md:p-12">
-            <h1 className="text-4xl font-bold text-slate-900 mb-8">
+          <div className="rounded-xl border border-slate-200 p-8 md:p-12">
+            <h1 className="text-3xl font-bold text-slate-900 mb-8">
               Legal Notice
             </h1>
 

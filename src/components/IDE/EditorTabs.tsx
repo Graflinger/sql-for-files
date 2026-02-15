@@ -78,7 +78,7 @@ export default function EditorTabs({
   );
 
   return (
-    <div className="flex items-center bg-slate-50 border-b border-slate-200 overflow-x-auto scrollbar-thin">
+    <div className="flex items-center bg-slate-50/80 border-b border-slate-200 overflow-x-auto scrollbar-thin">
       {/* Tab list */}
       <div className="flex items-center min-w-0">
         {tabs.map((tab) => {
@@ -178,7 +178,7 @@ export default function EditorTabs({
 
               {/* Active indicator line */}
               {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600" />
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-blue-600" />
               )}
             </button>
           );

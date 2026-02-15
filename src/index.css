@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Antialiased text rendering for a cleaner look */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Notification animations */
 @keyframes slideIn {
   from {
     transform: translateX(100%);
