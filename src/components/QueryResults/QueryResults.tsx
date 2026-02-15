@@ -126,7 +126,7 @@ export default function QueryResults({ result, error, embedded = false }: QueryR
   const sortedData = getSortedData();
 
   const wrapperClass = embedded
-    ? "h-full overflow-auto p-4"
+    ? "h-full overflow-auto relative"
     : "bg-white/90 backdrop-blur-sm border border-slate-200/50 rounded-xl shadow-lg p-4 sm:p-6";
 
   return (
@@ -168,23 +168,7 @@ export default function QueryResults({ result, error, embedded = false }: QueryR
       {!error && result && (
         <>
           {/* Header - Only show in non-embedded mode, or simplified in embedded */}
-          {embedded ? (
-            // Simplified header for embedded mode - just export button
-            result.rowCount > 0 && (
-              <div className="flex items-center justify-end mb-3">
-                <button
-                  onClick={() => downloadCSV(result)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                  title={result.wasTruncated ? `Export all ${result.rowCount.toLocaleString()} rows as CSV` : "Export results as CSV"}
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Export CSV
-                </button>
-              </div>
-            )
-          ) : (
+          {embedded ? null : (
             // Full header for standalone mode
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
@@ -280,15 +264,16 @@ export default function QueryResults({ result, error, embedded = false }: QueryR
 
           {/* Results Table */}
           {result.rowCount > 0 ? (
-            <div className="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
-              <table className="min-w-full divide-y divide-slate-200">
+            <>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-200">
                 <thead>
                   <tr className="bg-gradient-to-r from-slate-50 to-slate-100">
                     {result.columns.map((col) => (
                       <th
                         key={col}
                         onClick={() => handleSort(col)}
-                        className="px-4 py-3 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-300 cursor-pointer hover:bg-slate-200 transition-colors select-none group"
+                        className="px-3 py-1.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider border-b-2 border-slate-300 cursor-pointer hover:bg-slate-200 transition-colors select-none group"
                       >
                         <div className="flex items-center gap-2">
                           <span>{col}</span>
@@ -337,7 +322,7 @@ export default function QueryResults({ result, error, embedded = false }: QueryR
                       {result.columns.map((col) => (
                         <td
                           key={col}
-                          className="px-4 py-3 text-sm text-slate-800 max-w-xs truncate"
+                          className="px-3 py-1.5 text-sm text-slate-800 max-w-xs truncate"
                           title={row[col] !== null && row[col] !== undefined ? String(row[col]) : "null"}
                         >
                           {row[col] !== null && row[col] !== undefined ? (
@@ -353,7 +338,19 @@ export default function QueryResults({ result, error, embedded = false }: QueryR
                   ))}
                 </tbody>
               </table>
-            </div>
+              </div>
+              {embedded && (
+                <button
+                  onClick={() => downloadCSV(result)}
+                  className="sticky bottom-2 float-right mr-2 mb-2 flex items-center justify-center w-8 h-8 bg-blue-600/80 backdrop-blur-sm text-white rounded-full hover:bg-blue-600 transition-colors shadow-lg"
+                  title={result.wasTruncated ? `Export all ${result.rowCount.toLocaleString()} rows as CSV` : "Export CSV"}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                </button>
+              )}
+            </>
           ) : (
             <div className="text-center py-12 bg-gradient-to-br from-slate-50 to-white border border-slate-200 rounded-lg">
               <div className="mx-auto w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-4">
