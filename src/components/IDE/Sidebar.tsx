@@ -16,7 +16,7 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
   return (
     <aside
       className={`
-        relative flex-shrink-0 bg-white border-r border-slate-200
+        relative flex-shrink-0 bg-white border-r border-slate-100
         transition-all duration-200 ease-out
         ${isCollapsed ? "w-12" : "w-72"}
         flex flex-col
@@ -105,6 +105,27 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
+          </button>
+
+          {/* Query History Icon */}
+          <button
+            onClick={onToggle}
+            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            title="Query History"
+          >
+            <svg
+              className="w-5 h-5 text-slate-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
           </button>

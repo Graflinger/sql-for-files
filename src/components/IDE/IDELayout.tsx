@@ -12,6 +12,8 @@ interface IDELayoutProps {
     addData: ReactNode;
     tables: ReactNode;
     tableCount?: number;
+    queryHistory: ReactNode;
+    historyCount?: number;
   };
   editorContent: ReactNode;
   resultsContent: ReactNode;
@@ -198,6 +200,24 @@ export default function IDELayout({
             badge={sidebarContent.tableCount}
           >
             {sidebarContent.tables}
+          </SidebarSection>
+
+          <SidebarSection
+            title="Query History"
+            icon={
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            }
+            defaultExpanded={false}
+            badge={sidebarContent.historyCount}
+          >
+            {sidebarContent.queryHistory}
           </SidebarSection>
         </Sidebar>
 
@@ -415,6 +435,24 @@ export default function IDELayout({
                 badge={sidebarContent.tableCount}
               >
                 {sidebarContent.tables}
+              </SidebarSection>
+
+              <SidebarSection
+                title="Query History"
+                icon={
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                }
+                defaultExpanded={false}
+                badge={sidebarContent.historyCount}
+              >
+                {sidebarContent.queryHistory}
               </SidebarSection>
             </div>
           </div>
