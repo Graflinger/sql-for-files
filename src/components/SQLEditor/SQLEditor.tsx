@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
-import QueryHistory from "../QueryHistory/QueryHistory";
 import type { editor } from "monaco-editor";
 
 interface SQLEditorProps {
@@ -264,17 +263,6 @@ export default function SQLEditor({
   };
 
   /**
-   * Handle loading query from history
-   */
-  const handleLoadQuery = (query: string) => {
-    setSql(query);
-    // Optionally focus the editor
-    if (editorRef.current) {
-      editorRef.current.focus();
-    }
-  };
-
-  /**
    * Handle editor resize
    */
   const handleResizeStart = (e: React.MouseEvent) => {
@@ -425,8 +413,6 @@ export default function SQLEditor({
               </span>
             )}
           </button>
-
-          <QueryHistory onLoadQuery={handleLoadQuery} />
         </div>
 
         {/* Keyboard Shortcut Hint with Info Popover */}

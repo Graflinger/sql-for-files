@@ -6,6 +6,7 @@ import FileAdder from "../components/FileAdder/FileAdder";
 import SQLEditor from "../components/SQLEditor/SQLEditor";
 import TableList from "../components/DatabaseManager/TableList";
 import QueryResults from "../components/QueryResults/QueryResults";
+import QueryHistorySidebar from "../components/QueryHistory/QueryHistorySidebar";
 import { IDELayout } from "../components/IDE";
 import { useQueryExecution } from "../hooks/useQueryExecution";
 import { useQueryHistory } from "../hooks/useQueryHistory";
@@ -24,7 +25,7 @@ import SEO from "../components/SEO/SEO";
  */
 function SQLEditorContent() {
   const { db, tables, refreshTables, restoredMessage } = useDuckDBContext();
-  const { addQuery } = useQueryHistory();
+  const { addQuery, history } = useQueryHistory();
   const { addNotification } = useNotifications();
 
   // Show restore notification once after page load
@@ -99,6 +100,14 @@ function SQLEditorContent() {
     [activeTabId, updateTabSql]
   );
 
+  /** Load a query from history into the active editor tab. */
+  const handleLoadQuery = useCallback(
+    (sql: string) => {
+      updateTabSql(activeTabId, sql);
+    },
+    [activeTabId, updateTabSql]
+  );
+
   // Result stats for the results panel header (from active tab)
   const resultStats = activeTab.result
     ? {
@@ -116,6 +125,8 @@ function SQLEditorContent() {
         addData: <FileAdder compact />,
         tables: <TableList onPreviewTable={handlePreviewTable} />,
         tableCount: tables.length > 0 ? tables.length : undefined,
+        queryHistory: <QueryHistorySidebar onLoadQuery={handleLoadQuery} />,
+        historyCount: history.length > 0 ? history.length : undefined,
       }}
       editorContent={
         <SQLEditor
