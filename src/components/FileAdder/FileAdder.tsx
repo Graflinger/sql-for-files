@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useFileAdd } from "../../hooks/useFileAdd";
 import { useNotifications } from "../../contexts/NotificationContext";
+import { saveTableToIndexedDB } from "../../utils/databasePersistence";
 import AdvancedAddModal from "./AdvancedAddModal";
 
 interface FileAdderProps {
@@ -57,6 +58,18 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
 
           // Refresh the table list in the sidebar
           await refreshTables();
+
+          // Auto-persist the new table to IndexedDB (Parquet)
+          if (db) {
+            try {
+              const { warning } = await saveTableToIndexedDB(db, tableName);
+              if (warning) {
+                addNotification({ type: "info", title: warning });
+              }
+            } catch (persistErr) {
+              console.error("Failed to persist table to IndexedDB:", persistErr);
+            }
+          }
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
@@ -71,7 +84,7 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
         }
       }
     },
-    [addFile, refreshTables, addNotification, updateNotification]
+    [addFile, refreshTables, addNotification, updateNotification, db]
   );
 
   const handleAdvancedCreate = useCallback(
@@ -115,6 +128,18 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
         });
 
         await refreshTables();
+
+        // Auto-persist the new table to IndexedDB (Parquet)
+        if (db) {
+          try {
+            const { warning } = await saveTableToIndexedDB(db, createdTable);
+            if (warning) {
+              addNotification({ type: "info", title: warning });
+            }
+          } catch (persistErr) {
+            console.error("Failed to persist table to IndexedDB:", persistErr);
+          }
+        }
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error occurred";
@@ -129,7 +154,7 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
         throw error;
       }
     },
-    [addNotification, refreshTables, updateNotification, addFile]
+    [addNotification, refreshTables, updateNotification, addFile, db]
   );
 
   /**

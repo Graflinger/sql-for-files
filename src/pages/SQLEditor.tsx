@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useDuckDBContext } from "../contexts/DuckDBContext";
 import { useEditorTabsContext } from "../contexts/EditorTabsContext";
+import { useNotifications } from "../contexts/NotificationContext";
 import FileAdder from "../components/FileAdder/FileAdder";
 import SQLEditor from "../components/SQLEditor/SQLEditor";
 import TableList from "../components/DatabaseManager/TableList";
@@ -22,8 +23,18 @@ import SEO from "../components/SEO/SEO";
  * so state survives navigation between pages.
  */
 function SQLEditorContent() {
-  const { db, tables } = useDuckDBContext();
+  const { db, tables, refreshTables, restoredMessage } = useDuckDBContext();
   const { addQuery } = useQueryHistory();
+  const { addNotification } = useNotifications();
+
+  // Show restore notification once after page load
+  const restoredShownRef = useRef(false);
+  useEffect(() => {
+    if (restoredMessage && !restoredShownRef.current) {
+      restoredShownRef.current = true;
+      addNotification({ type: "info", title: restoredMessage });
+    }
+  }, [restoredMessage, addNotification]);
 
   // Editor tabs state (from global context)
   const {
@@ -65,8 +76,10 @@ function SQLEditorContent() {
       // Remember which tab started this execution
       executingTabIdRef.current = activeTabId;
       await executeQuery(sql);
+      // Refresh sidebar to catch DDL changes (CREATE/DROP/ALTER)
+      await refreshTables();
     },
-    [executeQuery, activeTabId]
+    [executeQuery, activeTabId, refreshTables]
   );
 
   const handlePreviewTable = useCallback(

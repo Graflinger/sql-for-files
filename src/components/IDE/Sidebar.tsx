@@ -88,11 +88,11 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
             </svg>
           </button>
 
-          {/* Tables Icon */}
+          {/* Database Icon */}
           <button
             onClick={onToggle}
             className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
-            title="Tables"
+            title="Database"
           >
             <svg
               className="w-5 h-5 text-slate-600"
