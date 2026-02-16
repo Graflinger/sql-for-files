@@ -8,8 +8,10 @@ import SEO from "../components/SEO/SEO";
  * Clean, minimal landing page for SQL for Files.
  * Hero with IDE mockup, features, how-it-works, and CTA.
  */
+
+const FILE_TYPES = ["CSV", "JSON", "Parquet"];
+
 export default function About() {
-  const fileTypes = ["CSV", "JSON", "Parquet"];
   const [currentType, setCurrentType] = useState(0);
   const preloadSqlEditor = () => import("./SQLEditor");
   const webApplicationSchema = {
@@ -49,7 +51,7 @@ export default function About() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentType((prev) => (prev + 1) % fileTypes.length);
+      setCurrentType((prev) => (prev + 1) % FILE_TYPES.length);
     }, 2000);
     return () => clearInterval(interval);
   }, []);
@@ -73,7 +75,7 @@ export default function About() {
               <span className="relative inline-block">
                 <span className="invisible">Parquet</span>
                 <span className="absolute inset-0 text-blue-600 transition-opacity duration-500">
-                  {fileTypes[currentType]}
+                  {FILE_TYPES[currentType]}
                 </span>
               </span>{" "}
               files <span className="text-slate-400">with SQL</span>

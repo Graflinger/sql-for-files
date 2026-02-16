@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
 type StructuredData = Record<string, unknown>;
@@ -51,11 +51,15 @@ export default function SEO({
   const ogImageUrl = resolveUrl(ogImage);
   const twitterImageUrl = resolveUrl(twitterImage);
   const metaImageAlt = imageAlt ?? `${title} - ${SITE_NAME}`;
-  const structuredDataItems = Array.isArray(structuredData)
-    ? structuredData
-    : structuredData
-      ? [structuredData]
-      : [];
+  const structuredDataItems = useMemo(
+    () =>
+      Array.isArray(structuredData)
+        ? structuredData
+        : structuredData
+          ? [structuredData]
+          : [],
+    [structuredData]
+  );
 
   useEffect(() => {
     const head = document.head;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 import Sidebar from "./Sidebar";
 import SidebarSection from "./SidebarSection";
@@ -87,24 +87,19 @@ export default function IDELayout({
     "editor"
   );
 
-  // Track previous resultStats to detect new query completions
-  const prevResultStatsRef = useRef(resultStats);
-
-  // Auto-switch to Results tab on mobile when a query completes
-  useEffect(() => {
-    const prev = prevResultStatsRef.current;
-    prevResultStatsRef.current = resultStats;
-
-    // Switch to results if we got new results (rowCount changed or executionTime changed)
-    if (
-      resultStats &&
-      (resultStats.rowCount !== prev?.rowCount ||
-        resultStats.executionTime !== prev?.executionTime ||
-        resultStats.hasError !== prev?.hasError)
-    ) {
-      setMobileActiveTab("results");
-    }
-  }, [resultStats]);
+  // Auto-switch to Results tab on mobile when a query completes.
+  // Uses React's "adjust state during render" pattern instead of useEffect to
+  // avoid cascading renders. See: https://react.dev/learn/you-might-not-need-an-effect
+  const [prevResultStats, setPrevResultStats] = useState(resultStats);
+  if (
+    resultStats &&
+    (resultStats.rowCount !== prevResultStats?.rowCount ||
+      resultStats.executionTime !== prevResultStats?.executionTime ||
+      resultStats.hasError !== prevResultStats?.hasError)
+  ) {
+    setPrevResultStats(resultStats);
+    setMobileActiveTab("results");
+  }
 
   // Persist layout changes to localStorage
   useEffect(() => {

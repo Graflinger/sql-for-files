@@ -69,7 +69,8 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
       }
     }
     init();
-  }, []); // Empty dependency array = run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- init effect intentionally runs once on mount; refreshTables is called with explicit dbInstance param
+  }, []);
 
   /**
    * refreshTables Function

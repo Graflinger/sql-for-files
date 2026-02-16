@@ -5,6 +5,7 @@ export interface QueryResult {
   rowCount: number;                  // Total number of rows in full result
   displayRowCount: number;           // Number of rows actually displayed in data array
   executionTime: number;             // Query execution time in milliseconds
-  arrowTable: any;                   // Full Arrow table for efficient exports (any due to duckdb-wasm bundled Arrow)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- DuckDB-WASM bundles its own Apache Arrow; no shared Table type available
+  arrowTable: any;                   // Full Arrow table for efficient exports
   wasTruncated: boolean;             // True if results were limited for display
 }
