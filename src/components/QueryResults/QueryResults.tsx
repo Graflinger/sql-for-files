@@ -39,6 +39,7 @@ function formatCSVValue(value: unknown): string {
  * Convert Arrow table directly to CSV format
  * More efficient than converting through JS objects
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- DuckDB-WASM bundles its own Apache Arrow; no importable Table type
 function convertArrowToCSV(arrowTable: any, columns: string[]): string {
   if (!arrowTable || arrowTable.numRows === 0) {
     return '';

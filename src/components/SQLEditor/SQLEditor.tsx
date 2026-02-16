@@ -108,6 +108,7 @@ export default function SQLEditor({
 
   const handleEditorMount = (
     editorInstance: editor.IStandaloneCodeEditor,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Monaco type varies across @monaco-editor/react versions
     monaco: any
   ) => {
     editorRef.current = editorInstance;
