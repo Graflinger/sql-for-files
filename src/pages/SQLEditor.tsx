@@ -145,6 +145,7 @@ function SQLEditorContent() {
           embedded
         />
       }
+      result={activeTab.result}
       resultStats={resultStats}
       editorTabs={{
         tabs,

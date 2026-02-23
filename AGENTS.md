@@ -154,6 +154,56 @@ Browser hard limit: ~4GB (practical: 2-3GB). Query results display max 1000 rows
 Keep full Arrow table in memory for CSV export. Warn at >100K rows, strong warning at >1M.
 All processing is in-memory — no disk spillover (OPFS is not used).
 
+## Classification Feature
+
+The **Classification tab** in the results panel computes per-column statistics on the
+**full Arrow result set** (not the truncated display data). Stats are computed eagerly
+after each query completes, so they are typically ready before the user clicks the tab.
+
+### Architecture
+
+```
+SQLEditorContent
+  ├─ useQueryExecution → result (with arrowTable)
+  └─ <IDELayout result={activeTab.result}>
+       └─ <ResultsPanel result={result}>
+            └─ <ResultsTabsContainer result={result}>
+                 └─ [Classification tab]
+                      └─ <ClassificationResults result={result}>
+                           ├─ useDuckDBContext() → db
+                           └─ useClassification(db, arrowTable)
+                                ├─ registers Arrow table as DuckDB temp table
+                                ├─ runs aggregate SQL per column type
+                                └─ returns { classification, computing, error }
+```
+
+### Column Type Detection
+
+Arrow schema field types are mapped to classification categories:
+
+| Category    | Arrow Types                                  | Stats Computed                                  |
+|-------------|----------------------------------------------|-------------------------------------------------|
+| **numeric** | `Int*`, `Uint*`, `Float*`, `Decimal`         | min, max, mean, median, mode, null count        |
+| **date**    | `Date*`, `Timestamp*`                        | min, max, mean, median, mode, null count        |
+| **string**  | `Utf8`, `LargeUtf8`                         | min length, max length, null count              |
+| **boolean** | `Bool`                                       | true count, false count, null count             |
+| **other**   | Everything else                              | Skipped (null stats)                            |
+
+### Key Files
+
+| File                                              | Purpose                                      |
+|---------------------------------------------------|----------------------------------------------|
+| `src/types/classification.ts`                     | Type definitions for classification results  |
+| `src/hooks/useClassification.ts`                  | Hook: registers Arrow as temp table, runs aggregate SQL, handles staleness |
+| `src/components/Classification/ClassificationResults.tsx` | UI component: per-column stats table with loading/empty/error states |
+
+### Computation Strategy
+
+- **Eager**: computation starts immediately after query execution completes
+- **Staleness guard**: a counter ref tracks the current arrowTable; stale results are discarded
+- **Temp table**: Arrow table is registered via `conn.insertArrowTable()`, stats SQL runs against it, then the temp table is dropped
+- **Separate connection**: classification uses its own DuckDB connection, so it does not block user queries
+
 ## Gitignore Notes
 
 The `.gitignore` excludes all `*.md` files except `claude.md`, `README.md`, and `AGENTS.md`.

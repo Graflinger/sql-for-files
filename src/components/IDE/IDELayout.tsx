@@ -6,6 +6,7 @@ import ResizeHandle from "./ResizeHandle";
 import EditorPanel from "./EditorPanel";
 import ResultsPanel from "./ResultsPanel";
 import type { EditorTab } from "../../hooks/useEditorTabs";
+import type { QueryResult } from "../../types/query";
 
 interface IDELayoutProps {
   sidebarContent: {
@@ -17,6 +18,7 @@ interface IDELayoutProps {
   };
   editorContent: ReactNode;
   resultsContent: ReactNode;
+  result: QueryResult | null;
   resultStats?: {
     rowCount?: number;
     executionTime?: number;
@@ -60,6 +62,7 @@ export default function IDELayout({
   sidebarContent,
   editorContent,
   resultsContent,
+  result,
   resultStats,
   editorTabs,
 }: IDELayoutProps) {
@@ -253,6 +256,7 @@ export default function IDELayout({
               rowCount={resultStats?.rowCount}
               executionTime={resultStats?.executionTime}
               hasError={resultStats?.hasError}
+              result={result}
             >
               {resultsContent}
             </ResultsPanel>

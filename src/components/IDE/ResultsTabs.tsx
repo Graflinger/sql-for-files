@@ -1,6 +1,9 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
 
+import ClassificationResults from "../Classification/ClassificationResults";
+import type { QueryResult } from "../../types/query";
+
 export type ResultTabId = "data" | "visualisation" | "classification";
 
 interface ResultTab {
@@ -100,6 +103,8 @@ function ResultsTabBar({ activeTab, onTabChange }: ResultsTabsProps) {
 interface ResultsTabsContainerProps {
   /** Content for the Data tab (QueryResults component) */
   dataContent: ReactNode;
+  /** Query result for the Classification tab */
+  result: QueryResult | null;
 }
 
 /**
@@ -111,6 +116,7 @@ interface ResultsTabsContainerProps {
  */
 export default function ResultsTabsContainer({
   dataContent,
+  result,
 }: ResultsTabsContainerProps) {
   const [activeTab, setActiveTab] = useState<ResultTabId>("data");
 
@@ -141,23 +147,7 @@ export default function ResultsTabsContainer({
         )}
 
         {activeTab === "classification" && (
-          <div className="flex flex-col items-center justify-center h-full text-slate-400 py-12">
-            <svg
-              className="w-10 h-10 mb-3 text-slate-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-              />
-            </svg>
-            <p className="text-sm font-medium text-slate-500">Classification</p>
-            <p className="text-xs text-slate-400 mt-1">Coming soon</p>
-          </div>
+          <ClassificationResults result={result} />
         )}
       </div>
     </div>
