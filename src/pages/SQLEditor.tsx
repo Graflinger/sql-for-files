@@ -1,22 +1,54 @@
-import { DuckDBProvider, useDuckDBContext } from "../contexts/DuckDBContext";
-import FileUploader from "../components/FileUploader/FileUploader";
+import { useCallback, useEffect, useRef } from "react";
+import { useDuckDBContext } from "../contexts/DuckDBContext";
+import { useEditorTabsContext } from "../contexts/EditorTabsContext";
+import { useNotifications } from "../contexts/NotificationContext";
+import FileAdder from "../components/FileAdder/FileAdder";
 import SQLEditor from "../components/SQLEditor/SQLEditor";
 import TableList from "../components/DatabaseManager/TableList";
 import QueryResults from "../components/QueryResults/QueryResults";
+import QueryHistorySidebar from "../components/QueryHistory/QueryHistorySidebar";
+import { IDELayout } from "../components/IDE";
 import { useQueryExecution } from "../hooks/useQueryExecution";
 import { useQueryHistory } from "../hooks/useQueryHistory";
 import SEO from "../components/SEO/SEO";
 
 /**
- * Home Page Content
+ * SQL Editor Page Content
  *
- * Layout:
- * - Top Grid: Left (File uploader + Table list) | Right (SQL Editor)
- * - Bottom: Query results (full width)
+ * Uses the IDE layout with:
+ * - Collapsible sidebar (file adder + table list)
+ * - SQL editor panel with tabs (top)
+ * - Resizable results panel with Data/Visualisation/Classification tabs (bottom)
+ *
+ * DuckDBProvider and EditorTabsProvider live in App.tsx (global)
+ * so state survives navigation between pages.
  */
-function HomeContent() {
-  const { db } = useDuckDBContext();
-  const { addQuery } = useQueryHistory();
+function SQLEditorContent() {
+  const { db, tables, refreshTables, restoredMessage } = useDuckDBContext();
+  const { addQuery, history } = useQueryHistory();
+  const { addNotification } = useNotifications();
+
+  // Show restore notification once after page load
+  const restoredShownRef = useRef(false);
+  useEffect(() => {
+    if (restoredMessage && !restoredShownRef.current) {
+      restoredShownRef.current = true;
+      addNotification({ type: "info", title: restoredMessage });
+    }
+  }, [restoredMessage, addNotification]);
+
+  // Editor tabs state (from global context)
+  const {
+    tabs,
+    activeTabId,
+    activeTab,
+    setActiveTab,
+    addTab,
+    closeTab,
+    updateTabSql,
+    updateTabResult,
+    renameTab,
+  } = useEditorTabsContext();
 
   const { executeQuery, executing, result, error } = useQueryExecution(db, {
     onQueryExecuted: async (params) => {
@@ -24,112 +56,118 @@ function HomeContent() {
     },
   });
 
-  const handleExecute = async (sql: string) => {
-    await executeQuery(sql);
-  };
+  // Track which tab initiated the current query execution
+  const executingTabIdRef = useRef<string>(activeTabId);
 
-  const handlePreviewTable = async (tableName: string) => {
-    await executeQuery(`SELECT * FROM ${tableName} LIMIT 10`);
-  };
+  // Sync hook's result/error into the tab that initiated the query
+  useEffect(() => {
+    if (result) {
+      updateTabResult(executingTabIdRef.current, result, null);
+    }
+  }, [result, updateTabResult]);
+
+  useEffect(() => {
+    if (error) {
+      updateTabResult(executingTabIdRef.current, null, error);
+    }
+  }, [error, updateTabResult]);
+
+  const handleExecute = useCallback(
+    async (sql: string) => {
+      // Remember which tab started this execution
+      executingTabIdRef.current = activeTabId;
+      await executeQuery(sql);
+      // Refresh sidebar to catch DDL changes (CREATE/DROP/ALTER)
+      await refreshTables();
+    },
+    [executeQuery, activeTabId, refreshTables]
+  );
+
+  const handlePreviewTable = useCallback(
+    async (tableName: string) => {
+      const sql = `SELECT * FROM ${tableName} LIMIT 100`;
+      const newTabId = addTab({ name: `Preview: ${tableName}`, sql });
+      executingTabIdRef.current = newTabId;
+      await executeQuery(sql);
+    },
+    [addTab, executeQuery]
+  );
+
+  const handleSqlChange = useCallback(
+    (sql: string) => {
+      updateTabSql(activeTabId, sql);
+    },
+    [activeTabId, updateTabSql]
+  );
+
+  /** Load a query from history into the active editor tab. */
+  const handleLoadQuery = useCallback(
+    (sql: string) => {
+      updateTabSql(activeTabId, sql);
+    },
+    [activeTabId, updateTabSql]
+  );
+
+  // Result stats for the results panel header (from active tab)
+  const resultStats = activeTab.result
+    ? {
+        rowCount: activeTab.result.rowCount,
+        executionTime: activeTab.result.executionTime,
+        hasError: false,
+      }
+    : activeTab.error
+    ? { hasError: true }
+    : undefined;
 
   return (
-    <div className="max-w-7xl mx-auto py-4 px-4 sm:pt-6 sm:px-6 lg:pt-8 lg:px-8">
-      <h1 className="sr-only">SQL Editor</h1>
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-        {/* Left Column - File Upload + Tables */}
-        <div className="lg:col-span-1 space-y-4 sm:space-y-6">
-          {/* File Upload Section */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-3 sm:p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <svg
-                className="w-5 h-5 text-blue-600 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-              <h2 className="text-base sm:text-lg font-bold text-slate-800">Upload Data</h2>
-            </div>
-            <div className="mb-3 text-xs sm:text-sm text-slate-600">
-              <p>
-                Your data never leaves your device, everything is done inside
-                your browser
-              </p>
-            </div>
-            <FileUploader />
-          </div>
-
-          {/* Table List Section */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-4 sm:p-5">
-            <div className="flex items-center gap-2 mb-4 sm:mb-5">
-              <svg
-                className="w-5 h-5 text-blue-600 flex-shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
-              </svg>
-              <h2 className="text-base sm:text-lg font-bold text-slate-800">Tables</h2>
-            </div>
-            <TableList onPreviewTable={handlePreviewTable} />
-          </div>
-        </div>
-
-        {/* Right Column - SQL Editor */}
-        <div className="lg:col-span-2">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-4 sm:p-6">
-            <div className="flex items-center gap-2 mb-4 sm:mb-5">
-              <svg
-                className="w-5 h-5 text-blue-600 flex-shrink-0"
-                width="20"
-                height="20"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-              <h2 className="text-base sm:text-lg font-bold text-slate-800">SQL Query</h2>
-            </div>
-            <SQLEditor
-              onExecute={handleExecute}
-              executing={executing}
-              disabled={!db}
-            />
-          </div>
-          <div className="mt-4 sm:mt-6">
-            <QueryResults result={result} error={error} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <IDELayout
+      sidebarContent={{
+        addData: <FileAdder compact />,
+        tables: <TableList onPreviewTable={handlePreviewTable} />,
+        tableCount: tables.length > 0 ? tables.length : undefined,
+        queryHistory: <QueryHistorySidebar onLoadQuery={handleLoadQuery} />,
+        historyCount: history.length > 0 ? history.length : undefined,
+      }}
+      editorContent={
+        <SQLEditor
+          onExecute={handleExecute}
+          executing={executing}
+          disabled={!db}
+          flexHeight
+          value={activeTab.sql}
+          onChange={handleSqlChange}
+        />
+      }
+      resultsContent={
+        <QueryResults
+          result={activeTab.result}
+          error={activeTab.error}
+          embedded
+        />
+      }
+      result={activeTab.result}
+      resultStats={resultStats}
+      editorTabs={{
+        tabs,
+        activeTabId,
+        onSelectTab: setActiveTab,
+        onAddTab: addTab,
+        onCloseTab: closeTab,
+        onRenameTab: renameTab,
+      }}
+    />
   );
 }
 
 /**
- * Home Page
+ * SQL Editor Page
+ *
+ * DuckDB and editor tab providers are global (in App.tsx),
+ * so this component is just SEO + content.
  */
-export default function SqlEditor() {
+export default function SqlEditorPage() {
   return (
-    <DuckDBProvider>
+    <>
       <SEO
         title="SQL Editor for CSV, JSON & Parquet | SQL for Files"
         description="Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Private, client-side data processing powered by DuckDB WASM."
@@ -137,7 +175,7 @@ export default function SqlEditor() {
         ogType="website"
         imageAlt="SQL for Files SQL editor"
       />
-      <HomeContent />
-    </DuckDBProvider>
+      <SQLEditorContent />
+    </>
   );
 }

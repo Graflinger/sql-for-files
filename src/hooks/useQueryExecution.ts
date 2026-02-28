@@ -82,14 +82,14 @@ export function useQueryExecution(db: AsyncDuckDB | null, options?: UseQueryExec
       const data = displaySlice.toArray().map((row) => {
         const obj: Record<string, unknown> = {};
         // Iterate through each column and extract the value
-        arrowResult.schema.fields.forEach((field: any) => {
+        arrowResult.schema.fields.forEach((field: { name: string }) => {
           obj[field.name] = row[field.name];
         });
         return obj;
       });
 
       // Extract column names from Arrow schema
-      const columns = arrowResult.schema.fields.map((f: any) => f.name);
+      const columns = arrowResult.schema.fields.map((f: { name: string }) => f.name);
 
       // Calculate execution time
       const executionTime = performance.now() - startTime;

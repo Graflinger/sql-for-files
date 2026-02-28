@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 
+test-results/*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -26,3 +28,4 @@ dist-ssr
 *.md
 !claude.md
 !README.md
+!AGENTS.md

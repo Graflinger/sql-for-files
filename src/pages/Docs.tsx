@@ -23,7 +23,7 @@ export default function Docs() {
         name: "What happens if I refresh the page?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Your query history is saved locally, but uploaded files and tables are lost on refresh unless you export your database first.",
+          text: "Your query history is saved locally, but added files and tables are lost on refresh unless you export your database first.",
         },
       },
       {
@@ -31,7 +31,7 @@ export default function Docs() {
         name: "Can I use this with Excel (.xlsx) files?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "No. Excel files are not supported in DuckDB WASM. Convert .xlsx files to CSV before uploading.",
+          text: "No. Excel files are not supported in DuckDB WASM. Convert .xlsx files to CSV before adding.",
         },
       },
       {
@@ -57,16 +57,16 @@ export default function Docs() {
     <>
       <SEO
         title="Documentation | SQL for Files"
-        description="Learn how to upload CSV, JSON, and Parquet files, run SQL queries, and export results in SQL for Files."
+        description="Learn how to add CSV, JSON, and Parquet files, run SQL queries, and export results in SQL for Files."
         canonicalPath="/docs"
         ogType="article"
         imageAlt="SQL for Files documentation"
         structuredData={faqSchema}
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
+      <div className="min-h-screen bg-white">
         <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200/50 p-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-6">
+          <div className="rounded-xl border border-slate-200 p-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-6">
               Documentation
             </h1>
 
@@ -79,7 +79,7 @@ export default function Docs() {
             </p>
             <ol className="list-decimal list-inside text-slate-700 space-y-3 mb-6">
               <li>
-                Upload your CSV, JSON, or Parquet files using the file uploader
+                Add your CSV, JSON, or Parquet files using the file adder
               </li>
               <li>
                 Your files will automatically be converted to database tables
@@ -425,7 +425,7 @@ WHERE o.total_amount > 100;`}</code>
                   <strong>A:</strong> Yes! All data processing happens entirely
                   in your browser using WebAssembly. Your files never leave your
                   device and are never sent to any server. You can verify this
-                  by checking your browser's network tab - no data uploads
+                   by checking your browser's network tab - no data is sent.
                   occur.
                 </p>
               </div>
@@ -437,7 +437,7 @@ WHERE o.total_amount > 100;`}</code>
                 <p className="text-blue-900">
                   <strong>A:</strong> Your query history is automatically saved
                   to browser storage and will persist across sessions. However,
-                  your uploaded files and tables are currently lost on refresh
+                   your added files and tables are currently lost on refresh
                   unless you export your database first. We recommend exporting
                   your database before closing if you want to continue your work
                   later.
@@ -453,7 +453,7 @@ WHERE o.total_amount > 100;`}</code>
                   currently supported due to limitations in the DuckDB WASM
                   implementation. However, you can easily convert Excel files to
                   CSV using Excel's "Save As" feature or online converters, then
-                  upload the CSV file.
+                   add the CSV file.
                 </p>
               </div>
 
@@ -526,7 +526,7 @@ WHERE o.total_amount > 100;`}</code>
 
               <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
                 <h4 className="text-lg font-semibold text-amber-800 mb-2">
-                  Issue: File upload fails or table creation errors
+                   Issue: Adding a file fails or table creation errors
                 </h4>
                 <p className="text-amber-900 mb-2">
                   <strong>Solutions:</strong>
@@ -580,11 +580,11 @@ WHERE o.total_amount > 100;`}</code>
                 </p>
                 <ul className="list-disc list-inside text-amber-900 space-y-1">
                   <li>
-                    Wait a few seconds after upload for tables to be registered
+                     Wait a few seconds after adding files for tables to be registered
                   </li>
                   <li>
-                    Try refreshing the page (note: you'll need to re-upload
-                    files)
+                     Try refreshing the page (note: you'll need to re-add
+                     files)
                   </li>
                   <li>
                     Check the Tables section to verify your tables were created
