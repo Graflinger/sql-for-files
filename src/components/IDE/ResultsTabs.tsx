@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 
 import ClassificationResults from "../Classification/ClassificationResults";
+import VisualisationPanel from "../Visualisation/VisualisationPanel";
 import type { QueryResult } from "../../types/query";
 
 export type ResultTabId = "data" | "visualisation" | "classification";
@@ -112,7 +113,8 @@ interface ResultsTabsContainerProps {
  *
  * Manages result tab state and renders the correct tab content.
  * - Data tab: renders the passed dataContent (QueryResults)
- * - Visualisation / Classification: placeholder for future features
+ * - Visualisation: interactive chart builder with ECharts
+ * - Classification: per-column statistics
  */
 export default function ResultsTabsContainer({
   dataContent,
@@ -127,23 +129,7 @@ export default function ResultsTabsContainer({
         {activeTab === "data" && dataContent}
 
         {activeTab === "visualisation" && (
-          <div className="flex flex-col items-center justify-center h-full text-slate-400 py-12">
-            <svg
-              className="w-10 h-10 mb-3 text-slate-300"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-            <p className="text-sm font-medium text-slate-500">Visualisation</p>
-            <p className="text-xs text-slate-400 mt-1">Coming soon</p>
-          </div>
+          <VisualisationPanel result={result} />
         )}
 
         {activeTab === "classification" && (
