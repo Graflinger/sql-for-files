@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import ResultsTabsContainer from "./ResultsTabs";
+import type { QueryResult } from "../../types/query";
 
 interface ResultsPanelProps {
   children: ReactNode;
@@ -8,6 +9,7 @@ interface ResultsPanelProps {
   rowCount?: number;
   executionTime?: number;
   hasError?: boolean;
+  result: QueryResult | null;
 }
 
 /**
@@ -24,6 +26,7 @@ export default function ResultsPanel({
   rowCount,
   executionTime,
   hasError,
+  result,
 }: ResultsPanelProps) {
   const hasResults = rowCount !== undefined || executionTime !== undefined;
 
@@ -102,7 +105,7 @@ export default function ResultsPanel({
       {/* Results Content with Tabs - Hidden when collapsed */}
       {!isCollapsed && (
         <div className="flex-1 min-h-0">
-          <ResultsTabsContainer dataContent={children} />
+          <ResultsTabsContainer dataContent={children} result={result} />
         </div>
       )}
     </div>
