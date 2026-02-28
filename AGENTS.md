@@ -204,6 +204,28 @@ Arrow schema field types are mapped to classification categories:
 - **Temp table**: Arrow table is registered via `conn.insertArrowTable()`, stats SQL runs against it, then the temp table is dropped
 - **Separate connection**: classification uses its own DuckDB connection, so it does not block user queries
 
+## Visualisation Feature
+
+The **Visualisation tab** in the results panel renders charts from query results using
+**Apache ECharts 6** via the `echarts-for-react` wrapper. Charts are tree-shaken (import
+only the chart types needed). The ECharts `dataset` API maps directly to SQL result rows.
+
+### Renderer Strategy
+
+Use the **Canvas renderer** for interactive display (better performance with large datasets)
+and the **SVG renderer** for export. For typical query result sizes (≤1000 rows), defaulting
+to SVG everywhere is also fine. ECharts supports switching renderers per instance.
+
+### Export
+
+Charts must support high-quality export for embedding in PowerPoint, Excel, etc.
+
+| Format           | Method                                                      | Notes                                    |
+|------------------|-------------------------------------------------------------|------------------------------------------|
+| **SVG**          | SVG renderer → `getDataURL()` or grab SVG DOM directly      | Vector, scales perfectly, Office 365+ native support |
+| **PNG**          | Canvas renderer → `getDataURL({ type: 'png', pixelRatio: 2 })` | Universal; use `pixelRatio: 2–3` for crisp output |
+| **Clipboard**    | Canvas → `toBlob()` → `navigator.clipboard.write()`        | Paste directly into Office apps          |
+
 ## Gitignore Notes
 
 The `.gitignore` excludes all `*.md` files except `claude.md`, `README.md`, and `AGENTS.md`.
