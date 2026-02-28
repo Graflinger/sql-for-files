@@ -125,16 +125,15 @@ export default function ResultsTabsContainer({
   return (
     <div className="flex flex-col h-full">
       <ResultsTabBar activeTab={activeTab} onTabChange={setActiveTab} />
-      <div className="flex-1 min-h-0 overflow-auto">
-        {activeTab === "data" && dataContent}
-
-        {activeTab === "visualisation" && (
-          <VisualisationPanel result={result} />
-        )}
-
-        {activeTab === "classification" && (
-          <ClassificationResults result={result} />
-        )}
+      {/* Always render all tabs; toggle visibility via CSS to preserve component state */}
+      <div className={`flex-1 min-h-0 overflow-auto ${activeTab === "data" ? "block" : "hidden"}`}>
+        {dataContent}
+      </div>
+      <div className={`flex-1 min-h-0 overflow-auto ${activeTab === "visualisation" ? "flex flex-col" : "hidden"}`}>
+        <VisualisationPanel result={result} />
+      </div>
+      <div className={`flex-1 min-h-0 overflow-auto ${activeTab === "classification" ? "block" : "hidden"}`}>
+        <ClassificationResults result={result} />
       </div>
     </div>
   );

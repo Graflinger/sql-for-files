@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 
 import { useChartConfig } from "../../hooks/useChartConfig";
+import { useEditorTabsContext } from "../../contexts/EditorTabsContext";
 import type { QueryResult } from "../../types/query";
 import ChartConfigPanel from "./ChartConfigPanel";
 import ChartRenderer from "./ChartRenderer";
@@ -22,6 +23,7 @@ export default function VisualisationPanel({
 }: VisualisationPanelProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const chartRef = useRef<ChartRendererHandle>(null);
+  const { activeTabId } = useEditorTabsContext();
 
   const {
     config,
@@ -35,7 +37,7 @@ export default function VisualisationPanel({
     updateSeriesColumn,
     updateSeriesColor,
     setShowAnimation,
-  } = useChartConfig(result);
+  } = useChartConfig(result, activeTabId);
 
   // No result yet
   if (!result || result.columns.length === 0) {

@@ -6,6 +6,17 @@ import type { QueryResult } from "../types/query";
 import type { EChartsCoreOption } from "echarts/core";
 
 /**
+ * Module-level cache: persists chart configs across hook mount/unmount cycles.
+ * Keyed by editor tab ID so each tab retains its own chart settings.
+ */
+interface CacheEntry {
+  config: ChartConfig;
+  resultRef: QueryResult | null;
+}
+
+const configCache = new Map<string, CacheEntry>();
+
+/**
  * Determine whether a column appears numeric by sampling the first rows.
  * Returns true if every non-null value is a number.
  */
@@ -141,34 +152,83 @@ interface UseChartConfigReturn {
  * useChartConfig manages the chart configuration state for the Visualisation tab.
  *
  * - Auto-detects sensible defaults when the query result changes
+ * - Caches config per editor tab so switching tabs preserves chart settings
  * - Provides setters for each config property
  * - Derives the ECharts option object reactively
+ *
+ * @param result  Current query result (may be null)
+ * @param tabId   Editor tab identifier used as cache key
  */
 export function useChartConfig(
-  result: QueryResult | null
+  result: QueryResult | null,
+  tabId: string
 ): UseChartConfigReturn {
-  const [config, setConfig] = useState<ChartConfig>({
-    chartType: "bar",
-    xAxisColumn: null,
-    series: [],
-    showAnimation: true,
+  const [config, setConfig] = useState<ChartConfig>(() => {
+    const cached = configCache.get(tabId);
+    if (cached && cached.resultRef === result) {
+      return cached.config;
+    }
+    if (result && result.columns.length > 0 && result.data.length > 0) {
+      return autoDetectConfig(result.columns, result.data);
+    }
+    return { chartType: "bar", xAxisColumn: null, series: [], showAnimation: true };
   });
+
+  /**
+   * Wrapper around setConfig that also writes the new config to the
+   * module-level cache so it survives tab switches (mount/unmount).
+   */
+  const setConfigAndCache = useCallback(
+    (updater: ChartConfig | ((prev: ChartConfig) => ChartConfig)) => {
+      setConfig((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater;
+        const existing = configCache.get(tabId);
+        configCache.set(tabId, {
+          config: next,
+          resultRef: existing?.resultRef ?? null,
+        });
+        return next;
+      });
+    },
+    [tabId]
+  );
 
   const availableColumns = useMemo(
     () => result?.columns ?? [],
     [result?.columns]
   );
 
-  // Adjust config when result changes (React "derive state from props" pattern)
-  // See: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
-  const [prevResult, setPrevResult] = useState<QueryResult | null>(null);
-  if (result !== prevResult) {
+  // Detect changes in result or tabId and restore/reset config accordingly.
+  // Uses the React "derive state from props" pattern (no useEffect).
+  const [prevResult, setPrevResult] = useState<QueryResult | null>(result);
+  const [prevTabId, setPrevTabId] = useState(tabId);
+
+  if (tabId !== prevTabId) {
+    // Editor tab switched — restore from cache or auto-detect
+    setPrevTabId(tabId);
     setPrevResult(result);
+
+    const cached = configCache.get(tabId);
+    if (cached && cached.resultRef === result) {
+      setConfig(cached.config);
+    } else {
+      const nextConfig =
+        result && result.columns.length > 0 && result.data.length > 0
+          ? autoDetectConfig(result.columns, result.data)
+          : { chartType: "bar" as const, xAxisColumn: null, series: [] as SeriesConfig[], showAnimation: true };
+      setConfig(nextConfig);
+      configCache.set(tabId, { config: nextConfig, resultRef: result });
+    }
+  } else if (result !== prevResult) {
+    // Same tab, but result changed — user ran a new query, auto-detect
+    setPrevResult(result);
+
     const nextConfig =
       result && result.columns.length > 0 && result.data.length > 0
         ? autoDetectConfig(result.columns, result.data)
         : { chartType: "bar" as const, xAxisColumn: null, series: [] as SeriesConfig[], showAnimation: true };
     setConfig(nextConfig);
+    configCache.set(tabId, { config: nextConfig, resultRef: result });
   }
 
   const echartsOption = useMemo(
@@ -182,16 +242,16 @@ export function useChartConfig(
     config.series.length > 0;
 
   const setChartType = useCallback((chartType: ChartType) => {
-    setConfig((prev) => ({ ...prev, chartType }));
-  }, []);
+    setConfigAndCache((prev) => ({ ...prev, chartType }));
+  }, [setConfigAndCache]);
 
   const setXAxisColumn = useCallback((xAxisColumn: string) => {
-    setConfig((prev) => ({ ...prev, xAxisColumn }));
-  }, []);
+    setConfigAndCache((prev) => ({ ...prev, xAxisColumn }));
+  }, [setConfigAndCache]);
 
   const addSeries = useCallback(
     (column: string) => {
-      setConfig((prev) => {
+      setConfigAndCache((prev) => {
         const nextColorIndex = prev.series.length % DEFAULT_COLORS.length;
         return {
           ...prev,
@@ -202,33 +262,33 @@ export function useChartConfig(
         };
       });
     },
-    []
+    [setConfigAndCache]
   );
 
   const removeSeries = useCallback((index: number) => {
-    setConfig((prev) => ({
+    setConfigAndCache((prev) => ({
       ...prev,
       series: prev.series.filter((_, i) => i !== index),
     }));
-  }, []);
+  }, [setConfigAndCache]);
 
   const updateSeriesColumn = useCallback((index: number, column: string) => {
-    setConfig((prev) => ({
+    setConfigAndCache((prev) => ({
       ...prev,
       series: prev.series.map((s, i) => (i === index ? { ...s, column } : s)),
     }));
-  }, []);
+  }, [setConfigAndCache]);
 
   const updateSeriesColor = useCallback((index: number, color: string) => {
-    setConfig((prev) => ({
+    setConfigAndCache((prev) => ({
       ...prev,
       series: prev.series.map((s, i) => (i === index ? { ...s, color } : s)),
     }));
-  }, []);
+  }, [setConfigAndCache]);
 
   const setShowAnimation = useCallback((showAnimation: boolean) => {
-    setConfig((prev) => ({ ...prev, showAnimation }));
-  }, []);
+    setConfigAndCache((prev) => ({ ...prev, showAnimation }));
+  }, [setConfigAndCache]);
 
   return {
     config,
