@@ -81,10 +81,11 @@ export default function Privacy() {
                 ✓ Your data never touches our servers
               </p>
               <p className="text-green-800 font-semibold">
-                ✓ No user tracking, behavioral analytics, or cookies
+                ✓ No user tracking, cookies, or fingerprinting
               </p>
               <p className="text-green-800 font-semibold text-sm mt-1">
-                (Only essential server logs for website operation)
+                (Only privacy-friendly, aggregate analytics via Cloudflare Web
+                Analytics and essential server logs)
               </p>
             </div>
           </section>
@@ -104,11 +105,13 @@ export default function Privacy() {
                 Hosting Provider:
               </p>
               <p className="text-slate-700">
-                Cloudflare Germany GmbH
+                Cloudflare, Inc.
                 <br />
-                Rosental 7, c/o Mindspace
+                101 Townsend St
                 <br />
-                80331 München, Germany
+                San Francisco, CA 94107
+                <br />
+                United States
               </p>
             </div>
             <p className="text-slate-700 mb-2">
@@ -154,35 +157,32 @@ export default function Privacy() {
               Cloudflare Web Analytics
             </h2>
             <p className="text-slate-700 mb-4">
-              Diese Website nutzt Cloudflare Web Analytics zur Erhebung von
-              Nutzungskennzahlen. Im Gegensatz zu vielen anderen
-              Analytics-Anbietern verfolgt Cloudflare ein datenschutzfreundliches
-              Modell:
+              This website uses Cloudflare Web Analytics to collect usage
+              metrics. Unlike many other analytics providers, Cloudflare follows
+              a privacy-friendly model:
             </p>
             <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
               <li>
-                Es werden <strong>keine clientseitigen Informationen</strong>{" "}
-                verwendet, die etwa mithilfe von Cookies oder localStorage erfasst
-                werden
+                <strong>No client-side information</strong> is used, such as
+                data collected via cookies or localStorage
               </li>
               <li>
-                Es werden <strong>keine "Fingerabdrücke"</strong> von
-                Einzelpersonen in Form ihrer IP-Adresse, User Agent Strings oder
-                anderer Daten für Analysezwecke erstellt
+                <strong>No fingerprinting</strong> of individuals via their IP
+                address, User Agent string, or other data for analytics purposes
               </li>
               <li>
-                Es werden <strong>keine Besucherprofile</strong> erstellt und
-                Besucher werden nicht mit Werbung erneut angesprochen
+                <strong>No visitor profiles</strong> are created and visitors are
+                not retargeted with advertising
               </li>
             </ul>
             <p className="text-slate-700 mt-4">
-              Die Analytics sind nicht invasiv und respektieren die Privatsphäre
-              der Besucher.
+              The analytics are non-invasive and respect the privacy of
+              visitors.
             </p>
             <p className="text-slate-700 mt-4">
-              Weitere Informationen:{" "}
+              More information:{" "}
               <a
-                href="https://www.cloudflare.com/de-de/web-analytics/"
+                href="https://www.cloudflare.com/web-analytics/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-700"
@@ -334,7 +334,10 @@ export default function Privacy() {
               <li>
                 We do not collect or store your personal data on our servers
               </li>
-              <li>No third-party analytics or tracking services are used</li>
+              <li>
+                Only privacy-friendly, aggregate analytics (Cloudflare Web
+                Analytics) — no individual tracking
+              </li>
             </ul>
             <p className="text-slate-700 mt-4">
               Please note that data transmission over the internet (e.g., via
