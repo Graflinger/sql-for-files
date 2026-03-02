@@ -1,9 +1,17 @@
 import { useState, useMemo, useCallback } from "react";
 
-import type { ChartType, ChartConfig, SeriesConfig } from "../types/visualisation";
+import type { ChartType, ChartConfig } from "../types/visualisation";
 import { DEFAULT_COLORS } from "../types/visualisation";
 import type { QueryResult } from "../types/query";
 import type { EChartsCoreOption } from "echarts/core";
+
+import {
+  CHART_TYPE_REGISTRY,
+  EMPTY_CONFIG,
+  mapConfigToNewType,
+  detectDuplicateCategory,
+  getChartFamily,
+} from "../utils/chartRegistry";
 
 /**
  * Module-level cache: persists chart configs across hook mount/unmount cycles.
@@ -17,109 +25,25 @@ interface CacheEntry {
 const configCache = new Map<string, CacheEntry>();
 
 /**
- * Determine whether a column appears numeric by sampling the first rows.
- * Returns true if every non-null value is a number.
- */
-function isNumericColumn(
-  data: Record<string, unknown>[],
-  column: string
-): boolean {
-  const sample = data.slice(0, 20);
-  return sample.every((row) => {
-    const v = row[column];
-    return v === null || v === undefined || typeof v === "number";
-  });
-}
-
-/**
  * Auto-detect a sensible initial chart configuration from query results.
- *
- * Strategy:
- * - First non-numeric column → x-axis (fallback: first column)
- * - First numeric column → initial y-axis series
- * - Default chart type: bar, animation: on
+ * Defaults to a bar chart and merges type-specific detected fields.
  */
 function autoDetectConfig(
   columns: string[],
   data: Record<string, unknown>[]
 ): ChartConfig {
   if (columns.length === 0 || data.length === 0) {
-    return {
-      chartType: "bar",
-      xAxisColumn: null,
-      series: [],
-      showAnimation: true,
-    };
+    return { ...EMPTY_CONFIG };
   }
 
-  const numericFlags = columns.map((col) => isNumericColumn(data, col));
-
-  // First non-numeric column as x-axis, or first column if all numeric
-  const xIndex = numericFlags.indexOf(false);
-  const xAxisColumn = xIndex >= 0 ? columns[xIndex] : columns[0];
-
-  // First numeric column that isn't the x-axis → initial y series
-  const firstNumericIndex = numericFlags.findIndex(
-    (isNum, i) => isNum && columns[i] !== xAxisColumn
-  );
-
-  const series: SeriesConfig[] =
-    firstNumericIndex >= 0
-      ? [{ column: columns[firstNumericIndex], color: DEFAULT_COLORS[0] }]
-      : [];
+  const defaultType: ChartType = "bar";
+  const descriptor = CHART_TYPE_REGISTRY[defaultType];
+  const detected = descriptor.autoDetect(columns, data);
 
   return {
-    chartType: "bar",
-    xAxisColumn,
-    series,
-    showAnimation: true,
-  };
-}
-
-/**
- * Build an ECharts option object from a ChartConfig and query result data.
- */
-function buildEChartsOption(
-  config: ChartConfig,
-  data: Record<string, unknown>[]
-): EChartsCoreOption | null {
-  if (!config.xAxisColumn || config.series.length === 0 || data.length === 0) {
-    return null;
-  }
-
-  return {
-    dataset: {
-      source: data,
-    },
-    xAxis: {
-      type: "category" as const,
-      name: config.xAxisColumn,
-      nameLocation: "center" as const,
-      nameGap: 30,
-    },
-    yAxis: {
-      type: "value" as const,
-    },
-    series: config.series.map((s) => ({
-      type: config.chartType,
-      name: s.column,
-      encode: { x: config.xAxisColumn, y: s.column },
-      itemStyle: { color: s.color },
-    })),
-    tooltip: {
-      trigger: "axis" as const,
-    },
-    legend: {
-      show: config.series.length > 1,
-    },
-    animation: config.showAnimation,
-    grid: {
-      left: 60,
-      right: 30,
-      top: config.series.length > 1 ? 40 : 20,
-      bottom: 50,
-      containLabel: false,
-    },
+    ...EMPTY_CONFIG,
+    chartType: defaultType,
+    ...detected,
   };
 }
 
@@ -132,20 +56,28 @@ interface UseChartConfigReturn {
   canRender: boolean;
   /** Available column names from current result */
   availableColumns: string[];
-  /** Set the chart type */
+  /** Set the chart type (smart-maps config when switching families) */
   setChartType: (type: ChartType) => void;
-  /** Set the x-axis column */
+  /** Set the x-axis column (axis-family charts) */
   setXAxisColumn: (column: string) => void;
-  /** Add a new y-axis series */
+  /** Add a new y-axis series (axis-family charts) */
   addSeries: (column: string) => void;
-  /** Remove a y-axis series by index */
+  /** Remove a y-axis series by index (axis-family charts) */
   removeSeries: (index: number) => void;
-  /** Update a series column by index */
+  /** Update a series column by index (axis-family charts) */
   updateSeriesColumn: (index: number, column: string) => void;
-  /** Update a series color by index */
+  /** Update a series color by index (axis-family charts) */
   updateSeriesColor: (index: number, color: string) => void;
-  /** Toggle animation on/off */
-  setShowAnimation: (show: boolean) => void;
+  /** Set the label column (pie-family charts) */
+  setLabelColumn: (column: string) => void;
+  /** Set the value column (pie-family charts) */
+  setValueColumn: (column: string) => void;
+  /** Set chart title */
+  setTitle: (title: string) => void;
+  /** Set chart subtitle */
+  setSubtitle: (subtitle: string) => void;
+  /** Whether the category column has duplicate values (needs GROUP BY) */
+  hasDuplicateCategories: boolean;
 }
 
 /**
@@ -154,7 +86,7 @@ interface UseChartConfigReturn {
  * - Auto-detects sensible defaults when the query result changes
  * - Caches config per editor tab so switching tabs preserves chart settings
  * - Provides setters for each config property
- * - Derives the ECharts option object reactively
+ * - Derives the ECharts option object reactively via the chart type registry
  *
  * @param result  Current query result (may be null)
  * @param tabId   Editor tab identifier used as cache key
@@ -171,7 +103,7 @@ export function useChartConfig(
     if (result && result.columns.length > 0 && result.data.length > 0) {
       return autoDetectConfig(result.columns, result.data);
     }
-    return { chartType: "bar", xAxisColumn: null, series: [], showAnimation: true };
+    return { ...EMPTY_CONFIG };
   });
 
   /**
@@ -215,7 +147,7 @@ export function useChartConfig(
       const nextConfig =
         result && result.columns.length > 0 && result.data.length > 0
           ? autoDetectConfig(result.columns, result.data)
-          : { chartType: "bar" as const, xAxisColumn: null, series: [] as SeriesConfig[], showAnimation: true };
+          : { ...EMPTY_CONFIG };
       setConfig(nextConfig);
       configCache.set(tabId, { config: nextConfig, resultRef: result });
     }
@@ -226,28 +158,50 @@ export function useChartConfig(
     const nextConfig =
       result && result.columns.length > 0 && result.data.length > 0
         ? autoDetectConfig(result.columns, result.data)
-        : { chartType: "bar" as const, xAxisColumn: null, series: [] as SeriesConfig[], showAnimation: true };
+        : { ...EMPTY_CONFIG };
     setConfig(nextConfig);
     configCache.set(tabId, { config: nextConfig, resultRef: result });
   }
 
-  const echartsOption = useMemo(
-    () => buildEChartsOption(config, result?.data ?? []),
-    [config, result?.data]
+  // Delegate to the registry's per-type builder
+  const echartsOption = useMemo(() => {
+    const descriptor = CHART_TYPE_REGISTRY[config.chartType];
+    return descriptor.buildOption(config, result?.data ?? []);
+  }, [config, result?.data]);
+
+  // Universal: if the builder produced an option, the chart can render
+  const canRender = echartsOption !== null;
+
+  // Detect duplicate values in the category column (x-axis or pie label)
+  const hasDuplicateCategories = useMemo(() => {
+    const family = getChartFamily(config.chartType);
+    const categoryColumn =
+      family === "axis" ? config.xAxisColumn : config.labelColumn;
+    return detectDuplicateCategory(result?.data ?? [], categoryColumn);
+  }, [config.chartType, config.xAxisColumn, config.labelColumn, result?.data]);
+
+  // --- Setters ---
+
+  const setChartType = useCallback(
+    (chartType: ChartType) => {
+      setConfigAndCache((prev) =>
+        mapConfigToNewType(
+          prev,
+          chartType,
+          result?.columns ?? [],
+          result?.data ?? []
+        )
+      );
+    },
+    [setConfigAndCache, result?.columns, result?.data]
   );
 
-  const canRender =
-    echartsOption !== null &&
-    config.xAxisColumn !== null &&
-    config.series.length > 0;
-
-  const setChartType = useCallback((chartType: ChartType) => {
-    setConfigAndCache((prev) => ({ ...prev, chartType }));
-  }, [setConfigAndCache]);
-
-  const setXAxisColumn = useCallback((xAxisColumn: string) => {
-    setConfigAndCache((prev) => ({ ...prev, xAxisColumn }));
-  }, [setConfigAndCache]);
+  const setXAxisColumn = useCallback(
+    (xAxisColumn: string) => {
+      setConfigAndCache((prev) => ({ ...prev, xAxisColumn }));
+    },
+    [setConfigAndCache]
+  );
 
   const addSeries = useCallback(
     (column: string) => {
@@ -265,30 +219,63 @@ export function useChartConfig(
     [setConfigAndCache]
   );
 
-  const removeSeries = useCallback((index: number) => {
-    setConfigAndCache((prev) => ({
-      ...prev,
-      series: prev.series.filter((_, i) => i !== index),
-    }));
-  }, [setConfigAndCache]);
+  const removeSeries = useCallback(
+    (index: number) => {
+      setConfigAndCache((prev) => ({
+        ...prev,
+        series: prev.series.filter((_, i) => i !== index),
+      }));
+    },
+    [setConfigAndCache]
+  );
 
-  const updateSeriesColumn = useCallback((index: number, column: string) => {
-    setConfigAndCache((prev) => ({
-      ...prev,
-      series: prev.series.map((s, i) => (i === index ? { ...s, column } : s)),
-    }));
-  }, [setConfigAndCache]);
+  const updateSeriesColumn = useCallback(
+    (index: number, column: string) => {
+      setConfigAndCache((prev) => ({
+        ...prev,
+        series: prev.series.map((s, i) => (i === index ? { ...s, column } : s)),
+      }));
+    },
+    [setConfigAndCache]
+  );
 
-  const updateSeriesColor = useCallback((index: number, color: string) => {
-    setConfigAndCache((prev) => ({
-      ...prev,
-      series: prev.series.map((s, i) => (i === index ? { ...s, color } : s)),
-    }));
-  }, [setConfigAndCache]);
+  const updateSeriesColor = useCallback(
+    (index: number, color: string) => {
+      setConfigAndCache((prev) => ({
+        ...prev,
+        series: prev.series.map((s, i) => (i === index ? { ...s, color } : s)),
+      }));
+    },
+    [setConfigAndCache]
+  );
 
-  const setShowAnimation = useCallback((showAnimation: boolean) => {
-    setConfigAndCache((prev) => ({ ...prev, showAnimation }));
-  }, [setConfigAndCache]);
+  const setLabelColumn = useCallback(
+    (labelColumn: string) => {
+      setConfigAndCache((prev) => ({ ...prev, labelColumn }));
+    },
+    [setConfigAndCache]
+  );
+
+  const setValueColumn = useCallback(
+    (valueColumn: string) => {
+      setConfigAndCache((prev) => ({ ...prev, valueColumn }));
+    },
+    [setConfigAndCache]
+  );
+
+  const setTitle = useCallback(
+    (title: string) => {
+      setConfigAndCache((prev) => ({ ...prev, title }));
+    },
+    [setConfigAndCache]
+  );
+
+  const setSubtitle = useCallback(
+    (subtitle: string) => {
+      setConfigAndCache((prev) => ({ ...prev, subtitle }));
+    },
+    [setConfigAndCache]
+  );
 
   return {
     config,
@@ -301,6 +288,10 @@ export function useChartConfig(
     removeSeries,
     updateSeriesColumn,
     updateSeriesColor,
-    setShowAnimation,
+    setLabelColumn,
+    setValueColumn,
+    setTitle,
+    setSubtitle,
+    hasDuplicateCategories,
   };
 }

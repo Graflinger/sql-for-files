@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 
 import { useChartConfig } from "../../hooks/useChartConfig";
+import { getChartFamily } from "../../utils/chartRegistry";
 import { useEditorTabsContext } from "../../contexts/EditorTabsContext";
 import type { QueryResult } from "../../types/query";
 import ChartConfigPanel from "./ChartConfigPanel";
@@ -36,8 +37,17 @@ export default function VisualisationPanel({
     removeSeries,
     updateSeriesColumn,
     updateSeriesColor,
-    setShowAnimation,
+    setLabelColumn,
+    setValueColumn,
+    setTitle,
+    setSubtitle,
+    hasDuplicateCategories,
   } = useChartConfig(result, activeTabId);
+
+  // Determine the category column name for the warning message
+  const family = getChartFamily(config.chartType);
+  const categoryColumnName =
+    family === "axis" ? config.xAxisColumn : config.labelColumn;
 
   // No result yet
   if (!result || result.columns.length === 0) {
@@ -79,7 +89,10 @@ export default function VisualisationPanel({
               onRemoveSeries={removeSeries}
               onUpdateSeriesColumn={updateSeriesColumn}
               onUpdateSeriesColor={updateSeriesColor}
-              onAnimationChange={setShowAnimation}
+              onLabelColumnChange={setLabelColumn}
+              onValueColumnChange={setValueColumn}
+              onTitleChange={setTitle}
+              onSubtitleChange={setSubtitle}
             />
           </div>
         )}
@@ -118,6 +131,45 @@ export default function VisualisationPanel({
             </span>
           </div>
 
+          {/* Duplicate category warning */}
+          {canRender && hasDuplicateCategories && (
+            <div className="mx-2 mt-1.5 px-3 py-2 bg-amber-50 border border-amber-300 rounded text-xs text-amber-700 flex items-start gap-2">
+              <svg
+                className="w-4 h-4 text-amber-500 flex-shrink-0 mt-px"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>
+                Column <strong>&quot;{categoryColumnName}&quot;</strong> has
+                duplicate values. Consider using{" "}
+                <code className="px-1 py-0.5 bg-amber-100 rounded text-[11px] font-mono">
+                  GROUP BY
+                </code>{" "}
+                with an aggregation function (e.g.{" "}
+                <code className="px-1 py-0.5 bg-amber-100 rounded text-[11px] font-mono">
+                  SUM
+                </code>
+                ,{" "}
+                <code className="px-1 py-0.5 bg-amber-100 rounded text-[11px] font-mono">
+                  AVG
+                </code>
+                ,{" "}
+                <code className="px-1 py-0.5 bg-amber-100 rounded text-[11px] font-mono">
+                  COUNT
+                </code>
+                ) in your query for an accurate chart.
+              </span>
+            </div>
+          )}
+
           {/* Chart render area */}
           <div className="flex-1 min-h-0">
             {canRender && echartsOption ? (
@@ -125,8 +177,8 @@ export default function VisualisationPanel({
             ) : (
               <div className="flex items-center justify-center h-full text-slate-400">
                 <p className="text-xs">
-                  Select an X-axis column and at least one Y-axis series to
-                  render a chart.
+                  Configure chart options in the sidebar to render a
+                  visualisation.
                 </p>
               </div>
             )}
