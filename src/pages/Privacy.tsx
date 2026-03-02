@@ -81,10 +81,11 @@ export default function Privacy() {
                 ✓ Your data never touches our servers
               </p>
               <p className="text-green-800 font-semibold">
-                ✓ No user tracking, behavioral analytics, or cookies
+                ✓ No user tracking, cookies, or fingerprinting
               </p>
               <p className="text-green-800 font-semibold text-sm mt-1">
-                (Only essential server logs for website operation)
+                (Only privacy-friendly, aggregate analytics via Cloudflare Web
+                Analytics and essential server logs)
               </p>
             </div>
           </section>
@@ -333,7 +334,10 @@ export default function Privacy() {
               <li>
                 We do not collect or store your personal data on our servers
               </li>
-              <li>No third-party analytics or tracking services are used</li>
+              <li>
+                Only privacy-friendly, aggregate analytics (Cloudflare Web
+                Analytics) — no individual tracking
+              </li>
             </ul>
             <p className="text-slate-700 mt-4">
               Please note that data transmission over the internet (e.g., via

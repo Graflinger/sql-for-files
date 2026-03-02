@@ -100,7 +100,7 @@ test.describe("SQL Editor - DuckDB Integration", () => {
     await setEditorValueAndRun(page, "SELECT * FROM sample LIMIT 5;");
 
     // Wait for results — should show row count info (e.g., "5 rows" or "Showing 5 of 5")
-    await expect(page.getByText(/\d+ rows?/i)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText(/\d+ rows?/i).first()).toBeVisible({ timeout: 15000 });
   });
 
   test("shows error for invalid SQL", async ({ page }) => {
