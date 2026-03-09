@@ -24,18 +24,17 @@ import SEO from "../components/SEO/SEO";
  * so state survives navigation between pages.
  */
 function SQLEditorContent() {
-  const { db, tables, refreshTables, restoredMessage } = useDuckDBContext();
+  const { db, tables, refreshTables, restoredMessage, clearRestoredMessage } = useDuckDBContext();
   const { addQuery, history } = useQueryHistory();
   const { addNotification } = useNotifications();
 
-  // Show restore notification once after page load
-  const restoredShownRef = useRef(false);
+  // Show restore notification once, then clear so it won't re-show on navigation
   useEffect(() => {
-    if (restoredMessage && !restoredShownRef.current) {
-      restoredShownRef.current = true;
+    if (restoredMessage) {
       addNotification({ type: "info", title: restoredMessage });
+      clearRestoredMessage();
     }
-  }, [restoredMessage, addNotification]);
+  }, [restoredMessage, addNotification, clearRestoredMessage]);
 
   // Editor tabs state (from global context)
   const {

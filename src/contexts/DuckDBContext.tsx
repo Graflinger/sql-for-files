@@ -16,6 +16,7 @@ interface DuckDBContextType {
   refreshTables: () => Promise<void>; // Function to update the table list
   saveDatabase: () => Promise<{ saved: string[]; errors: Array<{ table: string; error: string }>; warnings: string[] } | null>; // Persist all tables to IndexedDB
   restoredMessage: string | null; // Set after auto-restore, consumed by notification display
+  clearRestoredMessage: () => void; // Acknowledge the restored message so it won't re-show on navigation
 }
 
 // Create the context (initially undefined)
@@ -110,6 +111,9 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
    * Persists all current tables to IndexedDB as Parquet buffers.
    * Called explicitly by the user via the "Save Database" button.
    */
+  /** Clear the restored message so it won't re-show on navigation back to the editor. */
+  const clearRestoredMessage = useCallback(() => setRestoredMessage(null), []);
+
   const saveDatabase = useCallback(async () => {
     if (!db) return null;
     return saveAllTablesToIndexedDB(db, tables);
@@ -117,7 +121,7 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
 
   // Provide the context value to all children
   return (
-    <DuckDBContext.Provider value={{ db, loading, error, tables, refreshTables, saveDatabase, restoredMessage }}>
+    <DuckDBContext.Provider value={{ db, loading, error, tables, refreshTables, saveDatabase, restoredMessage, clearRestoredMessage }}>
       {children}
     </DuckDBContext.Provider>
   );

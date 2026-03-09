@@ -38,6 +38,7 @@ function ContextConsumer() {
       <span data-testid="restoredMessage">{ctx.restoredMessage ?? "null"}</span>
       <button onClick={() => ctx.refreshTables()}>refresh</button>
       <button onClick={() => ctx.saveDatabase()}>save</button>
+      <button onClick={() => ctx.clearRestoredMessage()}>clearRestored</button>
     </div>
   );
 }
@@ -233,5 +234,40 @@ describe("DuckDBContext", () => {
     }).toThrow("useDuckDBContext must be used within DuckDBProvider");
 
     consoleSpy.mockRestore();
+  });
+
+  it("clearRestoredMessage resets restoredMessage to null", async () => {
+    mockRestore.mockResolvedValue({
+      restoredCount: 2,
+      tableNames: ["orders", "products"],
+    });
+
+    mockDb._mockConnection.query.mockResolvedValue({
+      toArray: () => [
+        { table_name: "orders" },
+        { table_name: "products" },
+      ],
+    });
+
+    render(
+      <DuckDBProvider>
+        <ContextConsumer />
+      </DuckDBProvider>
+    );
+
+    // Wait for restore message to appear
+    await waitFor(() => {
+      expect(screen.getByTestId("restoredMessage").textContent).toBe(
+        "Restored 2 tables from previous session"
+      );
+    });
+
+    // Clear the message
+    await act(async () => {
+      screen.getByText("clearRestored").click();
+    });
+
+    // Should be reset to null
+    expect(screen.getByTestId("restoredMessage").textContent).toBe("null");
   });
 });
