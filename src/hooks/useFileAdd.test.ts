@@ -63,6 +63,7 @@ describe("useFileAdd", () => {
     expect(mockDb._mockConnection.query).toHaveBeenCalledWith(
       expect.stringContaining("read_csv_auto")
     );
+    expect(mockDb._mockConnection.close).toHaveBeenCalled();
   });
 
   it("adds a JSON file successfully", async () => {
@@ -79,6 +80,7 @@ describe("useFileAdd", () => {
     expect(mockDb._mockConnection.query).toHaveBeenCalledWith(
       expect.stringContaining("read_json_auto")
     );
+    expect(mockDb._mockConnection.close).toHaveBeenCalled();
   });
 
   it("adds a Parquet file successfully", async () => {
@@ -97,6 +99,7 @@ describe("useFileAdd", () => {
     expect(mockDb._mockConnection.query).toHaveBeenCalledWith(
       expect.stringContaining("read_parquet")
     );
+    expect(mockDb._mockConnection.close).toHaveBeenCalled();
   });
 
   it("rejects unsupported file types", async () => {
@@ -230,6 +233,7 @@ describe("useFileAdd", () => {
     expect(p).toBeDefined();
     expect(p!.status).toBe("error");
     expect(p!.error).toBe("Parse error");
+    expect(mockDb._mockConnection.close).toHaveBeenCalled();
   });
 });
 

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import { defaultTableNameFromFile, sanitizeTableName } from "../../utils/tableName";
+import { withDuckDBConnection } from "../../utils/duckdb";
+import { quoteStringLiteral } from "../../utils/sql";
 
 interface CsvOptions {
   skip?: number;
@@ -76,50 +78,46 @@ function buildCsvOptionsSql(options?: CsvOptions): string {
   }
 
   if (options.delim) {
-    parts.push(`delim='${escapeSqlString(options.delim)}'`);
+    parts.push(`delim=${quoteStringLiteral(options.delim)}`);
   }
 
   if (options.quote) {
-    parts.push(`quote='${escapeSqlString(options.quote)}'`);
+    parts.push(`quote=${quoteStringLiteral(options.quote)}`);
   }
 
   if (options.escape) {
-    parts.push(`escape='${escapeSqlString(options.escape)}'`);
+    parts.push(`escape=${quoteStringLiteral(options.escape)}`);
   }
 
   if (options.nullStr) {
-    parts.push(`nullstr='${escapeSqlString(options.nullStr)}'`);
+    parts.push(`nullstr=${quoteStringLiteral(options.nullStr)}`);
   }
 
   if (options.dateformat) {
-    parts.push(`dateformat='${escapeSqlString(options.dateformat)}'`);
+    parts.push(`dateformat=${quoteStringLiteral(options.dateformat)}`);
   }
 
   if (options.decimal_separator) {
-    parts.push(`decimal_separator='${escapeSqlString(options.decimal_separator)}'`);
+    parts.push(`decimal_separator=${quoteStringLiteral(options.decimal_separator)}`);
   }
 
   if (parts.length === 0) return "";
   return `, ${parts.join(", ")}`;
 }
 
-function escapeSqlString(value: string): string {
-  return value.replace(/'/g, "''");
-}
-
 function getPreviewQuery(file: File, csvOptions?: CsvOptions) {
   const fileName = file.name;
   if (isCsvFile(file)) {
     const optionsSql = buildCsvOptionsSql(csvOptions);
-    return `SELECT * FROM read_csv_auto('${fileName}'${optionsSql}) LIMIT ${PREVIEW_LIMIT}`;
+    return `SELECT * FROM read_csv_auto(${quoteStringLiteral(fileName)}${optionsSql}) LIMIT ${PREVIEW_LIMIT}`;
   }
 
   if (isJsonFile(file)) {
-    return `SELECT * FROM read_json_auto('${fileName}') LIMIT ${PREVIEW_LIMIT}`;
+    return `SELECT * FROM read_json_auto(${quoteStringLiteral(fileName)}) LIMIT ${PREVIEW_LIMIT}`;
   }
 
   if (isParquetFile(file)) {
-    return `SELECT * FROM read_parquet('${fileName}') LIMIT ${PREVIEW_LIMIT}`;
+    return `SELECT * FROM read_parquet(${quoteStringLiteral(fileName)}) LIMIT ${PREVIEW_LIMIT}`;
   }
 
   return "";
@@ -175,14 +173,11 @@ export default function AdvancedAddModal({
       setPreviewLoading(true);
       setPreviewError(null);
 
-      let conn: Awaited<ReturnType<typeof db.connect>> | null = null;
       try {
         const buffer = new Uint8Array(await selectedFile.arrayBuffer());
         await db.registerFileBuffer(selectedFile.name, buffer);
-
-        conn = await db.connect();
         const sql = getPreviewQuery(selectedFile, isCsvFile(selectedFile) ? csvOptions : undefined);
-        const result = await conn.query(sql);
+        const result = await withDuckDBConnection(db, async (conn) => conn.query(sql));
         const columns = result.schema.fields.map((field: { name: string }) => field.name);
         const rows = result.toArray().map((row) => {
           const obj: Record<string, unknown> = {};
@@ -198,8 +193,6 @@ export default function AdvancedAddModal({
           rows,
           rowCount: result.numRows,
         });
-        await conn.close();
-        conn = null;
       } catch (error) {
         if (!isActive) return;
         setPreview(null);
@@ -207,8 +200,10 @@ export default function AdvancedAddModal({
           error instanceof Error ? error.message : "Failed to load preview"
         );
       } finally {
-        if (conn) {
-          await conn.close();
+        try {
+          await db.dropFile(selectedFile.name);
+        } catch {
+          // Ignore cleanup failures when preview setup did not register a file.
         }
         if (isActive) {
           setPreviewLoading(false);

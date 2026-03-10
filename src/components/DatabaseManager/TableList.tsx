@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { usePersistence } from "../../hooks/usePersistence";
+import { withDuckDBConnection } from "../../utils/duckdb";
+import { quoteIdentifier } from "../../utils/sql";
 
 /**
  * TableList Component
@@ -64,10 +66,9 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
 
     try {
       setLoadingSchema(tableName);
-      const conn = await db.connect();
-
-      // Use DESCRIBE to get column information
-      const result = await conn.query(`DESCRIBE ${tableName}`);
+      const result = await withDuckDBConnection(db, async (conn) =>
+        conn.query(`DESCRIBE ${quoteIdentifier(tableName)}`)
+      );
       const schemaData = result.toArray() as ColumnInfo[];
 
       // Cache the schema
@@ -75,8 +76,6 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
         ...prev,
         [tableName]: schemaData,
       }));
-
-      await conn.close();
     } catch (err) {
       console.error(`Failed to fetch schema for ${tableName}:`, err);
     } finally {
@@ -561,9 +560,11 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                     </div>
 
                     {/* Table Name */}
-                    <span className="text-sm font-semibold text-slate-700 group-hover:text-blue-700 transition-colors duration-200 truncate flex-1">
-                      {tableName}
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <span className="block text-sm font-semibold text-slate-700 group-hover:text-blue-700 transition-colors duration-200 whitespace-normal break-all leading-5">
+                        {tableName}
+                      </span>
+                    </div>
 
                     {/* Preview Button */}
                     {onPreviewTable && (

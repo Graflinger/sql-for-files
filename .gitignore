@@ -14,6 +14,7 @@ dist-ssr
 
 test-results/*
 
+playwright-report/index.html
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -26,6 +27,5 @@ test-results/*
 *.sw?
 
 *.md
-!claude.md
 !README.md
 !AGENTS.md

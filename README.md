@@ -41,8 +41,9 @@ Perfect for data analysts, developers, and anyone who needs to quickly query dat
 
 ### 💾 Data Management
 - Export query results to CSV (with full dataset, not just displayed rows)
-- Export/import entire database as ZIP bundles
+- Export/import entire databases as lossless Parquet ZIP backups
 - View table schemas with column types and nullability
+- Automatic local persistence in IndexedDB
 - Multi-file table management
 
 ## 🎯 Use Cases
@@ -105,7 +106,7 @@ npm run preview
 2. Select a table from the sidebar to view its schema
 3. Write a SQL query in the editor
 4. Press **Ctrl/Cmd + Enter** to execute
-5. Export results to CSV or save the entire database as a ZIP
+5. Export results to CSV or save the entire database as a Parquet ZIP backup
 
 ### Example Queries
 
@@ -136,7 +137,7 @@ FROM employees;
 ## 🔐 Privacy & Security
 
 - **Client-side processing** - All data processing happens in your browser
-- **Local storage only** - Files stored in IndexedDB, never sent to servers
+- **Local storage only** - Tables and history are stored in IndexedDB, never sent to servers
 - **No tracking** - Zero analytics, no usage data collection
 - **Open source** - Audit the entire codebase on GitHub
 
@@ -174,11 +175,10 @@ This license ensures SQL for Files remains open source while preventing others f
 
 ## 🗺️ Roadmap
 
-- Query history and saved queries
 - Parquet and JSON export from query results
 - Dark mode support
-- Query result visualization (charts)
-- Table preview with sampling
+- Saved chart presets
+- Broader file import options where DuckDB WASM supports them
 
 ## 📧 Support
 

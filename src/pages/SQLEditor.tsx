@@ -11,6 +11,7 @@ import { IDELayout } from "../components/IDE";
 import { useQueryExecution } from "../hooks/useQueryExecution";
 import { useQueryHistory } from "../hooks/useQueryHistory";
 import SEO from "../components/SEO/SEO";
+import { quoteIdentifier } from "../utils/sql";
 
 /**
  * SQL Editor Page Content
@@ -84,7 +85,7 @@ function SQLEditorContent() {
 
   const handlePreviewTable = useCallback(
     async (tableName: string) => {
-      const sql = `SELECT * FROM ${tableName} LIMIT 100`;
+      const sql = `SELECT * FROM ${quoteIdentifier(tableName)} LIMIT 100`;
       const newTabId = addTab({ name: `Preview: ${tableName}`, sql });
       executingTabIdRef.current = newTabId;
       await executeQuery(sql);

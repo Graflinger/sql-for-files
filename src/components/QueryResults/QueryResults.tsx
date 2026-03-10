@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { QueryResult } from "../../types/query";
+import { escapeCSVValue } from "../../utils/databasePersistence";
 
 interface QueryResultsProps {
   result: QueryResult | null;
@@ -16,26 +17,6 @@ interface SortState {
 }
 
 /**
- * Format a value for CSV output
- */
-function formatCSVValue(value: unknown): string {
-  // Handle null/undefined
-  if (value === null || value === undefined) {
-    return '';
-  }
-
-  // Convert to string
-  const stringValue = String(value);
-
-  // Escape quotes and wrap in quotes if contains comma, quote, or newline
-  if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
-    return `"${stringValue.replace(/"/g, '""')}"`;
-  }
-
-  return stringValue;
-}
-
-/**
  * Convert Arrow table directly to CSV format
  * More efficient than converting through JS objects
  */
@@ -46,7 +27,7 @@ function convertArrowToCSV(arrowTable: any, columns: string[]): string {
   }
 
   // Create header row
-  const headers = columns.join(',');
+  const headers = columns.map((column) => escapeCSVValue(column)).join(",");
 
   // Create data rows by iterating through Arrow table
   const rows: string[] = [];
@@ -54,7 +35,7 @@ function convertArrowToCSV(arrowTable: any, columns: string[]): string {
     const rowValues = columns.map(col => {
       const columnVector = arrowTable.getChild(col);
       const value = columnVector?.get(i);
-      return formatCSVValue(value);
+      return escapeCSVValue(value);
     });
     rows.push(rowValues.join(','));
   }

@@ -6,6 +6,7 @@ import {
   restoreDatabaseFromIndexedDB,
   saveAllTablesToIndexedDB,
 } from '../utils/databasePersistence';
+import { withDuckDBConnection } from '../utils/duckdb';
 
 // Define the shape of our context data
 interface DuckDBContextType {
@@ -84,22 +85,17 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
     if (!dbToUse) return;
 
     try {
-      // Create a connection to run queries
-      const conn = await dbToUse.connect();
-
-      // Query the information_schema to get all table names
-      const result = await conn.query(`
-        SELECT table_name
-        FROM information_schema.tables
-        WHERE table_schema = 'main'
-      `);
+      const result = await withDuckDBConnection(dbToUse, async (conn) =>
+        conn.query(`
+          SELECT table_name
+          FROM information_schema.tables
+          WHERE table_schema = 'main'
+        `)
+      );
 
       // Convert Arrow result to array of table names
       const tableNames = result.toArray().map(row => row.table_name as string);
       setTables(tableNames);
-
-      // Close the connection (important for cleanup)
-      await conn.close();
     } catch (err) {
       console.error('Failed to refresh tables:', err);
     }

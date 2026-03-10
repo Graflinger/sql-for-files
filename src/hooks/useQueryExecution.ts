@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import type { QueryResult } from "../types/query";
+import { withDuckDBConnection } from "../utils/duckdb";
 
 const DISPLAY_LIMIT = 1000; // Max rows to convert to JS for UI display
 const LARGE_RESULT_WARNING = 100000; // Warn if result exceeds this
@@ -52,12 +53,9 @@ export function useQueryExecution(db: AsyncDuckDB | null, options?: UseQueryExec
     const startTime = performance.now();
 
     try {
-      // Create a database connection
-      const conn = await db.connect();
-
-      // Execute the query without automatic limiting
-      // Returns an Apache Arrow Table (columnar data format)
-      const arrowResult = await conn.query(sql);
+      const arrowResult = await withDuckDBConnection(db, async (conn) =>
+        conn.query(sql)
+      );
 
       // Get actual row count from Arrow result
       const actualRowCount = arrowResult.numRows;
@@ -106,7 +104,6 @@ export function useQueryExecution(db: AsyncDuckDB | null, options?: UseQueryExec
       };
 
       setResult(queryResult);
-      await conn.close();
 
       // Notify callback of successful execution (for history)
       if (options?.onQueryExecuted) {

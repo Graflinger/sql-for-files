@@ -140,9 +140,32 @@ describe("TableList", () => {
       expect(screen.getByText("orders")).toBeInTheDocument();
     });
 
-    it("renders Tables header", () => {
+    it("allows long table names to wrap instead of truncating", () => {
+      const longTableName = "customer_orders_archive_2026";
+      mockUseDuckDBContext.mockReturnValue({
+        db: {
+          connect: vi.fn().mockResolvedValue({
+            query: vi.fn().mockResolvedValue({
+              toArray: () => [
+                { column_name: "id", column_type: "INTEGER", null: "NO" },
+              ],
+            }),
+            close: vi.fn().mockResolvedValue(undefined),
+          }),
+        },
+        tables: [longTableName],
+        loading: false,
+        error: null,
+        saveDatabase: mockSaveDatabase,
+        refreshTables: mockRefreshTables,
+      });
+
       render(<TableList />);
-      expect(screen.getByText("Tables")).toBeInTheDocument();
+
+      const tableName = screen.getByText(longTableName);
+      expect(tableName).toBeInTheDocument();
+      expect(tableName).toHaveClass("whitespace-normal", "break-all");
+      expect(tableName).not.toHaveClass("truncate");
     });
 
     it("renders action buttons", () => {

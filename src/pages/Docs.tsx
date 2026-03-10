@@ -23,7 +23,7 @@ export default function Docs() {
         name: "What happens if I refresh the page?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Your query history is saved locally, but added files and tables are lost on refresh unless you export your database first.",
+          text: "Your query history and saved tables are stored locally in your browser. SQL for Files restores persisted tables on reload, and you can also export a lossless Parquet backup ZIP for sharing or safekeeping.",
         },
       },
       {
@@ -171,10 +171,11 @@ export default function Docs() {
                 your tables
               </li>
               <li>
-                Creates a ZIP file containing all table data in csv format
+                Creates a ZIP file containing each table as a Parquet file for
+                lossless round-tripping
               </li>
               <li>
-                Includes metadata with table schemas, column types, and row
+                Includes metadata with table schemas, file mappings, and row
                 counts
               </li>
               <li>
@@ -193,7 +194,8 @@ export default function Docs() {
               <li>Select the ZIP file you exported earlier</li>
               <li>All tables and data will be automatically recreated</li>
               <li>
-                Original files are stored in browser storage for persistence
+                Imported tables are restored into DuckDB and saved back to
+                browser storage for future sessions
               </li>
             </ul>
 
@@ -436,11 +438,10 @@ WHERE o.total_amount > 100;`}</code>
                 </h4>
                 <p className="text-blue-900">
                   <strong>A:</strong> Your query history is automatically saved
-                  to browser storage and will persist across sessions. However,
-                   your added files and tables are currently lost on refresh
-                  unless you export your database first. We recommend exporting
-                  your database before closing if you want to continue your work
-                  later.
+                  to browser storage and will persist across sessions. Added
+                  tables are also restored automatically if they have been saved
+                  to IndexedDB, and database exports give you a lossless Parquet
+                  backup you can import later or move to another browser.
                 </p>
               </div>
 

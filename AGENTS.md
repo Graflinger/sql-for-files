@@ -1,7 +1,7 @@
 # AGENTS.md — Coding Agent Reference
 
 Browser-based SQL query interface using DuckDB-WASM. All processing is client-side.
-See `claude.md` for full product context, architecture, and implementation status.
+This file is the primary agent reference for project context, architecture, and implementation status.
 
 ## Build & Run Commands
 
@@ -20,10 +20,18 @@ npx tsc -b               # Type-check all project references (app + node configs
 npx tsc -b --clean       # Clean build artifacts
 ```
 
-### No Test Framework
+### Tests
 
-There are **no tests** in this project. No vitest, jest, or testing-library is configured.
-No `test` script exists in package.json. If adding tests, use Vitest (Vite-native).
+```bash
+npm test                 # Run Vitest unit/component tests
+npm run test:watch       # Run Vitest in watch mode
+npm run test:coverage    # Run Vitest with coverage
+npm run test:e2e         # Run Playwright end-to-end tests
+npm run test:all         # Run unit + E2E suites
+```
+
+Testing is configured with **Vitest**, **Testing Library**, and **Playwright**.
+Use Vitest for unit/component coverage and Playwright for browser flows.
 
 ## CI/CD
 
@@ -51,8 +59,17 @@ src/
     Notification/   # Toast notification system
   pages/            # Route-level page components (About, Docs, Privacy, Legal, SQLEditor)
   types/            # Shared TypeScript interfaces
-  utils/            # Pure utility functions
+  utils/            # Pure utility functions (CSV, SQL quoting, DuckDB helpers, table naming)
 ```
+
+## Current Product Surface
+
+- Import CSV, JSON, and Parquet files into DuckDB-WASM tables in the browser
+- Run SQL queries with Monaco-based editing, history, schema browsing, and table previews
+- Export query results as CSV
+- Export/import full databases as versioned **Parquet ZIP** backups
+- Persist tables and query history locally via IndexedDB
+- Visualize results and compute classification statistics on full Arrow results
 
 ## Code Style
 
@@ -144,9 +161,11 @@ export default function SQLEditor({ onExecute, executing, disabled = false }: SQ
 ### Async Patterns
 
 - Always `async/await`, never raw `.then()` chains
-- DuckDB connections must be closed after use: `const conn = await db.connect(); ... await conn.close();`
+- DuckDB connections must be closed after use. Prefer the shared helper in `src/utils/duckdb.ts`:
+  `await withDuckDBConnection(db, async (conn) => { ... })`
 - Use `finally` blocks for cleanup (removing notifications, resetting loading state)
 - Dynamic imports for heavy libraries: `const JSZip = (await import("jszip")).default;`
+- When interpolating dynamic table names or string literals into SQL, use the shared helpers in `src/utils/sql.ts`
 
 ### Memory Constraints
 
@@ -228,5 +247,5 @@ Charts must support high-quality export for embedding in PowerPoint, Excel, etc.
 
 ## Gitignore Notes
 
-The `.gitignore` excludes all `*.md` files except `claude.md`, `README.md`, and `AGENTS.md`.
+The `.gitignore` excludes most `*.md` files except `README.md` and `AGENTS.md`.
 Local planning docs (implementation_plan.md, etc.) are intentionally untracked.

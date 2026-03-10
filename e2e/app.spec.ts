@@ -103,6 +103,32 @@ test.describe("SQL Editor - DuckDB Integration", () => {
     await expect(page.getByText(/\d+ rows?/i).first()).toBeVisible({ timeout: 15000 });
   });
 
+  test("exports and re-imports a Parquet database backup", async ({ page }) => {
+    const fileInput = page.locator('input[type="file"]').first();
+    await fileInput.setInputFiles(path.join(FIXTURE_DIR, "sample.csv"));
+    await expect(page.getByText("sample", { exact: true })).toBeVisible({ timeout: 15000 });
+
+    const downloadPromise = page.waitForEvent("download");
+    await page.getByLabel("Export database").click();
+    const download = await downloadPromise;
+    const downloadPath = await download.path();
+    expect(downloadPath).toBeTruthy();
+
+    await page.getByLabel("Drop all tables").click();
+    await page.getByRole("button", { name: "Drop All" }).click();
+    await expect(page.getByText("No tables yet")).toBeVisible({ timeout: 15000 });
+
+    const importInput = page.locator('input[accept=".zip"]').first();
+    await importInput.setInputFiles(downloadPath!);
+    await page.getByRole("button", { name: "Import", exact: true }).click();
+
+    await expect(page.getByText("sample", { exact: true })).toBeVisible({ timeout: 15000 });
+
+    await setEditorValueAndRun(page, "SELECT COUNT(*) AS count FROM sample;");
+    await expect(page.locator("th", { hasText: "count" }).first()).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText("1 row").first()).toBeVisible({ timeout: 15000 });
+  });
+
   test("shows error for invalid SQL", async ({ page }) => {
     // Set invalid SQL and execute
     await setEditorValueAndRun(page, "INVALID SQL QUERY;");

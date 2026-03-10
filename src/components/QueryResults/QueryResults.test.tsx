@@ -261,6 +261,9 @@ describe("QueryResults", () => {
       // Mock DOM manipulation AFTER render so render itself isn't affected
       const mockClick = vi.fn();
       const mockSetAttribute = vi.fn();
+      const mockCreateObjectURL = vi
+        .spyOn(URL, "createObjectURL")
+        .mockReturnValue("blob:download");
       const origCreateElement = document.createElement.bind(document);
       vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
         if (tag === "a") {
@@ -280,6 +283,58 @@ describe("QueryResults", () => {
 
       expect(mockClick).toHaveBeenCalled();
       expect(mockSetAttribute).toHaveBeenCalledWith("download", expect.stringContaining("query_results_"));
+      mockCreateObjectURL.mockRestore();
+    });
+
+    it("escapes CSV headers in exported query results", async () => {
+      const user = userEvent.setup();
+      let exportedBlob: Blob | null = null;
+      const createObjectUrlSpy = vi
+        .spyOn(URL, "createObjectURL")
+        .mockImplementation((blob: Blob | MediaSource) => {
+          exportedBlob = blob as Blob;
+          return "blob:download";
+        });
+      const revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+
+      const result = createResult({
+        columns: ['name,first', 'quote"field'],
+        data: [{ 'name,first': "Alice", 'quote"field': "ok" }],
+        arrowTable: {
+          numRows: 1,
+          getChild: (col: string) => ({
+            get: () => ({ 'name,first': "Alice", 'quote"field': "ok" }[col] ?? null),
+          }),
+        },
+      });
+
+      render(<QueryResults result={result} error={null} />);
+
+      const mockClick = vi.fn();
+      const origCreateElement = document.createElement.bind(document);
+      vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
+        if (tag === "a") {
+          return {
+            setAttribute: vi.fn(),
+            click: mockClick,
+            style: {} as CSSStyleDeclaration,
+          } as unknown as HTMLAnchorElement;
+        }
+        return origCreateElement(tag);
+      });
+      vi.spyOn(document.body, "appendChild").mockImplementation((node) => node);
+      vi.spyOn(document.body, "removeChild").mockImplementation((node) => node);
+
+      await user.click(screen.getByText(/Export CSV/));
+
+      expect(mockClick).toHaveBeenCalled();
+      expect(exportedBlob).not.toBeNull();
+      await expect(exportedBlob!.text()).resolves.toContain(
+        '"name,first","quote""field"'
+      );
+
+      createObjectUrlSpy.mockRestore();
+      revokeSpy.mockRestore();
     });
   });
 });

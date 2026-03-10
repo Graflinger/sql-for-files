@@ -56,6 +56,7 @@ describe("useQueryExecution", () => {
     expect(result.current.result!.data).toHaveLength(2);
     expect(result.current.result!.wasTruncated).toBe(false);
     expect(result.current.error).toBeNull();
+    expect(mockDb._mockConnection.close).toHaveBeenCalled();
   });
 
   it("sets error on query failure", async () => {
@@ -74,6 +75,7 @@ describe("useQueryExecution", () => {
     expect(result.current.error).not.toBeNull();
     expect(result.current.error!.message).toBe("Syntax error");
     expect(result.current.result).toBeNull();
+    expect(mockDb._mockConnection.close).toHaveBeenCalled();
   });
 
   it("sets executing to false after completion", async () => {
