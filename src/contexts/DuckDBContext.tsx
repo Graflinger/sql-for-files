@@ -6,6 +6,7 @@ import {
   restoreDatabaseFromIndexedDB,
   saveAllTablesToIndexedDB,
 } from '../utils/databasePersistence';
+import { withDuckDBConnection } from '../utils/duckdb';
 
 // Define the shape of our context data
 interface DuckDBContextType {
@@ -16,6 +17,7 @@ interface DuckDBContextType {
   refreshTables: () => Promise<void>; // Function to update the table list
   saveDatabase: () => Promise<{ saved: string[]; errors: Array<{ table: string; error: string }>; warnings: string[] } | null>; // Persist all tables to IndexedDB
   restoredMessage: string | null; // Set after auto-restore, consumed by notification display
+  clearRestoredMessage: () => void; // Acknowledge the restored message so it won't re-show on navigation
 }
 
 // Create the context (initially undefined)
@@ -83,22 +85,17 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
     if (!dbToUse) return;
 
     try {
-      // Create a connection to run queries
-      const conn = await dbToUse.connect();
-
-      // Query the information_schema to get all table names
-      const result = await conn.query(`
-        SELECT table_name
-        FROM information_schema.tables
-        WHERE table_schema = 'main'
-      `);
+      const result = await withDuckDBConnection(dbToUse, async (conn) =>
+        conn.query(`
+          SELECT table_name
+          FROM information_schema.tables
+          WHERE table_schema = 'main'
+        `)
+      );
 
       // Convert Arrow result to array of table names
       const tableNames = result.toArray().map(row => row.table_name as string);
       setTables(tableNames);
-
-      // Close the connection (important for cleanup)
-      await conn.close();
     } catch (err) {
       console.error('Failed to refresh tables:', err);
     }
@@ -110,6 +107,9 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
    * Persists all current tables to IndexedDB as Parquet buffers.
    * Called explicitly by the user via the "Save Database" button.
    */
+  /** Clear the restored message so it won't re-show on navigation back to the editor. */
+  const clearRestoredMessage = useCallback(() => setRestoredMessage(null), []);
+
   const saveDatabase = useCallback(async () => {
     if (!db) return null;
     return saveAllTablesToIndexedDB(db, tables);
@@ -117,7 +117,7 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
 
   // Provide the context value to all children
   return (
-    <DuckDBContext.Provider value={{ db, loading, error, tables, refreshTables, saveDatabase, restoredMessage }}>
+    <DuckDBContext.Provider value={{ db, loading, error, tables, refreshTables, saveDatabase, restoredMessage, clearRestoredMessage }}>
       {children}
     </DuckDBContext.Provider>
   );

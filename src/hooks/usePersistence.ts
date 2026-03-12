@@ -1,18 +1,23 @@
 import { useDuckDBContext } from "../contexts/DuckDBContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import {
-  convertToCSV,
+  exportTableToParquetBuffer,
+  saveTableToIndexedDB,
   saveAllTablesToIndexedDB,
   restoreDatabaseFromIndexedDB,
   clearAllDatabaseState,
   removeTableFromIndexedDB,
 } from "../utils/databasePersistence";
+import { withDuckDBConnection } from "../utils/duckdb";
+import { quoteIdentifier, quoteStringLiteral } from "../utils/sql";
 
 interface DatabaseMetadata {
+  format: string;
   version: string;
   exportDate: string;
   tables: {
     name: string;
+    fileName: string;
     rowCount: number;
     columns: Array<{
       name: string;
@@ -21,15 +26,66 @@ interface DatabaseMetadata {
   }[];
 }
 
+const DATABASE_EXPORT_FORMAT = "sql-for-files-parquet";
+const DATABASE_EXPORT_VERSION = "2.0";
+
+function createExportFileName(index: number): string {
+  return `table-${String(index + 1).padStart(4, "0")}.parquet`;
+}
+
+function isDatabaseMetadata(value: unknown): value is DatabaseMetadata {
+  if (!value || typeof value !== "object") return false;
+
+  const candidate = value as Partial<DatabaseMetadata>;
+  return (
+    candidate.format === DATABASE_EXPORT_FORMAT &&
+    candidate.version === DATABASE_EXPORT_VERSION &&
+    typeof candidate.exportDate === "string" &&
+    Array.isArray(candidate.tables) &&
+    candidate.tables.every(
+      (table) =>
+        table &&
+        typeof table === "object" &&
+        typeof table.name === "string" &&
+        typeof table.fileName === "string" &&
+        typeof table.rowCount === "number" &&
+        Array.isArray(table.columns)
+    )
+  );
+}
+
+function getImportErrorNotification(error: unknown): {
+  type: "error";
+  title: string;
+  message?: string;
+} {
+  if (
+    error instanceof Error &&
+    error.message === "UNSUPPORTED_DATABASE_EXPORT_FORMAT"
+  ) {
+    return {
+      type: "error",
+      title: "Unsupported database export format",
+      message:
+        "Import a Parquet backup created by the current version of SQL for Files.",
+    };
+  }
+
+  return {
+    type: "error",
+    title: "Failed to import database",
+  };
+}
+
 export const usePersistence = () => {
   const { db, tables: tableNames, refreshTables } = useDuckDBContext();
   const { addNotification, removeNotification } = useNotifications();
 
-  // ── ZIP Export (CSV-based, for human-readable sharing) ──────────────────
+  // ── ZIP Export (Parquet-based, lossless round-tripping) ─────────────────
 
   /**
    * Export the entire database as a downloadable ZIP file.
-   * Each table is stored as CSV + a metadata.json manifest.
+   * Each table is stored as Parquet + a metadata.json manifest.
    */
   const exportDatabase = async (): Promise<void> => {
     if (!db) {
@@ -47,9 +103,9 @@ export const usePersistence = () => {
         title: "Exporting database...",
       });
 
-      const conn = await db.connect();
       const metadata: DatabaseMetadata = {
-        version: "1.0",
+        format: DATABASE_EXPORT_FORMAT,
+        version: DATABASE_EXPORT_VERSION,
         exportDate: new Date().toISOString(),
         tables: [],
       };
@@ -59,10 +115,11 @@ export const usePersistence = () => {
       const zip = new JSZip();
 
       // Export each table
-      for (const tableName of tableNames) {
+      for (const [index, tableName] of tableNames.entries()) {
         try {
-          // Get table schema
-          const schemaResult = await conn.query(`DESCRIBE ${tableName}`);
+          const schemaResult = await withDuckDBConnection(db, async (conn) =>
+            conn.query(`DESCRIBE ${quoteIdentifier(tableName)}`)
+          );
           const schemaData = schemaResult.toArray();
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const columns = schemaData.map((row: any) => ({
@@ -70,34 +127,30 @@ export const usePersistence = () => {
             type: row.column_type,
           }));
 
-          // Get row count
-          const countResult = await conn.query(
-            `SELECT COUNT(*) as count FROM ${tableName}`
+          const countResult = await withDuckDBConnection(db, async (conn) =>
+            conn.query(
+              `SELECT COUNT(*) as count FROM ${quoteIdentifier(tableName)}`
+            )
           );
           const rowCountRaw = countResult.toArray()[0].count;
           // Convert BigInt to number (DuckDB returns BigInt for COUNT)
           const rowCount =
             typeof rowCountRaw === "bigint" ? Number(rowCountRaw) : rowCountRaw;
+          const fileName = createExportFileName(index);
 
           metadata.tables.push({
             name: tableName,
+            fileName,
             rowCount,
             columns,
           });
 
-          // Export table data as CSV
-          // Query all data from the table
-          const dataResult = await conn.query(`SELECT * FROM ${tableName}`);
-
-          // Convert to array of objects
-          const data = dataResult.toArray();
-
-          // Convert to CSV format
-          const csvData = convertToCSV(data, columns.map((col: { name: string }) => col.name));
-
-          // Add to ZIP with .csv extension
-          const fileName = `${tableName}.csv`;
-          zip.file(fileName, csvData);
+          const parquetBuffer = await exportTableToParquetBuffer(
+            db,
+            tableName,
+            fileName
+          );
+          zip.file(fileName, parquetBuffer);
         } catch (error) {
           console.error(`Error exporting table ${tableName}:`, error);
           addNotification({
@@ -130,10 +183,11 @@ export const usePersistence = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      conn.close();
       addNotification({
         type: "success",
-        title: `Database exported (${tableNames.length} ${tableNames.length === 1 ? 'table' : 'tables'})`,
+        title: `Database exported (${tableNames.length} ${
+          tableNames.length === 1 ? "table" : "tables"
+        })`,
       });
     } catch (error) {
       console.error("Database export error:", error);
@@ -148,15 +202,18 @@ export const usePersistence = () => {
     }
   };
 
-  // ── ZIP Import (CSV-based) ──────────────────────────────────────────────
+  // ── ZIP Import (Parquet-based) ───────────────────────────────────────────
 
   /**
    * Import a database from a ZIP file.
-   * Restores all tables from CSV files + metadata.
+   * Restores all tables from Parquet files + metadata.
    * @param replaceExisting If true, uses CREATE OR REPLACE to overwrite existing tables.
    *                        If false (default), skips tables that already exist.
    */
-  const importDatabase = async (file: File, replaceExisting = false): Promise<void> => {
+  const importDatabase = async (
+    file: File,
+    replaceExisting = false
+  ): Promise<void> => {
     if (!db) {
       addNotification({
         type: "error",
@@ -183,36 +240,44 @@ export const usePersistence = () => {
       }
 
       const metadataText = await metadataFile.async("text");
-      const metadata: DatabaseMetadata = JSON.parse(metadataText);
+      const parsedMetadata = JSON.parse(metadataText) as unknown;
+      if (!isDatabaseMetadata(parsedMetadata)) {
+        throw new Error("UNSUPPORTED_DATABASE_EXPORT_FORMAT");
+      }
 
-      const conn = await db.connect();
+      const metadata = parsedMetadata;
       let importedCount = 0;
+      const importedTableNames: string[] = [];
 
       // Import each table
       for (const tableInfo of metadata.tables) {
         try {
-          const fileName = `${tableInfo.name}.csv`;
-          const csvFile = zip.file(fileName);
+          const fileName = tableInfo.fileName;
+          const parquetFile = zip.file(fileName);
 
-          if (!csvFile) {
+          if (!parquetFile) {
             console.warn(`Table file not found: ${fileName}`);
             continue;
           }
 
-          // Get CSV file as text
-          const csvText = await csvFile.async("text");
+          const parquetBuffer = await parquetFile.async("uint8array");
+          await db.registerFileBuffer(fileName, parquetBuffer);
 
-          // Register the CSV buffer with DuckDB
-          const csvBuffer = new TextEncoder().encode(csvText);
-          await db.registerFileBuffer(fileName, csvBuffer);
-
-          // Create table from CSV data using read_csv_auto
           const createStatement = replaceExisting
-            ? `CREATE OR REPLACE TABLE ${tableInfo.name} AS SELECT * FROM read_csv_auto('${fileName}')`
-            : `CREATE TABLE ${tableInfo.name} AS SELECT * FROM read_csv_auto('${fileName}')`;
-          await conn.query(createStatement);
+            ? `CREATE OR REPLACE TABLE ${quoteIdentifier(
+                tableInfo.name
+              )} AS SELECT * FROM read_parquet(${quoteStringLiteral(fileName)})`
+            : `CREATE TABLE ${quoteIdentifier(
+                tableInfo.name
+              )} AS SELECT * FROM read_parquet(${quoteStringLiteral(
+                fileName
+              )})`;
+          await withDuckDBConnection(db, async (conn) => {
+            await conn.query(createStatement);
+          });
 
           importedCount++;
+          importedTableNames.push(tableInfo.name);
         } catch (error) {
           console.error(`Error importing table ${tableInfo.name}:`, error);
           addNotification({
@@ -221,21 +286,61 @@ export const usePersistence = () => {
               ? `Failed to import table: ${tableInfo.name}`
               : `Skipped table "${tableInfo.name}": already exists`,
           });
+        } finally {
+          try {
+            await db.dropFile(tableInfo.fileName);
+          } catch {
+            // Ignore cleanup failures for files that were not registered.
+          }
         }
       }
 
-      conn.close();
+      const persistenceWarnings: string[] = [];
+      const persistenceErrors: string[] = [];
+
+      for (const tableName of importedTableNames) {
+        try {
+          const { warning } = await saveTableToIndexedDB(db, tableName);
+          if (warning) {
+            persistenceWarnings.push(warning);
+          }
+        } catch (error) {
+          console.error(
+            `Failed to persist imported table "${tableName}":`,
+            error
+          );
+          persistenceErrors.push(tableName);
+        }
+      }
+
       await refreshTables();
       addNotification({
         type: "success",
-        title: `Database imported (${importedCount}/${metadata.tables.length} ${metadata.tables.length === 1 ? 'table' : 'tables'})`,
+        title: `Database imported (${importedCount}/${metadata.tables.length} ${
+          metadata.tables.length === 1 ? "table" : "tables"
+        })`,
       });
+
+      for (const warning of persistenceWarnings) {
+        addNotification({
+          type: "info",
+          title: warning,
+        });
+      }
+
+      if (persistenceErrors.length > 0) {
+        addNotification({
+          type: "error",
+          title: "Imported database, but failed to save some tables",
+          message:
+            persistenceErrors.length === 1
+              ? `The table "${persistenceErrors[0]}" was imported, but it will not be restored next session unless you save it again.`
+              : `${persistenceErrors.length} imported tables will not be restored next session unless you save them again.`,
+        });
+      }
     } catch (error) {
       console.error("Database import error:", error);
-      addNotification({
-        type: "error",
-        title: "Failed to import database",
-      });
+      addNotification(getImportErrorNotification(error));
     } finally {
       if (importingNotificationId) {
         removeNotification(importingNotificationId);
@@ -269,7 +374,9 @@ export const usePersistence = () => {
       if (result.saved.length > 0) {
         addNotification({
           type: "success",
-          title: `Database saved (${result.saved.length} ${result.saved.length === 1 ? "table" : "tables"})`,
+          title: `Database saved (${result.saved.length} ${
+            result.saved.length === 1 ? "table" : "tables"
+          })`,
         });
       }
     } catch (error) {
@@ -294,7 +401,9 @@ export const usePersistence = () => {
         await refreshTables();
         addNotification({
           type: "info",
-          title: `Restored ${restoredCount} ${restoredCount === 1 ? "table" : "tables"} from previous session`,
+          title: `Restored ${restoredCount} ${
+            restoredCount === 1 ? "table" : "tables"
+          } from previous session`,
         });
         return true;
       }
@@ -325,12 +434,9 @@ export const usePersistence = () => {
     if (!db) return;
 
     try {
-      const conn = await db.connect();
-      try {
-        await conn.query(`DROP TABLE IF EXISTS "${tableName}"`);
-      } finally {
-        await conn.close();
-      }
+      await withDuckDBConnection(db, async (conn) => {
+        await conn.query(`DROP TABLE IF EXISTS ${quoteIdentifier(tableName)}`);
+      });
 
       await removeTableFromIndexedDB(tableName);
       await refreshTables();
@@ -355,14 +461,13 @@ export const usePersistence = () => {
     if (!db) return;
 
     try {
-      const conn = await db.connect();
-      try {
+      await withDuckDBConnection(db, async (conn) => {
         for (const tableName of tableNames) {
-          await conn.query(`DROP TABLE IF EXISTS "${tableName}"`);
+          await conn.query(
+            `DROP TABLE IF EXISTS ${quoteIdentifier(tableName)}`
+          );
         }
-      } finally {
-        await conn.close();
-      }
+      });
 
       await clearAllDatabaseState();
       await refreshTables();

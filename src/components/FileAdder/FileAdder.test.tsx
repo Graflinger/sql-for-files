@@ -64,7 +64,9 @@ describe("FileAdder", () => {
 
     it("shows sample data link", () => {
       render(<FileAdder compact />);
-      expect(screen.getByText("Try sample data")).toBeInTheDocument();
+      const link = screen.getByRole("link", { name: "Try sample data" });
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute("href", expect.stringContaining("/sample_data.csv"));
     });
   });
 
@@ -84,7 +86,9 @@ describe("FileAdder", () => {
 
     it("shows download sample data link", () => {
       render(<FileAdder />);
-      expect(screen.getByText("Download sample data")).toBeInTheDocument();
+      const link = screen.getByRole("link", { name: "Download sample data" });
+      expect(link).toBeInTheDocument();
+      expect(link).toHaveAttribute("href", expect.stringContaining("/sample_data.csv"));
     });
 
     it("has file input with accept restriction", () => {

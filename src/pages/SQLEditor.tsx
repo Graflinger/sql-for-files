@@ -11,6 +11,7 @@ import { IDELayout } from "../components/IDE";
 import { useQueryExecution } from "../hooks/useQueryExecution";
 import { useQueryHistory } from "../hooks/useQueryHistory";
 import SEO from "../components/SEO/SEO";
+import { quoteIdentifier } from "../utils/sql";
 
 /**
  * SQL Editor Page Content
@@ -24,18 +25,17 @@ import SEO from "../components/SEO/SEO";
  * so state survives navigation between pages.
  */
 function SQLEditorContent() {
-  const { db, tables, refreshTables, restoredMessage } = useDuckDBContext();
+  const { db, tables, refreshTables, restoredMessage, clearRestoredMessage } = useDuckDBContext();
   const { addQuery, history } = useQueryHistory();
   const { addNotification } = useNotifications();
 
-  // Show restore notification once after page load
-  const restoredShownRef = useRef(false);
+  // Show restore notification once, then clear so it won't re-show on navigation
   useEffect(() => {
-    if (restoredMessage && !restoredShownRef.current) {
-      restoredShownRef.current = true;
+    if (restoredMessage) {
       addNotification({ type: "info", title: restoredMessage });
+      clearRestoredMessage();
     }
-  }, [restoredMessage, addNotification]);
+  }, [restoredMessage, addNotification, clearRestoredMessage]);
 
   // Editor tabs state (from global context)
   const {
@@ -85,7 +85,7 @@ function SQLEditorContent() {
 
   const handlePreviewTable = useCallback(
     async (tableName: string) => {
-      const sql = `SELECT * FROM ${tableName} LIMIT 100`;
+      const sql = `SELECT * FROM ${quoteIdentifier(tableName)} LIMIT 100`;
       const newTabId = addTab({ name: `Preview: ${tableName}`, sql });
       executingTabIdRef.current = newTabId;
       await executeQuery(sql);

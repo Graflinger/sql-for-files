@@ -23,6 +23,7 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
   const { addFile } = useFileAdd(db);
   const { addNotification, updateNotification } = useNotifications();
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const sampleDataHref = `${import.meta.env.BASE_URL}sample_data.csv`;
 
   /**
    * Handle dropped files
@@ -231,7 +232,7 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
 
       {/* Sample Data Link */}
       <a
-        href="/sample_data.csv"
+        href={sampleDataHref}
         download="sample_data.csv"
         className="flex items-center justify-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors"
       >
@@ -387,7 +388,7 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
         <div className="flex items-center gap-2">
           <span>Don't have a file?</span>
           <a
-            href="/sample_data.csv"
+            href={sampleDataHref}
             download="sample_data.csv"
             className="inline-flex items-center gap-1 text-slate-600 font-medium hover:text-slate-900 transition-colors"
           >

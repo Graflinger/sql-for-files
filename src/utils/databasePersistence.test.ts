@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { rowCountWarning, convertToCSV } from "./databasePersistence";
+import { createMockDuckDB } from "../test/mocks/duckdb";
 
 // Mock idb-keyval for the functions that use it
 vi.mock("idb-keyval", () => ({
@@ -120,6 +121,58 @@ describe("convertToCSV", () => {
     const data = [{ "name,first": "Alice" }];
     const result = convertToCSV(data, ["name,first"]);
     expect(result).toContain('"name,first"');
+  });
+
+  it("escapes column names that contain quotes", () => {
+    const data = [{ 'name"first': "Alice" }];
+    const result = convertToCSV(data, ['name"first']);
+    expect(result).toContain('"name""first"');
+  });
+
+  it("escapes column names that contain newlines", () => {
+    const data = [{ "name\nfirst": "Alice" }];
+    const result = convertToCSV(data, ["name\nfirst"]);
+    expect(result).toContain('"name\nfirst"');
+  });
+});
+
+describe("restoreDatabaseFromIndexedDB", () => {
+  let restoreDatabaseFromIndexedDB: typeof import("./databasePersistence").restoreDatabaseFromIndexedDB;
+  let idbGet: ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    vi.clearAllMocks();
+
+    const idbModule = await import("idb-keyval");
+    idbGet = idbModule.get as ReturnType<typeof vi.fn>;
+
+    const mod = await import("./databasePersistence");
+    restoreDatabaseFromIndexedDB = mod.restoreDatabaseFromIndexedDB;
+  });
+
+  it("drops the temporary parquet file after restoring a table", async () => {
+    const mockDb = createMockDuckDB();
+
+    idbGet.mockImplementation(async (key: string) => {
+      if (key === "db-meta") {
+        return { savedAt: "2024-01-01", tableNames: ["Sales Orders"] };
+      }
+
+      if (key === "db-parquet:Sales Orders") {
+        return new Uint8Array([1, 2, 3]);
+      }
+
+      return undefined;
+    });
+
+    await restoreDatabaseFromIndexedDB(mockDb as never);
+
+    expect(mockDb.registerFileBuffer).toHaveBeenCalledWith(
+      "Sales Orders.parquet",
+      expect.any(Uint8Array)
+    );
+    expect(mockDb.dropFile).toHaveBeenCalledWith("Sales Orders.parquet");
   });
 });
 

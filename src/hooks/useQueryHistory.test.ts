@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, waitFor } from "@testing-library/react";
 
 vi.mock("idb-keyval", () => ({
   get: vi.fn(),
@@ -33,8 +33,12 @@ describe("useQueryHistory", () => {
     // Initially loading
     expect(result.current.loading).toBe(true);
 
+    await waitFor(() => {
+      expect(idbGet).toHaveBeenCalledWith("query-history");
+    });
+
     // Wait for load to complete
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
@@ -49,7 +53,7 @@ describe("useQueryHistory", () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
@@ -61,7 +65,7 @@ describe("useQueryHistory", () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
@@ -85,7 +89,7 @@ describe("useQueryHistory", () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
@@ -116,7 +120,7 @@ describe("useQueryHistory", () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
@@ -136,7 +140,7 @@ describe("useQueryHistory", () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
 
@@ -152,6 +156,10 @@ describe("useQueryHistory", () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
 
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
     const time = result.current.getRelativeTime(Date.now() - 5000);
     expect(time).toBe("just now");
   });
@@ -159,6 +167,10 @@ describe("useQueryHistory", () => {
   it("getRelativeTime returns minutes for older timestamps", async () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     const time = result.current.getRelativeTime(Date.now() - 120_000);
     expect(time).toBe("2 minutes ago");
@@ -168,6 +180,10 @@ describe("useQueryHistory", () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
 
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
     const time = result.current.getRelativeTime(Date.now() - 3_600_000);
     expect(time).toBe("1 hour ago");
   });
@@ -175,6 +191,10 @@ describe("useQueryHistory", () => {
   it("getRelativeTime returns days", async () => {
     const useQueryHistory = await importHook();
     const { result } = renderHook(() => useQueryHistory());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     const time = result.current.getRelativeTime(Date.now() - 86_400_000 * 3);
     expect(time).toBe("3 days ago");

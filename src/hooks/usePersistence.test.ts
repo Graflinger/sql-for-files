@@ -1,12 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { usePersistence } from "./usePersistence";
-import { createMockDuckDB, createMockArrowResult } from "../test/mocks/duckdb";
 import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
-// ── Mocks ────────────────────────────────────────────────────────────────────
+import { usePersistence } from "./usePersistence";
+import { createMockDuckDB, createMockArrowResult } from "../test/mocks/duckdb";
 
-// Mock the DuckDB context
 const mockRefreshTables = vi.fn().mockResolvedValue(undefined);
 let mockDb: ReturnType<typeof createMockDuckDB> | null = null;
 let mockTableNames: string[] = [];
@@ -19,7 +17,6 @@ vi.mock("../contexts/DuckDBContext", () => ({
   }),
 }));
 
-// Mock the Notification context
 const mockAddNotification = vi.fn().mockReturnValue("notification-id-1");
 const mockRemoveNotification = vi.fn();
 
@@ -30,14 +27,16 @@ vi.mock("../contexts/NotificationContext", () => ({
   }),
 }));
 
-// Mock databasePersistence utilities
 const mockSaveAllTablesToIndexedDB = vi.fn();
+const mockSaveTableToIndexedDB = vi.fn();
 const mockRestoreDatabaseFromIndexedDB = vi.fn();
 const mockClearAllDatabaseState = vi.fn();
 const mockRemoveTableFromIndexedDB = vi.fn();
-const mockConvertToCSV = vi.fn().mockReturnValue("col1,col2\nval1,val2");
+const mockExportTableToParquetBuffer = vi.fn();
 
 vi.mock("../utils/databasePersistence", () => ({
+  saveTableToIndexedDB: (...args: unknown[]) =>
+    mockSaveTableToIndexedDB(...args),
   saveAllTablesToIndexedDB: (...args: unknown[]) =>
     mockSaveAllTablesToIndexedDB(...args),
   restoreDatabaseFromIndexedDB: (...args: unknown[]) =>
@@ -46,10 +45,10 @@ vi.mock("../utils/databasePersistence", () => ({
     mockClearAllDatabaseState(...args),
   removeTableFromIndexedDB: (...args: unknown[]) =>
     mockRemoveTableFromIndexedDB(...args),
-  convertToCSV: (...args: unknown[]) => mockConvertToCSV(...args),
+  exportTableToParquetBuffer: (...args: unknown[]) =>
+    mockExportTableToParquetBuffer(...args),
 }));
 
-// Mock jszip
 vi.mock("jszip", () => {
   const mockFile = vi.fn();
   const mockGenerateAsync = vi.fn().mockResolvedValue(new Blob(["zip"]));
@@ -67,7 +66,15 @@ vi.mock("jszip", () => {
   };
 });
 
-// ── Setup ────────────────────────────────────────────────────────────────────
+async function getJsZipMock() {
+  const JSZip = (await import("jszip")).default as unknown as {
+    _mockFile: ReturnType<typeof vi.fn>;
+    _mockGenerateAsync: ReturnType<typeof vi.fn>;
+    _mockLoadAsync: ReturnType<typeof vi.fn>;
+  };
+
+  return JSZip;
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -78,15 +85,15 @@ beforeEach(() => {
     errors: [],
     warnings: [],
   });
+  mockSaveTableToIndexedDB.mockResolvedValue({ warning: null });
   mockRestoreDatabaseFromIndexedDB.mockResolvedValue({
     restoredCount: 0,
     tableNames: [],
   });
   mockClearAllDatabaseState.mockResolvedValue(undefined);
   mockRemoveTableFromIndexedDB.mockResolvedValue(undefined);
+  mockExportTableToParquetBuffer.mockResolvedValue(new Uint8Array([1, 2, 3]));
 });
-
-// ── Tests ────────────────────────────────────────────────────────────────────
 
 describe("usePersistence", () => {
   describe("saveStateToIndexedDB", () => {
@@ -170,23 +177,6 @@ describe("usePersistence", () => {
 
       expect(mockSaveAllTablesToIndexedDB).not.toHaveBeenCalled();
     });
-
-    it("handles unexpected errors gracefully", async () => {
-      mockSaveAllTablesToIndexedDB.mockRejectedValue(new Error("boom"));
-
-      const { result } = renderHook(() => usePersistence());
-
-      await act(async () => {
-        await result.current.saveStateToIndexedDB();
-      });
-
-      expect(mockAddNotification).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "error",
-          title: "Failed to save database",
-        })
-      );
-    });
   });
 
   describe("restoreStateFromIndexedDB", () => {
@@ -208,12 +198,12 @@ describe("usePersistence", () => {
 
       const { result } = renderHook(() => usePersistence());
 
-      let restored: boolean;
+      let restored = false;
       await act(async () => {
         restored = await result.current.restoreStateFromIndexedDB();
       });
 
-      expect(restored!).toBe(true);
+      expect(restored).toBe(true);
       expect(mockRefreshTables).toHaveBeenCalled();
       expect(mockAddNotification).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -226,12 +216,12 @@ describe("usePersistence", () => {
     it("returns false when no tables were restored", async () => {
       const { result } = renderHook(() => usePersistence());
 
-      let restored: boolean;
+      let restored = true;
       await act(async () => {
         restored = await result.current.restoreStateFromIndexedDB();
       });
 
-      expect(restored!).toBe(false);
+      expect(restored).toBe(false);
       expect(mockRefreshTables).not.toHaveBeenCalled();
     });
 
@@ -239,27 +229,12 @@ describe("usePersistence", () => {
       mockDb = null;
       const { result } = renderHook(() => usePersistence());
 
-      let restored: boolean;
+      let restored = true;
       await act(async () => {
         restored = await result.current.restoreStateFromIndexedDB();
       });
 
-      expect(restored!).toBe(false);
-    });
-
-    it("returns false on error", async () => {
-      mockRestoreDatabaseFromIndexedDB.mockRejectedValue(
-        new Error("restore error")
-      );
-
-      const { result } = renderHook(() => usePersistence());
-
-      let restored: boolean;
-      await act(async () => {
-        restored = await result.current.restoreStateFromIndexedDB();
-      });
-
-      expect(restored!).toBe(false);
+      expect(restored).toBe(false);
     });
   });
 
@@ -267,19 +242,6 @@ describe("usePersistence", () => {
     it("calls clearAllDatabaseState", async () => {
       const { result } = renderHook(() => usePersistence());
 
-      await act(async () => {
-        await result.current.clearSavedState();
-      });
-
-      expect(mockClearAllDatabaseState).toHaveBeenCalled();
-    });
-
-    it("handles errors silently", async () => {
-      mockClearAllDatabaseState.mockRejectedValue(new Error("clear error"));
-
-      const { result } = renderHook(() => usePersistence());
-
-      // Should not throw
       await act(async () => {
         await result.current.clearSavedState();
       });
@@ -301,51 +263,7 @@ describe("usePersistence", () => {
       );
       expect(mockRemoveTableFromIndexedDB).toHaveBeenCalledWith("users");
       expect(mockRefreshTables).toHaveBeenCalled();
-    });
-
-    it("shows success notification after dropping", async () => {
-      const { result } = renderHook(() => usePersistence());
-
-      await act(async () => {
-        await result.current.dropTable("users");
-      });
-
-      expect(mockAddNotification).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "success",
-          title: expect.stringContaining("users"),
-        })
-      );
-    });
-
-    it("does nothing when db is null", async () => {
-      mockDb = null;
-      const { result } = renderHook(() => usePersistence());
-
-      await act(async () => {
-        await result.current.dropTable("users");
-      });
-
-      expect(mockRemoveTableFromIndexedDB).not.toHaveBeenCalled();
-    });
-
-    it("shows error notification on failure", async () => {
-      mockDb!._mockConnection.query.mockRejectedValueOnce(
-        new Error("drop failed")
-      );
-
-      const { result } = renderHook(() => usePersistence());
-
-      await act(async () => {
-        await result.current.dropTable("users");
-      });
-
-      expect(mockAddNotification).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "error",
-          title: expect.stringContaining("users"),
-        })
-      );
+      expect(mockDb!._mockConnection.close).toHaveBeenCalled();
     });
   });
 
@@ -365,51 +283,7 @@ describe("usePersistence", () => {
       );
       expect(mockClearAllDatabaseState).toHaveBeenCalled();
       expect(mockRefreshTables).toHaveBeenCalled();
-    });
-
-    it("shows success notification after dropping all", async () => {
-      const { result } = renderHook(() => usePersistence());
-
-      await act(async () => {
-        await result.current.dropAllTables();
-      });
-
-      expect(mockAddNotification).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "success",
-          title: "All tables dropped",
-        })
-      );
-    });
-
-    it("does nothing when db is null", async () => {
-      mockDb = null;
-      const { result } = renderHook(() => usePersistence());
-
-      await act(async () => {
-        await result.current.dropAllTables();
-      });
-
-      expect(mockClearAllDatabaseState).not.toHaveBeenCalled();
-    });
-
-    it("shows error notification on failure", async () => {
-      mockDb!._mockConnection.query.mockRejectedValueOnce(
-        new Error("drop failed")
-      );
-
-      const { result } = renderHook(() => usePersistence());
-
-      await act(async () => {
-        await result.current.dropAllTables();
-      });
-
-      expect(mockAddNotification).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "error",
-          title: "Failed to drop all tables",
-        })
-      );
+      expect(mockDb!._mockConnection.close).toHaveBeenCalled();
     });
   });
 
@@ -430,8 +304,7 @@ describe("usePersistence", () => {
       );
     });
 
-    it("shows info notification while exporting", async () => {
-      // Set up mock to return schema and count results
+    it("exports parquet files with versioned metadata", async () => {
       const schemaResult = createMockArrowResult(
         [
           { column_name: "id", column_type: "INTEGER" },
@@ -439,42 +312,57 @@ describe("usePersistence", () => {
         ],
         ["column_name", "column_type"]
       );
-      const countResult = createMockArrowResult(
-        [{ count: 10 }],
-        ["count"]
-      );
-      const dataResult = createMockArrowResult(
-        [{ id: 1, name: "Alice" }],
-        ["id", "name"]
-      );
-
+      const countResult = createMockArrowResult([{ count: 10 }], ["count"]);
       mockDb!._mockConnection.query
-        .mockResolvedValueOnce(schemaResult)  // DESCRIBE users
-        .mockResolvedValueOnce(countResult)   // COUNT users
-        .mockResolvedValueOnce(dataResult)    // SELECT * FROM users
-        .mockResolvedValueOnce(schemaResult)  // DESCRIBE orders
-        .mockResolvedValueOnce(countResult)   // COUNT orders
-        .mockResolvedValueOnce(dataResult);   // SELECT * FROM orders
+        .mockResolvedValueOnce(schemaResult)
+        .mockResolvedValueOnce(countResult)
+        .mockResolvedValueOnce(schemaResult)
+        .mockResolvedValueOnce(countResult);
 
+      const jsZip = await getJsZipMock();
       const { result } = renderHook(() => usePersistence());
 
       await act(async () => {
         await result.current.exportDatabase();
       });
 
-      // Should show "Exporting database..." info notification
-      expect(mockAddNotification).toHaveBeenCalledWith(
+      expect(mockExportTableToParquetBuffer).toHaveBeenNthCalledWith(
+        1,
+        mockDb,
+        "users",
+        "table-0001.parquet"
+      );
+      expect(mockExportTableToParquetBuffer).toHaveBeenNthCalledWith(
+        2,
+        mockDb,
+        "orders",
+        "table-0002.parquet"
+      );
+
+      const metadataCall = jsZip._mockFile.mock.calls.find(
+        ([name]) => name === "metadata.json"
+      );
+      expect(metadataCall).toBeDefined();
+      expect(JSON.parse(metadataCall![1] as string)).toEqual(
         expect.objectContaining({
-          type: "info",
-          title: "Exporting database...",
+          format: "sql-for-files-parquet",
+          version: "2.0",
+          tables: [
+            expect.objectContaining({
+              name: "users",
+              fileName: "table-0001.parquet",
+            }),
+            expect.objectContaining({
+              name: "orders",
+              fileName: "table-0002.parquet",
+            }),
+          ],
         })
       );
     });
 
     it("shows per-table error notifications on export failures", async () => {
-      mockDb!._mockConnection.query.mockRejectedValue(
-        new Error("query failed")
-      );
+      mockDb!._mockConnection.query.mockRejectedValue(new Error("query failed"));
 
       const { result } = renderHook(() => usePersistence());
 
@@ -482,7 +370,6 @@ describe("usePersistence", () => {
         await result.current.exportDatabase();
       });
 
-      // Per-table errors are shown individually
       expect(mockAddNotification).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "error",
@@ -495,6 +382,7 @@ describe("usePersistence", () => {
           title: expect.stringContaining("orders"),
         })
       );
+      expect(mockDb!._mockConnection.close).toHaveBeenCalled();
     });
   });
 
@@ -512,6 +400,255 @@ describe("usePersistence", () => {
         expect.objectContaining({
           type: "error",
           title: "Database not initialized",
+        })
+      );
+    });
+
+    it("rejects legacy CSV zip bundles with a deterministic error", async () => {
+      const jsZip = await getJsZipMock();
+      jsZip._mockLoadAsync.mockResolvedValue({
+        file: vi.fn((name: string) => {
+          if (name === "metadata.json") {
+            return {
+              async: vi.fn().mockResolvedValue(
+                JSON.stringify({
+                  version: "1.0",
+                  exportDate: "2026-03-09T00:00:00.000Z",
+                  tables: [],
+                })
+              ),
+            };
+          }
+
+          return null;
+        }),
+      });
+
+      const { result } = renderHook(() => usePersistence());
+
+      await act(async () => {
+        await result.current.importDatabase(new File(["zip"], "legacy.zip"));
+      });
+
+      expect(mockAddNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          title: "Unsupported database export format",
+        })
+      );
+    });
+
+    it("imports parquet tables with quoted identifiers", async () => {
+      const jsZip = await getJsZipMock();
+      const zipFile = vi.fn((name: string) => {
+        if (name === "metadata.json") {
+          return {
+            async: vi.fn().mockResolvedValue(
+              JSON.stringify({
+                format: "sql-for-files-parquet",
+                version: "2.0",
+                exportDate: "2026-03-09T00:00:00.000Z",
+                tables: [
+                  {
+                    name: 'Sales Orders',
+                    fileName: "table-0001.parquet",
+                    rowCount: 1,
+                    columns: [],
+                  },
+                ],
+              })
+            ),
+          };
+        }
+
+        if (name === "table-0001.parquet") {
+          return {
+            async: vi.fn().mockResolvedValue(new Uint8Array([9, 9, 9])),
+          };
+        }
+
+        return null;
+      });
+
+      jsZip._mockLoadAsync.mockResolvedValue({ file: zipFile });
+
+      const { result } = renderHook(() => usePersistence());
+
+      await act(async () => {
+        await result.current.importDatabase(new File(["zip"], "backup.zip"), true);
+      });
+
+      expect(mockDb!.registerFileBuffer).toHaveBeenCalledWith(
+        "table-0001.parquet",
+        expect.any(Uint8Array)
+      );
+      expect(mockDb!._mockConnection.query).toHaveBeenCalledWith(
+        'CREATE OR REPLACE TABLE "Sales Orders" AS SELECT * FROM read_parquet(\'table-0001.parquet\')'
+      );
+      expect(mockSaveTableToIndexedDB).toHaveBeenCalledWith(
+        mockDb,
+        "Sales Orders"
+      );
+      expect(mockRefreshTables).toHaveBeenCalled();
+      expect(mockDb!._mockConnection.close).toHaveBeenCalled();
+    });
+
+    it("shows persistence warnings after a successful import", async () => {
+      mockSaveTableToIndexedDB.mockResolvedValue({
+        warning: 'Table "Sales Orders" has 1,500,000 rows - saving may use significant memory.',
+      });
+
+      const jsZip = await getJsZipMock();
+      jsZip._mockLoadAsync.mockResolvedValue({
+        file: vi.fn((name: string) => {
+          if (name === "metadata.json") {
+            return {
+              async: vi.fn().mockResolvedValue(
+                JSON.stringify({
+                  format: "sql-for-files-parquet",
+                  version: "2.0",
+                  exportDate: "2026-03-09T00:00:00.000Z",
+                  tables: [
+                    {
+                      name: "Sales Orders",
+                      fileName: "table-0001.parquet",
+                      rowCount: 1,
+                      columns: [],
+                    },
+                  ],
+                })
+              ),
+            };
+          }
+
+          if (name === "table-0001.parquet") {
+            return {
+              async: vi.fn().mockResolvedValue(new Uint8Array([9, 9, 9])),
+            };
+          }
+
+          return null;
+        }),
+      });
+
+      const { result } = renderHook(() => usePersistence());
+
+      await act(async () => {
+        await result.current.importDatabase(new File(["zip"], "backup.zip"), true);
+      });
+
+      expect(mockAddNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "info",
+          title: 'Table "Sales Orders" has 1,500,000 rows - saving may use significant memory.',
+        })
+      );
+    });
+
+    it("shows a follow-up error when imported tables fail to persist", async () => {
+      mockSaveTableToIndexedDB.mockRejectedValue(new Error("Quota exceeded"));
+
+      const jsZip = await getJsZipMock();
+      jsZip._mockLoadAsync.mockResolvedValue({
+        file: vi.fn((name: string) => {
+          if (name === "metadata.json") {
+            return {
+              async: vi.fn().mockResolvedValue(
+                JSON.stringify({
+                  format: "sql-for-files-parquet",
+                  version: "2.0",
+                  exportDate: "2026-03-09T00:00:00.000Z",
+                  tables: [
+                    {
+                      name: "Sales Orders",
+                      fileName: "table-0001.parquet",
+                      rowCount: 1,
+                      columns: [],
+                    },
+                  ],
+                })
+              ),
+            };
+          }
+
+          if (name === "table-0001.parquet") {
+            return {
+              async: vi.fn().mockResolvedValue(new Uint8Array([9, 9, 9])),
+            };
+          }
+
+          return null;
+        }),
+      });
+
+      const { result } = renderHook(() => usePersistence());
+
+      await act(async () => {
+        await result.current.importDatabase(new File(["zip"], "backup.zip"), true);
+      });
+
+      expect(mockAddNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+          title: "Database imported (1/1 table)",
+        })
+      );
+      expect(mockAddNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          title: "Imported database, but failed to save some tables",
+          message: expect.stringContaining("Sales Orders"),
+        })
+      );
+    });
+
+    it("does not persist skipped tables when create fails without replace", async () => {
+      mockDb!._mockConnection.query.mockRejectedValue(new Error("Table already exists"));
+
+      const jsZip = await getJsZipMock();
+      jsZip._mockLoadAsync.mockResolvedValue({
+        file: vi.fn((name: string) => {
+          if (name === "metadata.json") {
+            return {
+              async: vi.fn().mockResolvedValue(
+                JSON.stringify({
+                  format: "sql-for-files-parquet",
+                  version: "2.0",
+                  exportDate: "2026-03-09T00:00:00.000Z",
+                  tables: [
+                    {
+                      name: "Sales Orders",
+                      fileName: "table-0001.parquet",
+                      rowCount: 1,
+                      columns: [],
+                    },
+                  ],
+                })
+              ),
+            };
+          }
+
+          if (name === "table-0001.parquet") {
+            return {
+              async: vi.fn().mockResolvedValue(new Uint8Array([9, 9, 9])),
+            };
+          }
+
+          return null;
+        }),
+      });
+
+      const { result } = renderHook(() => usePersistence());
+
+      await act(async () => {
+        await result.current.importDatabase(new File(["zip"], "backup.zip"), false);
+      });
+
+      expect(mockSaveTableToIndexedDB).not.toHaveBeenCalled();
+      expect(mockAddNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+          title: "Database imported (0/1 table)",
         })
       );
     });

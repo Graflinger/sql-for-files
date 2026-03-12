@@ -1,6 +1,9 @@
 import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import { get as idbGet, set as idbSet, del as idbDel, keys as idbKeys } from "idb-keyval";
 
+import { withDuckDBConnection } from "./duckdb";
+import { quoteIdentifier, quoteStringLiteral } from "./sql";
+
 // ── IndexedDB key conventions ───────────────────────────────────────────────
 // "db-meta"                → { savedAt: string, tableNames: string[] }
 // "db-parquet:<tableName>" → Uint8Array (Parquet buffer)
@@ -23,16 +26,13 @@ export async function getTableRowCount(
   db: AsyncDuckDB,
   tableName: string
 ): Promise<number> {
-  const conn = await db.connect();
-  try {
+  return withDuckDBConnection(db, async (conn) => {
     const result = await conn.query(
-      `SELECT COUNT(*) AS cnt FROM "${tableName}"`
+      `SELECT COUNT(*) AS cnt FROM ${quoteIdentifier(tableName)}`
     );
     const raw = result.toArray()[0].cnt;
     return typeof raw === "bigint" ? Number(raw) : (raw as number);
-  } finally {
-    await conn.close();
-  }
+  });
 }
 
 /**
@@ -84,14 +84,11 @@ export async function saveTableToIndexedDB(
   }
 
   // Write Parquet to DuckDB virtual filesystem
-  const conn = await db.connect();
-  try {
+  await withDuckDBConnection(db, async (conn) => {
     await conn.query(
-      `COPY "${tableName}" TO '${parquetFileName}' (FORMAT parquet)`
+      `COPY ${quoteIdentifier(tableName)} TO ${quoteStringLiteral(parquetFileName)} (FORMAT parquet)`
     );
-  } finally {
-    await conn.close();
-  }
+  });
 
   // Read the Parquet buffer from virtual FS
   const buffer: Uint8Array = await db.copyFileToBuffer(parquetFileName);
@@ -180,6 +177,8 @@ export async function restoreDatabaseFromIndexedDB(
   const restored: string[] = [];
 
   for (const tableName of meta.tableNames) {
+    const parquetFileName = `${tableName}.parquet`;
+
     try {
       const buffer: Uint8Array | undefined = await idbGet(
         `db-parquet:${tableName}`
@@ -191,24 +190,25 @@ export async function restoreDatabaseFromIndexedDB(
         continue;
       }
 
-      const parquetFileName = `${tableName}.parquet`;
-
       // Register Parquet buffer with DuckDB
       await db.registerFileBuffer(parquetFileName, buffer);
 
       // Create the table
-      const conn = await db.connect();
-      try {
+      await withDuckDBConnection(db, async (conn) => {
         await conn.query(
-          `CREATE OR REPLACE TABLE "${tableName}" AS SELECT * FROM read_parquet('${parquetFileName}')`
+          `CREATE OR REPLACE TABLE ${quoteIdentifier(tableName)} AS SELECT * FROM read_parquet(${quoteStringLiteral(parquetFileName)})`
         );
-      } finally {
-        await conn.close();
-      }
+      });
 
       restored.push(tableName);
     } catch (err) {
       console.error(`Failed to restore table "${tableName}":`, err);
+    } finally {
+      try {
+        await db.dropFile(parquetFileName);
+      } catch {
+        // Ignore cleanup failures for files that were not registered.
+      }
     }
   }
 
@@ -258,46 +258,63 @@ export async function clearAllDatabaseState(): Promise<void> {
 
 // ── CSV conversion (moved from usePersistence.ts) ───────────────────────────
 
+export async function exportTableToParquetBuffer(
+  db: AsyncDuckDB,
+  tableName: string,
+  parquetFileName: string
+): Promise<Uint8Array> {
+  await withDuckDBConnection(db, async (conn) => {
+    await conn.query(
+      `COPY ${quoteIdentifier(tableName)} TO ${quoteStringLiteral(parquetFileName)} (FORMAT parquet)`
+    );
+  });
+
+  try {
+    return await db.copyFileToBuffer(parquetFileName);
+  } finally {
+    await db.dropFile(parquetFileName);
+  }
+}
+
 /**
  * Convert array of objects to CSV string.
  * Handles special cases: nulls, quotes, commas, BigInts, Dates.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function convertToCSV(data: any[], columnNames: string[]): string {
-  if (data.length === 0) {
-    return columnNames.join(",") + "\n";
+export function escapeCSVValue(value: unknown): string {
+  if (value === null || value === undefined) {
+    return "";
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const escapeCSVValue = (value: any): string => {
-    if (value === null || value === undefined) {
-      return "";
-    }
+  if (typeof value === "bigint") {
+    value = Number(value);
+  }
 
-    if (typeof value === "bigint") {
-      value = Number(value);
-    }
+  if (value instanceof Date) {
+    value = value.toISOString();
+  }
 
-    if (value instanceof Date) {
-      value = value.toISOString();
-    }
+  const stringValue = String(value);
 
-    const stringValue = String(value);
+  if (
+    stringValue.includes(",") ||
+    stringValue.includes('"') ||
+    stringValue.includes("\n") ||
+    stringValue.includes("\r")
+  ) {
+    return `"${stringValue.replace(/"/g, '""')}"`;
+  }
 
-    if (
-      stringValue.includes(",") ||
-      stringValue.includes('"') ||
-      stringValue.includes("\n") ||
-      stringValue.includes("\r")
-    ) {
-      return `"${stringValue.replace(/"/g, '""')}"`;
-    }
+  return stringValue;
+}
 
-    return stringValue;
-  };
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function convertToCSV(data: any[], columnNames: string[]): string {
   const lines: string[] = [];
-  lines.push(columnNames.map(escapeCSVValue).join(","));
+  lines.push(columnNames.map((name) => escapeCSVValue(name)).join(","));
+
+  if (data.length === 0) {
+    return `${lines[0]}\n`;
+  }
 
   for (const row of data) {
     const values = columnNames.map((colName) => escapeCSVValue(row[colName]));

@@ -223,12 +223,13 @@ describe("useEditorTabs", () => {
       result.current.updateTabSql(result.current.tabs[0].id, "SELECT 1");
     });
 
-    // Wait for debounced save
-    await vi.waitFor(() => {
-      const stored = localStorage.getItem("ide-editor-tabs");
-      expect(stored).not.toBeNull();
-      const parsed = JSON.parse(stored!);
-      expect(parsed[0].sql).toBe("SELECT 1");
-    }, { timeout: 500 });
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 350));
+    });
+
+    const stored = localStorage.getItem("ide-editor-tabs");
+    expect(stored).not.toBeNull();
+    const parsed = JSON.parse(stored!);
+    expect(parsed[0].sql).toBe("SELECT 1");
   });
 });

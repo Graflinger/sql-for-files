@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import Editor from "@monaco-editor/react";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import type { editor } from "monaco-editor";
+import { withDuckDBConnection } from "../../utils/duckdb";
+import { quoteStringLiteral } from "../../utils/sql";
 
 interface SQLEditorProps {
   onExecute: (sql: string) => Promise<void>;
@@ -76,21 +78,20 @@ export default function SQLEditor({
 
       for (const tableName of tables) {
         try {
-          const conn = await db.connect();
-          const result = await conn.query(`
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = '${tableName}'
-            ORDER BY ordinal_position
-          `);
+          const result = await withDuckDBConnection(db, async (conn) =>
+            conn.query(`
+              SELECT column_name, data_type
+              FROM information_schema.columns
+              WHERE table_name = ${quoteStringLiteral(tableName)}
+              ORDER BY ordinal_position
+            `)
+          );
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           columnsMap[tableName] = result.toArray().map((row: any) => ({
             name: row.column_name as string,
             type: row.data_type as string,
           }));
-
-          await conn.close();
         } catch (err) {
           console.error(`Failed to fetch columns for ${tableName}:`, err);
         }
