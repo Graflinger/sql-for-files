@@ -140,7 +140,7 @@ describe("TableList", () => {
       expect(screen.getByText("orders")).toBeInTheDocument();
     });
 
-    it("allows long table names to wrap instead of truncating", () => {
+    it("keeps long table names on one line and exposes the full name in a tooltip", () => {
       const longTableName = "customer_orders_archive_2026";
       mockUseDuckDBContext.mockReturnValue({
         db: {
@@ -164,8 +164,8 @@ describe("TableList", () => {
 
       const tableName = screen.getByText(longTableName);
       expect(tableName).toBeInTheDocument();
-      expect(tableName).toHaveClass("whitespace-normal", "break-all");
-      expect(tableName).not.toHaveClass("truncate");
+      expect(tableName).toHaveClass("truncate");
+      expect(tableName).toHaveAttribute("title", longTableName);
     });
 
     it("renders action buttons", () => {

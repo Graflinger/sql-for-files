@@ -479,54 +479,73 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
           return (
             <div
               key={tableName}
-              className={`border rounded-lg overflow-hidden transition-all duration-200 ${
+              className={`overflow-hidden rounded-lg border transition-all duration-200 ${
                 isConfirmingDelete
-                  ? "bg-red-50 border-red-200"
-                  : "bg-gradient-to-r from-slate-50 to-transparent border-slate-200 hover:from-blue-50 hover:border-blue-300"
+                  ? "border-red-200 bg-red-50"
+                  : "border-slate-200 bg-slate-50/80 hover:border-blue-300 hover:bg-blue-50/50"
               }`}
             >
               {isConfirmingDelete ? (
                 /* Per-table delete confirmation */
                 <div className="flex items-center gap-2 p-3">
-                  <span className="flex-1 text-sm font-medium text-red-700 truncate">
-                    Delete &quot;{tableName}&quot;?
-                  </span>
-                  <button
-                    onClick={() => setConfirmingDeleteTable(null)}
-                    disabled={isDroppingThis}
-                    className="px-2.5 py-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTable(tableName)}
-                    disabled={isDroppingThis}
-                    className="px-2.5 py-1 text-xs font-medium text-white bg-red-600 border border-red-700 rounded-md hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-60"
-                  >
-                    {isDroppingThis ? "Deleting..." : "Delete"}
-                  </button>
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="truncate text-sm font-medium text-red-700"
+                      title={`Delete "${tableName}"?`}
+                    >
+                      Delete &quot;{tableName}&quot;?
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setConfirmingDeleteTable(null)}
+                      disabled={isDroppingThis}
+                      className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTable(tableName)}
+                      disabled={isDroppingThis}
+                      className="rounded-md border border-red-700 bg-red-600 px-2.5 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-60"
+                    >
+                      {isDroppingThis ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <>
-                  {/* Table Header - Clickable */}
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => handleToggleExpand(tableName)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleToggleExpand(tableName);
-                      }
-                    }}
-                    aria-expanded={isExpanded}
-                    aria-label={`${isExpanded ? "Collapse" : "Expand"} ${tableName} table schema`}
-                    className="group relative flex items-center gap-3 p-3 cursor-pointer w-full text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 rounded-lg"
-                  >
-                    {/* Expand/Collapse Icon */}
-                    <div className="flex-shrink-0">
+                  <div className="flex items-center gap-1 p-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleExpand(tableName)}
+                      aria-expanded={isExpanded}
+                      aria-label={`${isExpanded ? "Collapse" : "Expand"} ${tableName} table schema`}
+                      className="group flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                    >
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors duration-200 group-hover:border-blue-300 group-hover:bg-blue-50 group-hover:text-blue-600">
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                      <span
+                        className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700 transition-colors duration-200 group-hover:text-blue-700"
+                        title={tableName}
+                      >
+                        {tableName}
+                      </span>
                       <svg
-                        className={`w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-all duration-200 ${
+                        className={`h-3.5 w-3.5 flex-shrink-0 text-slate-400 transition-all duration-200 group-hover:text-blue-600 ${
                           isExpanded ? "rotate-90" : ""
                         }`}
                         fill="none"
@@ -540,45 +559,46 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                           d="M9 5l7 7-7 7"
                         />
                       </svg>
-                    </div>
+                    </button>
 
-                    {/* Table Icon */}
-                    <div className="flex-shrink-0 w-8 h-8 bg-white border border-slate-200 rounded-lg flex items-center justify-center group-hover:border-blue-300 group-hover:bg-blue-50 transition-all duration-200">
-                      <svg
-                        className="w-4 h-4 text-slate-400 group-hover:text-blue-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                      </svg>
-                    </div>
-
-                    {/* Table Name */}
-                    <div className="flex-1 min-w-0">
-                      <span className="block text-sm font-semibold text-slate-700 group-hover:text-blue-700 transition-colors duration-200 whitespace-normal break-all leading-5">
-                        {tableName}
-                      </span>
-                    </div>
-
-                    {/* Preview Button */}
-                    {onPreviewTable && (
+                    <div className="flex flex-shrink-0 items-center border-l border-slate-200 pl-1">
+                      <div className="flex flex-col gap-0.5">
+                      {onPreviewTable && (
+                        <button
+                          onClick={() => onPreviewTable(tableName)}
+                          aria-label={`Preview ${tableName} table`}
+                          className="rounded-sm p-0.5 text-slate-500 transition-colors hover:bg-blue-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          title="Quick preview (first 10 rows)"
+                        >
+                          <svg
+                            className="h-3 w-3"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                        </button>
+                      )}
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onPreviewTable(tableName);
-                        }}
-                        aria-label={`Preview ${tableName} table`}
-                        className="flex-shrink-0 p-1.5 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        title="Quick preview (first 10 rows)"
+                        onClick={() => setConfirmingDeleteTable(tableName)}
+                        aria-label={`Delete ${tableName} table`}
+                        className="rounded-sm p-0.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                        title={`Drop table ${tableName}`}
                       >
                         <svg
-                          className="w-4 h-4"
+                          className="h-3 w-3"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -587,48 +607,18 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth={2}
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                          />
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                           />
                         </svg>
                       </button>
-                    )}
-
-                    {/* Delete Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setConfirmingDeleteTable(tableName);
-                      }}
-                      aria-label={`Delete ${tableName} table`}
-                      className="flex-shrink-0 p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-                      title={`Drop table ${tableName}`}
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Schema Details - Expandable */}
                   {isExpanded && (
-                    <div className="px-3 pb-3 pt-0">
-                      <div className="ml-8 pl-3 border-l-2 border-slate-200">
+                    <div className="border-t border-slate-200 bg-white px-3 pb-3 pt-2">
+                      <div className="rounded-lg bg-slate-50/80 p-3 ring-1 ring-slate-200/70">
                         {isLoadingThisSchema ? (
                           <div className="py-2 flex items-center gap-2 text-xs text-slate-500">
                             <div className="w-3 h-3 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin"></div>
@@ -636,25 +626,25 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                           </div>
                         ) : schema ? (
                           <div className="space-y-1 py-1">
-                            <div className="text-xs font-semibold text-slate-500 mb-2">
+                            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
                               Columns ({schema.length})
                             </div>
                             {schema.map((col) => (
                               <div
                                 key={col.column_name}
-                                className="flex items-start gap-2 py-1.5 px-2 bg-white rounded border border-slate-100"
+                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-2"
                               >
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-xs font-medium text-slate-700 truncate">
+                                <div className="min-w-0">
+                                  <div className="text-xs font-medium text-slate-700 whitespace-normal break-words [overflow-wrap:anywhere]">
                                     {col.column_name}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-1.5">
-                                  <span className="text-xs font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                                  <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs font-mono text-blue-600">
                                     {col.column_type}
                                   </span>
                                   {col.null === "YES" && (
-                                    <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500">
                                       null
                                     </span>
                                   )}
