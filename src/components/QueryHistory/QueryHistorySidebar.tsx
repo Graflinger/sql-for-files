@@ -43,7 +43,7 @@ export default function QueryHistorySidebar({
 
   if (loading) {
     return (
-      <div className="px-3 py-4 text-xs text-slate-400 text-center">
+      <div className="px-3 py-4 text-center text-xs text-slate-400 dark:text-slate-500">
         Loading history...
       </div>
     );
@@ -52,9 +52,9 @@ export default function QueryHistorySidebar({
   if (history.length === 0) {
     return (
       <div className="px-3 py-6 text-center">
-        <div className="w-10 h-10 mx-auto mb-2 bg-slate-100 rounded-full flex items-center justify-center">
+        <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800/80">
           <svg
-            className="w-5 h-5 text-slate-400"
+            className="h-5 w-5 text-slate-400 dark:text-slate-500"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -67,8 +67,8 @@ export default function QueryHistorySidebar({
             />
           </svg>
         </div>
-        <p className="text-xs text-slate-500 font-medium">No history yet</p>
-        <p className="text-xs text-slate-400 mt-0.5">
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-300">No history yet</p>
+        <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
           Executed queries appear here
         </p>
       </div>
@@ -81,7 +81,7 @@ export default function QueryHistorySidebar({
       <div className="flex justify-end px-2 pb-1">
         <button
           onClick={handleClearAll}
-          className="text-xs text-red-500 hover:text-red-700 font-medium px-1.5 py-0.5 rounded hover:bg-red-50 transition-colors"
+          className="rounded px-1.5 py-0.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-500/10 dark:hover:text-red-300"
         >
           Clear All
         </button>
@@ -130,16 +130,16 @@ function SidebarHistoryEntry({
   };
 
   return (
-    <div className="group rounded-md hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
+    <div className="group rounded-md border border-transparent transition-colors hover:border-slate-200 hover:bg-slate-50/80 dark:hover:border-slate-700 dark:hover:bg-slate-900/60">
       {/* Clickable query area */}
       <button
         onClick={() => onLoad(entry.query)}
-        className="w-full text-left px-2 py-1.5"
+        className="w-full px-2 py-1.5 text-left"
         title="Click to load query into editor"
       >
         {/* Query text */}
         <div
-          className="text-xs font-mono text-slate-700 bg-slate-50 group-hover:bg-white px-1.5 py-1 rounded border border-slate-150 transition-colors break-all leading-relaxed cursor-pointer"
+          className="cursor-pointer break-all rounded border border-slate-200 bg-slate-50 px-1.5 py-1 font-mono text-xs leading-relaxed text-slate-700 transition-colors group-hover:border-slate-200 group-hover:bg-white dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200 dark:group-hover:border-slate-600 dark:group-hover:bg-slate-900"
           onClick={(e) => {
             if (isTruncated) {
               e.stopPropagation();
@@ -149,16 +149,16 @@ function SidebarHistoryEntry({
         >
           {expanded ? entry.query : truncated}
           {isTruncated && !expanded && (
-            <span className="text-blue-500 ml-0.5 text-[10px]">more</span>
+            <span className="ml-0.5 text-[10px] text-blue-500 dark:text-blue-400">more</span>
           )}
         </div>
 
         {/* Metadata row */}
-        <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+        <div className="mt-1 flex flex-wrap items-center gap-1.5">
           {/* Status badge */}
           {entry.status === "success" ? (
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-green-700 bg-green-50 px-1.5 py-0.5 rounded">
-              <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+            <span className="inline-flex items-center gap-0.5 rounded bg-green-50 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-500/10 dark:text-green-300">
+              <svg className="h-2.5 w-2.5" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -170,8 +170,8 @@ function SidebarHistoryEntry({
                 : "OK"}
             </span>
           ) : (
-            <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-red-700 bg-red-50 px-1.5 py-0.5 rounded">
-              <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+            <span className="inline-flex items-center gap-0.5 rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 dark:bg-red-500/10 dark:text-red-300">
+              <svg className="h-2.5 w-2.5" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -182,12 +182,12 @@ function SidebarHistoryEntry({
             </span>
           )}
 
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] text-slate-400 dark:text-slate-500">
             {getRelativeTime(entry.timestamp)}
           </span>
 
           {entry.executionTime !== undefined && (
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-slate-400 dark:text-slate-500">
               {entry.executionTime.toFixed(1)}ms
             </span>
           )}
@@ -195,15 +195,15 @@ function SidebarHistoryEntry({
       </button>
 
       {/* Action buttons — visible on hover */}
-      <div className="flex items-center gap-0.5 px-2 pb-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-0.5 px-2 pb-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
         <button
           onClick={(e) => onSave(e, entry.query)}
-          className="p-1 rounded text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+          className="rounded p-1 text-slate-400 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:text-slate-500 dark:hover:bg-blue-500/10 dark:hover:text-blue-300"
           aria-label="Download query as file"
           title="Download .sql"
         >
           <svg
-            className="w-3.5 h-3.5"
+            className="h-3.5 w-3.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -218,11 +218,11 @@ function SidebarHistoryEntry({
         </button>
         <button
           onClick={handleDelete}
-          className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+          className="rounded p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-500/10 dark:hover:text-red-300"
           aria-label="Delete from history"
           title="Delete"
         >
-          <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+          <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
               d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"

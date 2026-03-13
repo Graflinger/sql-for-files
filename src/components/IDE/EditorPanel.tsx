@@ -28,7 +28,7 @@ export default function EditorPanel({
   onRenameTab,
 }: EditorPanelProps) {
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-white">
+    <div className="flex min-h-0 flex-1 flex-col bg-white dark:bg-slate-950">
       {/* Tab Bar */}
       <EditorTabs
         tabs={tabs}

@@ -31,13 +31,12 @@ export default function ResultsPanel({
   const hasResults = rowCount !== undefined || executionTime !== undefined;
 
   return (
-    <div className="flex flex-col bg-white h-full">
+    <div className="flex h-full flex-col bg-white dark:bg-slate-950">
       {/* Header Bar - Always visible, clickable to toggle */}
       <button
         onClick={onToggle}
         className={`
-          flex items-center gap-2 px-4 py-1.5 border-t border-slate-200
-          bg-slate-50/80 hover:bg-slate-100 transition-colors w-full text-left
+          flex w-full items-center gap-2 border-t border-slate-200 bg-slate-50/80 px-4 py-1.5 text-left transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:bg-slate-900
           ${isCollapsed ? "" : "border-b"}
         `}
         aria-expanded={!isCollapsed}
@@ -45,7 +44,7 @@ export default function ResultsPanel({
       >
         {/* Collapse/Expand Icon */}
         <svg
-          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+          className={`w-4 h-4 text-slate-400 transition-transform duration-200 dark:text-slate-500 ${
             isCollapsed ? "" : "rotate-180"
           }`}
           fill="none"
@@ -78,26 +77,26 @@ export default function ResultsPanel({
             }
           />
         </svg>
-        <span className="text-sm font-semibold text-slate-700">Results</span>
+        <span className="text-sm font-semibold text-slate-700 dark:text-slate-100">Results</span>
 
         {/* Summary badges - visible when collapsed or always */}
         {hasResults && (
           <div className="flex items-center gap-2 ml-auto">
             {rowCount !== undefined && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
-                {rowCount.toLocaleString()} {rowCount === 1 ? "row" : "rows"}
-              </span>
-            )}
-            {executionTime !== undefined && (
-              <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full">
-                {executionTime.toFixed(2)}ms
-              </span>
-            )}
+               <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
+                 {rowCount.toLocaleString()} {rowCount === 1 ? "row" : "rows"}
+               </span>
+             )}
+             {executionTime !== undefined && (
+               <span className="rounded-full bg-fuchsia-100 px-2 py-0.5 text-xs font-medium text-fuchsia-700 dark:bg-fuchsia-500/15 dark:text-fuchsia-300">
+                 {executionTime.toFixed(2)}ms
+               </span>
+             )}
           </div>
         )}
 
         {/* Keyboard hint */}
-        <span className="hidden sm:inline text-xs text-slate-400 ml-2">
+         <span className="ml-2 hidden text-xs text-slate-400 sm:inline dark:text-slate-500">
           {isCollapsed ? "(click to expand)" : "(Cmd+J)"}
         </span>
       </button>

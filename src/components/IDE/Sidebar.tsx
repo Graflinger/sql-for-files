@@ -16,7 +16,7 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
   return (
     <aside
       className={`
-        relative flex-shrink-0 bg-white border-r border-slate-100
+        relative flex-shrink-0 border-r border-slate-200 bg-white/95 dark:border-slate-800 dark:bg-slate-950/90
         transition-all duration-200 ease-out
         ${isCollapsed ? "w-12" : "w-72"}
         flex flex-col
@@ -28,9 +28,9 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
         className={`
           absolute -right-3 top-4 z-10
           w-6 h-6 rounded-full
-          bg-white border border-slate-200 shadow-sm
+          border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900
           flex items-center justify-center
-          hover:bg-slate-50 hover:border-blue-400
+          hover:bg-slate-50 hover:border-blue-400 dark:hover:bg-slate-800
           transition-colors
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
         `}
@@ -38,7 +38,7 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
         title={isCollapsed ? "Expand sidebar (Cmd+B)" : "Collapse sidebar (Cmd+B)"}
       >
         <svg
-          className={`w-4 h-4 text-slate-600 transition-transform duration-200 ${
+          className={`w-4 h-4 text-slate-600 transition-transform duration-200 dark:text-slate-300 ${
             isCollapsed ? "" : "rotate-180"
           }`}
           fill="none"
@@ -70,11 +70,11 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
           {/* Add Data Icon */}
           <button
             onClick={onToggle}
-            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
             title="Add Data"
           >
             <svg
-              className="w-5 h-5 text-slate-600"
+              className="w-5 h-5 text-slate-600 dark:text-slate-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -91,11 +91,11 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
           {/* Database Icon */}
           <button
             onClick={onToggle}
-            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
             title="Database"
           >
             <svg
-              className="w-5 h-5 text-slate-600"
+              className="w-5 h-5 text-slate-600 dark:text-slate-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -112,11 +112,11 @@ export default function Sidebar({ children, isCollapsed, onToggle }: SidebarProp
           {/* Query History Icon */}
           <button
             onClick={onToggle}
-            className="p-2 rounded-lg hover:bg-slate-100 transition-colors"
+            className="rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
             title="Query History"
           >
             <svg
-              className="w-5 h-5 text-slate-600"
+              className="w-5 h-5 text-slate-600 dark:text-slate-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"

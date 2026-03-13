@@ -1,5 +1,6 @@
 // Supported chart types (extensible — add "scatter", "area", etc. later)
 export type ChartType = "bar" | "line" | "pie";
+export type ChartTheme = "light" | "dark";
 
 // Chart family determines which config fields and UI controls are relevant
 export type ChartFamily = "axis" | "pie";
@@ -36,7 +37,8 @@ export interface ChartTypeDescriptor {
   /** Build a complete ECharts option, or null if config is incomplete. */
   buildOption: (
     config: ChartConfig,
-    data: Record<string, unknown>[]
+    data: Record<string, unknown>[],
+    theme: ChartTheme
   ) => EChartsCoreOption | null;
   /** Auto-detect sensible defaults for this chart type from query columns and data. */
   autoDetect: (

@@ -70,7 +70,7 @@ interface ResultsTabsProps {
  */
 function ResultsTabBar({ activeTab, onTabChange }: ResultsTabsProps) {
   return (
-    <div className="flex items-center border-b border-slate-200 bg-white px-2">
+    <div className="flex items-center border-b border-slate-200 bg-white px-2 dark:border-slate-800 dark:bg-slate-950">
       {RESULT_TABS.map((tab) => {
         const isActive = tab.id === activeTab;
         return (
@@ -82,14 +82,20 @@ function ResultsTabBar({ activeTab, onTabChange }: ResultsTabsProps) {
               transition-colors whitespace-nowrap
               ${
                 isActive
-                  ? "text-blue-700"
-                  : "text-slate-500 hover:text-slate-700"
-              }
-            `}
-          >
-            <span className={isActive ? "text-blue-600" : "text-slate-400"}>
-              {tab.icon}
-            </span>
+                  ? "text-blue-700 dark:text-blue-300"
+                  : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+               }
+             `}
+           >
+             <span
+               className={
+                 isActive
+                   ? "text-blue-600 dark:text-blue-400"
+                   : "text-slate-400 dark:text-slate-500"
+               }
+             >
+               {tab.icon}
+             </span>
             {tab.label}
             {isActive && (
               <span className="absolute bottom-0 left-1 right-1 h-0.5 bg-blue-600 rounded-full" />

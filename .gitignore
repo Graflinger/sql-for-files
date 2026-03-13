@@ -29,3 +29,5 @@ playwright-report/index.html
 *.md
 !README.md
 !AGENTS.md
+!.agents/skills/**/SKILL.md
+!.agents/skills/*/*.md

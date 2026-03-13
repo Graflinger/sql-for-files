@@ -64,7 +64,7 @@ export default function ResizeHandle({
       className={`
         group relative flex items-center justify-center
         ${isHorizontal ? "h-2 cursor-ns-resize" : "w-2 cursor-ew-resize"}
-        ${isDragging ? "bg-blue-500" : "bg-slate-200 hover:bg-blue-400"}
+        ${isDragging ? "bg-blue-500" : "bg-slate-200 hover:bg-blue-400 dark:bg-slate-800 dark:hover:bg-blue-500"}
         transition-colors
       `}
       role="separator"
@@ -76,7 +76,7 @@ export default function ResizeHandle({
         className={`
           ${isHorizontal ? "w-12 h-1" : "h-12 w-1"}
           rounded-full
-          ${isDragging ? "bg-white" : "bg-slate-400 group-hover:bg-blue-600"}
+          ${isDragging ? "bg-white" : "bg-slate-400 group-hover:bg-blue-600 dark:bg-slate-500 dark:group-hover:bg-blue-300"}
           transition-colors
         `}
       />

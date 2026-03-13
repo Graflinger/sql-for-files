@@ -66,7 +66,7 @@ export default function ChartConfigPanel({
     <div className="flex flex-col gap-4 p-3 text-xs">
       {/* Title & Subtitle */}
       <section>
-        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Title
         </label>
         <input
@@ -74,20 +74,20 @@ export default function ChartConfigPanel({
           value={config.title}
           onChange={(e) => onTitleChange(e.target.value)}
           placeholder="Chart title"
-          className="w-full px-2 py-1.5 rounded border border-slate-200 bg-white text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-400 mb-1.5"
+          className="mb-1.5 w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
         />
         <input
           type="text"
           value={config.subtitle}
           onChange={(e) => onSubtitleChange(e.target.value)}
           placeholder="Subtitle (optional)"
-          className="w-full px-2 py-1.5 rounded border border-slate-200 bg-white text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
         />
       </section>
 
       {/* Chart Type */}
       <section>
-        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Chart Type
         </label>
         <div className="flex gap-1">
@@ -100,10 +100,10 @@ export default function ChartConfigPanel({
                 transition-colors border
                 ${
                   config.chartType === ct.id
-                    ? "bg-blue-50 border-blue-300 text-blue-700"
-                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
-                }
-              `}
+                    ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-500/15 dark:text-blue-300"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                 }
+               `}
             >
               <svg
                 className="w-3.5 h-3.5"
@@ -177,13 +177,13 @@ function AxisConfig({
     <>
       {/* X-Axis */}
       <section>
-        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           X-Axis
         </label>
         <select
           value={config.xAxisColumn ?? ""}
           onChange={(e) => onXAxisChange(e.target.value)}
-          className="w-full px-2 py-1.5 rounded border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         >
           <option value="" disabled>
             Select column...
@@ -198,7 +198,7 @@ function AxisConfig({
 
       {/* Y-Axis Series */}
       <section>
-        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Y-Axis Series
         </label>
         <div className="flex flex-col gap-1.5">
@@ -221,7 +221,7 @@ function AxisConfig({
         {unusedColumns.length > 0 && (
           <button
             onClick={() => onAddSeries(unusedColumns[0])}
-            className="mt-1.5 flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-700 font-medium"
+            className="mt-1.5 flex items-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
             <svg
               className="w-3 h-3"
@@ -263,13 +263,13 @@ function PieConfig({
     <>
       {/* Label Column */}
       <section>
-        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Label Column
         </label>
         <select
           value={config.labelColumn ?? ""}
           onChange={(e) => onLabelColumnChange(e.target.value)}
-          className="w-full px-2 py-1.5 rounded border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         >
           <option value="" disabled>
             Select column...
@@ -284,13 +284,13 @@ function PieConfig({
 
       {/* Value Column */}
       <section>
-        <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
           Value Column
         </label>
         <select
           value={config.valueColumn ?? ""}
           onChange={(e) => onValueColumnChange(e.target.value)}
-          className="w-full px-2 py-1.5 rounded border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
+          className="w-full rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         >
           <option value="" disabled>
             Select column...
@@ -342,7 +342,7 @@ function SeriesRow({
         type="color"
         value={series.color}
         onChange={(e) => onUpdateColor(e.target.value)}
-        className="w-6 h-6 rounded border border-slate-200 cursor-pointer p-0 bg-transparent"
+        className="h-6 w-6 cursor-pointer rounded border border-slate-200 bg-transparent p-0 dark:border-slate-700"
         title="Series color"
       />
 
@@ -350,7 +350,7 @@ function SeriesRow({
       <select
         value={series.column}
         onChange={(e) => onUpdateColumn(e.target.value)}
-        className="flex-1 min-w-0 px-2 py-1.5 rounded border border-slate-200 bg-white text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-400"
+        className="min-w-0 flex-1 rounded border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
       >
         {selectableColumns.map((col) => (
           <option key={col} value={col}>
@@ -363,7 +363,7 @@ function SeriesRow({
       {canRemove && (
         <button
           onClick={onRemove}
-          className="p-1 text-slate-400 hover:text-red-500 transition-colors"
+          className="p-1 text-slate-400 transition-colors hover:text-red-500 dark:text-slate-500 dark:hover:text-red-400"
           title="Remove series"
         >
           <svg

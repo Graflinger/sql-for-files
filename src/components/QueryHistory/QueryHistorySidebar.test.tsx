@@ -177,6 +177,38 @@ describe("QueryHistorySidebar", () => {
     expect(screen.getByText("Clear All")).toBeInTheDocument();
   });
 
+  it("applies dark-mode classes to history entry surfaces and actions", () => {
+    mockHistory = [
+      {
+        id: "1",
+        query: "SELECT * FROM users",
+        timestamp: Date.now(),
+        status: "success",
+        rowCount: 10,
+      },
+    ];
+
+    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+
+    expect(screen.getByText(/SELECT \* FROM users/)).toHaveClass(
+      "dark:bg-slate-900/70",
+      "dark:text-slate-200",
+      "dark:border-slate-700"
+    );
+    expect(screen.getByText("Clear All")).toHaveClass(
+      "dark:text-red-400",
+      "dark:hover:bg-red-500/10"
+    );
+    expect(screen.getByLabelText("Download query as file")).toHaveClass(
+      "dark:text-slate-500",
+      "dark:hover:bg-blue-500/10"
+    );
+    expect(screen.getByLabelText("Delete from history")).toHaveClass(
+      "dark:text-slate-500",
+      "dark:hover:bg-red-500/10"
+    );
+  });
+
   it("calls clearHistory on Clear All with confirmation", async () => {
     const user = userEvent.setup();
     window.confirm = vi.fn().mockReturnValue(true);

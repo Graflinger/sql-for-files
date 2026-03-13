@@ -15,7 +15,7 @@ export default function Legal() {
         ogType="article"
         imageAlt="SQL for Files legal notice"
       />
-      <div className="min-h-screen bg-white py-12">
+      <div className="theme-page min-h-screen bg-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-xl border border-slate-200 p-8 md:p-12">
             <h1 className="text-3xl font-bold text-slate-900 mb-8">

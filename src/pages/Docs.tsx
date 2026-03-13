@@ -1,646 +1,742 @@
 import SEO from "../components/SEO/SEO";
 
-/**
- * Documentation Page
- *
- * User guide and documentation for SQL for Files
- */
+const codeBlockClass =
+  "overflow-x-auto rounded-xl bg-slate-900 p-4 text-sm text-slate-100 shadow-sm";
+
+const sectionClass = "space-y-5";
+const sectionGridClass = "grid gap-6 md:gap-7";
+const surfaceCardClass =
+  "rounded-xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50";
+const plainCardClass =
+  "rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/30";
+const sectionHeaderClass =
+  "space-y-3 border-b border-slate-200 pb-4 dark:border-slate-800";
+const sectionEyebrowClass =
+  "text-xs font-semibold uppercase tracking-[0.22em] text-blue-600 dark:text-blue-400";
+
+const pageSections = [
+  { id: "quickstart", label: "Quickstart" },
+  { id: "add-data", label: "Add Data" },
+  { id: "ide-tour", label: "IDE Tour" },
+  { id: "querying-in-tabs", label: "Querying in Tabs" },
+  { id: "explore-results", label: "Explore Results" },
+  { id: "visualisation", label: "Visualisation" },
+  { id: "classification", label: "Classification" },
+  { id: "persistence", label: "Save and Export" },
+  { id: "shortcuts", label: "Shortcuts" },
+  { id: "limits", label: "Limits" },
+  { id: "faq", label: "FAQ" },
+  { id: "troubleshooting", label: "Troubleshooting" },
+];
+
+const keyboardShortcuts = [
+  {
+    keys: "Ctrl/Cmd + Enter",
+    description: "Run the selected SQL or the full editor contents.",
+  },
+  {
+    keys: "Ctrl + /",
+    description: "Toggle SQL comments in the Monaco editor.",
+  },
+  {
+    keys: "Ctrl + Space",
+    description:
+      "Open autocomplete suggestions for tables, columns, and SQL keywords.",
+  },
+  {
+    keys: "Ctrl/Cmd + F",
+    description: "Search within the current editor tab.",
+  },
+  {
+    keys: "Ctrl/Cmd + B",
+    description: "Collapse or expand the sidebar.",
+  },
+  {
+    keys: "Ctrl/Cmd + J",
+    description: "Collapse or expand the results panel.",
+  },
+];
+
+const faqItems = [
+  {
+    question: "Is my data really private?",
+    answer:
+      "Yes. File processing, SQL execution, visualisation, and classification happen in your browser. Your files, queries, and query results are not uploaded by the app.",
+  },
+  {
+    question: "What happens if I refresh the page?",
+    answer:
+      "Persisted tables can be restored from IndexedDB, query history is kept locally, and editor tabs keep their saved SQL drafts. You can also export a Parquet ZIP backup and import it later.",
+  },
+  {
+    question: "Does this work offline?",
+    answer:
+      "After the app has loaded, many features can keep working if the necessary assets are still cached by your browser. The first load still needs an internet connection.",
+  },
+  {
+    question: "Can I use Excel (.xlsx) files directly?",
+    answer:
+      "No. This app currently supports CSV, JSON, and Parquet. Convert Excel files to CSV before adding them.",
+  },
+  {
+    question: "How large can my files be?",
+    answer:
+      "Browser memory is the main constraint. A practical working range is usually around 2 to 3GB of data in memory, and files around 200MB are typically the easiest place to start.",
+  },
+];
+
+/** Documentation page for the current SQL for Files workflow. */
 export default function Docs() {
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "Is my data really private?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes. All data processing happens entirely in your browser using WebAssembly. Your files never leave your device.",
-        },
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
       },
-      {
-        "@type": "Question",
-        name: "What happens if I refresh the page?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Your query history and saved tables are stored locally in your browser. SQL for Files restores persisted tables on reload, and you can also export a lossless Parquet backup ZIP for sharing or safekeeping.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Can I use this with Excel (.xlsx) files?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "No. Excel files are not supported in DuckDB WASM. Convert .xlsx files to CSV before adding.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "How large can my files be?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Browser memory limits typically allow 2 to 3GB of working data. Files up to 200MB generally work best.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Does this work offline?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "After the initial load, most functionality works offline. The first load requires an internet connection to download DuckDB WASM files.",
-        },
-      },
-    ],
+    })),
   };
 
   return (
     <>
       <SEO
         title="Documentation | SQL for Files"
-        description="Learn how to add CSV, JSON, and Parquet files, run SQL queries, and export results in SQL for Files."
+        description="Learn how to add files, run SQL in tabs, visualise results, inspect column stats, and save local databases in SQL for Files."
         canonicalPath="/docs"
         ogType="article"
         imageAlt="SQL for Files documentation"
         structuredData={faqSchema}
       />
-      <div className="min-h-screen bg-white">
-        <div className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-          <div className="rounded-xl border border-slate-200 p-8">
-            <h1 className="text-3xl font-bold text-slate-900 mb-6">
-              Documentation
-            </h1>
-
-            <div className="prose prose-slate max-w-none">
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Getting Started
-            </h2>
-            <p className="text-slate-700 mb-4">
-              Follow these simple steps to start querying your files:
-            </p>
-            <ol className="list-decimal list-inside text-slate-700 space-y-3 mb-6">
-              <li>
-                Add your CSV, JSON, or Parquet files using the file adder
-              </li>
-              <li>
-                Your files will automatically be converted to database tables
-              </li>
-              <li>
-                Expand the table list card to view the schema (column names and
-                types) for each table
-              </li>
-              <li>Write SQL queries in the editor</li>
-              <li>Click "Run Query" or press Ctrl+Enter to execute</li>
-              <li>View your results in the table below</li>
-            </ol>
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Supported File Formats
-            </h2>
-
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              CSV Files
-            </h3>
-            <p className="text-slate-700 mb-4">
-              Comma-separated values files are automatically parsed. The first
-              row is used as column names.
-            </p>
-
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              JSON Files
-            </h3>
-            <p className="text-slate-700 mb-4">
-              Both line-delimited JSON (NDJSON) and standard JSON arrays are
-              supported.
-            </p>
-
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              Parquet Files
-            </h3>
-            <p className="text-slate-700 mb-4">
-              Apache Parquet files are natively supported for efficient columnar
-              data processing.
-            </p>
-
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Query History
-            </h2>
-            <p className="text-slate-700 mb-4">
-              SQL for Files automatically saves your query history to help you
-              track and reuse your work:
-            </p>
-            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
-              <li>
-                <strong>Auto-save:</strong> Every query you execute is
-                automatically saved to your browser's local storage
-              </li>
-              <li>
-                <strong>Quick access:</strong> Click the "History" button next
-                to the Run Query button to view all saved queries
-              </li>
-              <li>
-                <strong>Load queries:</strong> Click any query in the history to
-                load it back into the editor
-              </li>
-              <li>
-                <strong>Status tracking:</strong> See success/error status and
-                row counts for each executed query
-              </li>
-              <li>
-                <strong>Download queries:</strong> Save any query as a .sql file
-                for sharing or backup
-              </li>
-              <li>
-                <strong>Clear history:</strong> Remove individual queries or
-                clear all history at once
-              </li>
-            </ul>
-
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Database Export & Import
-            </h2>
-            <p className="text-slate-700 mb-4">
-              Save your work and restore it later using the database
-              export/import feature:
-            </p>
-
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              Export Database
-            </h3>
-            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
-              <li>
-                Click the "Export" button in the Tables section to download all
-                your tables
-              </li>
-              <li>
-                Creates a ZIP file containing each table as a Parquet file for
-                lossless round-tripping
-              </li>
-              <li>
-                Includes metadata with table schemas, file mappings, and row
-                counts
-              </li>
-              <li>
-                Perfect for backing up your work or sharing datasets with others
-              </li>
-            </ul>
-
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              Import Database
-            </h3>
-            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
-              <li>
-                Click the "Import" button to restore a previously exported
-                database
-              </li>
-              <li>Select the ZIP file you exported earlier</li>
-              <li>All tables and data will be automatically recreated</li>
-              <li>
-                Imported tables are restored into DuckDB and saved back to
-                browser storage for future sessions
-              </li>
-            </ul>
-
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Table Preview
-            </h2>
-            <p className="text-slate-700 mb-4">
-              Quickly preview table contents without writing a query:
-            </p>
-            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
-              <li>
-                Click the eye icon next to any table name in the Tables list
-              </li>
-              <li>
-                Automatically runs{" "}
-                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  SELECT * FROM table LIMIT 10
-                </code>
-              </li>
-              <li>
-                Great for quickly inspecting table structure and sample data
-              </li>
-            </ul>
-
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Keyboard Shortcuts
-            </h2>
-            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
-              <li>
-                <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  Ctrl+Enter
-                </kbd>{" "}
-                (or{" "}
-                <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  Cmd+Enter
-                </kbd>{" "}
-                on Mac) - Execute query or selected text
-              </li>
-              <li>
-                <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  Ctrl+/
-                </kbd>{" "}
-                - Toggle comment (in editor)
-              </li>
-              <li>
-                <kbd className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  Escape
-                </kbd>{" "}
-                - Close query history dropdown
-              </li>
-            </ul>
-
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Tips & Best Practices
-            </h2>
-            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
-              <li>
-                Table names are automatically derived from your file names. If a
-                file name starts with a number, the prefix 'table_' is
-                automatically added (e.g., '2023_sales.csv' becomes
-                'table_2023_sales')
-              </li>
-              <li>
-                Query results are limited to displaying 1000 rows in the UI for
-                performance, but CSV exports include all rows from your query
-              </li>
-              <li>
-                All processing happens in your browser - your data stays private
-              </li>
-              <li>
-                Use LIMIT to preview large datasets before running complex
-                queries
-              </li>
-              <li>
-                DuckDB supports advanced SQL features like window functions and
-                CTEs
-              </li>
-            </ul>
-
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Memory & Performance Limits
-            </h2>
-            <p className="text-slate-700 mb-4">
-              SQL for Files runs entirely in your browser for privacy and
-              convenience, but this comes with memory constraints:
-            </p>
-
-            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-4">
-              <h4 className="text-lg font-semibold text-amber-800 mb-2">
-                Browser Memory Limits
-              </h4>
-              <p className="text-amber-900 mb-2">
-                Browsers have hard memory limits (typically 4GB), with a
-                practical working limit of 2-3GB for data processing.
+      <div className="theme-page min-h-screen bg-white">
+        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-sm backdrop-blur-sm md:p-10 dark:bg-slate-950/40">
+            <div className="max-w-3xl">
+              <h1 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
+                Documentation
+              </h1>
+              <p className="text-base leading-7 text-slate-600 dark:text-slate-300">
+                SQL for Files lets you load CSV, JSON, and Parquet into a local
+                DuckDB engine running in your browser. Use the editor like a
+                lightweight IDE: add data, work in multiple query tabs, inspect
+                results, build charts, and keep all your data local.
               </p>
             </div>
 
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              How We Handle Large Results
-            </h3>
-            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
-              <li>
-                <strong>Display Optimization:</strong> Only the first 1,000 rows
-                are converted to JavaScript objects and displayed in the table.
-                This keeps the UI responsive even with large query results.
-              </li>
-              <li>
-                <strong>Full Data Export:</strong> When you export to CSV, all
-                rows from your query are included, not just the displayed 1,000.
-              </li>
-              <li>
-                <strong>Automatic Warnings:</strong> The console will warn you
-                when results exceed 100,000 rows and alert you about potential
-                memory issues when results exceed 1,000,000 rows.
-              </li>
-            </ul>
-
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              Best Practices for Large Files
-            </h3>
-            <ul className="list-disc list-inside text-slate-700 space-y-2 mb-4">
-              <li>
-                <strong>Start Small:</strong> Test your queries with{" "}
-                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  LIMIT 100
-                </code>{" "}
-                first to verify correctness before running on the full dataset
-              </li>
-              <li>
-                <strong>Use Aggregations:</strong> Instead of retrieving all
-                rows, use{" "}
-                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  GROUP BY
-                </code>
-                ,{" "}
-                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  COUNT
-                </code>
-                , and other aggregations to summarize data
-              </li>
-              <li>
-                <strong>Filter Early:</strong> Use{" "}
-                <code className="px-2 py-1 bg-slate-200 rounded text-sm font-mono">
-                  WHERE
-                </code>{" "}
-                clauses to reduce the result set before processing
-              </li>
-              <li>
-                <strong>Parquet Format:</strong> For files over 100MB, use
-                Parquet format which is more memory-efficient than CSV or JSON
-              </li>
-              <li>
-                <strong>Watch File Sizes:</strong> Files over 200MB may cause
-                performance issues. Consider splitting them or using
-                aggregations
-              </li>
-            </ul>
-
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-              <h4 className="text-lg font-semibold text-blue-800 mb-2">
-                Why These Limits Exist
-              </h4>
-              <p className="text-blue-900">
-                Unlike server-based SQL tools, browser applications cannot use
-                disk storage for temporary data ("spilling to disk"). All query
-                processing must happen in RAM. This makes the tool more private
-                and convenient (no server needed!), but means very large
-                datasets may need to be processed in chunks or on a traditional
-                database server.
-              </p>
+            <div className="mt-6 flex flex-wrap gap-2 text-xs font-medium">
+              <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-blue-700 dark:border-blue-900/80 dark:bg-blue-500/15 dark:text-blue-300">
+                CSV, JSON, Parquet
+              </span>
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700 dark:border-emerald-900/80 dark:bg-emerald-500/15 dark:text-emerald-300">
+                Local-only processing
+              </span>
+              <span className="rounded-full border border-fuchsia-200 bg-fuchsia-50 px-3 py-1 text-fuchsia-700 dark:border-fuchsia-900/80 dark:bg-fuchsia-500/15 dark:text-fuchsia-300">
+                Charts and column stats
+              </span>
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              SQL Examples
-            </h2>
 
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              Basic Query
-            </h3>
-            <pre className="bg-slate-800 text-slate-100 p-4 rounded-lg overflow-x-auto mb-4">
-              <code>{`SELECT * FROM your_table LIMIT 10;`}</code>
-            </pre>
+            <div className="mt-10 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-blue-50/60 p-5 shadow-sm dark:border-slate-800 dark:from-slate-950/40 dark:via-slate-950/20 dark:to-blue-950/20 md:p-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div className="max-w-2xl space-y-2">
+                  <p className={sectionEyebrowClass}>On This Page</p>
+                  <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+                    Jump to the part you need
+                  </h2>
+                  <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    The docs follow the app flow from importing data to
+                    exporting results. Use the links below if you want to skip
+                    straight to a specific feature.
+                  </p>
+                </div>
+                <div className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900/80 dark:bg-emerald-500/15 dark:text-emerald-300">
+                  Updated for the current editor UI
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                {pageSections.map((section) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 transition-colors hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-300 dark:hover:border-blue-700 dark:hover:text-blue-300"
+                  >
+                    {section.label}
+                  </a>
+                ))}
+              </div>
+            </div>
 
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              Filtering Data
-            </h3>
-            <pre className="bg-slate-800 text-slate-100 p-4 rounded-lg overflow-x-auto mb-4">
-              <code>{`SELECT name, age, city
-FROM users
-WHERE age > 25
-ORDER BY name;`}</code>
-            </pre>
+            <div className="mt-12 space-y-14">
+              <section id="quickstart" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Start Here</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Quickstart
+                  </h2>
+                </div>
+                <ol className="mb-0 list-decimal space-y-3 pl-5 text-slate-700 dark:text-slate-300">
+                  <li>
+                    Open the editor and add one or more CSV, JSON, or Parquet
+                    files from the <strong>Add Data</strong> sidebar section.
+                  </li>
+                  <li>
+                    Review the generated table names in{" "}
+                    <strong>Database</strong>, then expand a table to inspect
+                    its schema.
+                  </li>
+                  <li>
+                    Write a query in the current tab, or create a fresh tab for
+                    a different idea.
+                  </li>
+                  <li>
+                    Press <code>Ctrl/Cmd + Enter</code> to run the selected SQL
+                    or the whole query.
+                  </li>
+                  <li>
+                    Review the <strong>Data</strong>,{" "}
+                    <strong>Visualisation</strong>, or{" "}
+                    <strong>Classification</strong> result tabs.
+                  </li>
+                  <li>
+                    Export the result as CSV, save the current database to your
+                    browser, or create a Parquet ZIP backup to move elsewhere.
+                  </li>
+                </ol>
+              </section>
 
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              Aggregations
-            </h3>
-            <pre className="bg-slate-800 text-slate-100 p-4 rounded-lg overflow-x-auto mb-4">
-              <code>{`SELECT
-  country,
-  COUNT(*) as total_users,
-  AVG(age) as avg_age
-FROM users
-GROUP BY country
-ORDER BY total_users DESC;`}</code>
-            </pre>
+              <section id="add-data" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Import</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Add Data
+                  </h2>
+                </div>
+                <div className={`${sectionGridClass} md:grid-cols-2`}>
+                  <div className={surfaceCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Fast add
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>Drag and drop files or click the add area.</li>
+                      <li>
+                        Supported formats: CSV, JSON arrays, NDJSON, and
+                        Parquet.
+                      </li>
+                      <li>
+                        New tables are created from your files and typically
+                        saved locally for future sessions.
+                      </li>
+                      <li>
+                        There is also a sample CSV link in the add panel if you
+                        want something quick to test with.
+                      </li>
+                    </ul>
+                  </div>
+                  <div className={surfaceCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Advanced options
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>
+                        Preview the first 10 rows before creating a table.
+                      </li>
+                      <li>Choose a custom table name.</li>
+                      <li>
+                        For CSV files, adjust delimiter, header handling,
+                        skipped rows, quote, escape, null string, date format,
+                        and decimal separator.
+                      </li>
+                      <li>
+                        Excel <code>.xlsx</code> files are not supported
+                        directly; convert them to CSV first.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </section>
 
-            <h3 className="text-xl font-semibold text-slate-700 mt-6 mb-3">
-              Joining Tables
-            </h3>
-            <pre className="bg-slate-800 text-slate-100 p-4 rounded-lg overflow-x-auto mb-4">
-              <code>{`SELECT
+              <section id="ide-tour" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Layout</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    IDE Tour
+                  </h2>
+                </div>
+                <div className={`${sectionGridClass} md:grid-cols-3`}>
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Sidebar
+                    </h3>
+                    <p className="mb-0 text-sm text-slate-700 dark:text-slate-300">
+                      The sidebar groups <strong>Add Data</strong>,
+                      <strong> Database</strong>, and{" "}
+                      <strong>Query History</strong>. On mobile, the same
+                      sections open from the menu drawer.
+                    </p>
+                  </div>
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Query tabs
+                    </h3>
+                    <p className="mb-0 text-sm text-slate-700 dark:text-slate-300">
+                      Work in multiple editor tabs, rename them inline, and keep
+                      separate query drafts around while comparing results.
+                    </p>
+                  </div>
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Results panel
+                    </h3>
+                    <p className="mb-0 text-sm text-slate-700 dark:text-slate-300">
+                      The results panel shows row count and execution time, can
+                      be resized or collapsed, and switches between Data,
+                      Visualisation, and Classification views.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              <section id="querying-in-tabs" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Editor</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Querying in Tabs
+                  </h2>
+                </div>
+                <ul className="mb-5 list-disc space-y-2 pl-5 text-slate-700 dark:text-slate-300">
+                  <li>
+                    Monaco provides SQL syntax highlighting plus autocomplete
+                    for tables, columns, and common SQL keywords.
+                  </li>
+                  <li>
+                    If you select part of a query and run it, only the selected
+                    text executes.
+                  </li>
+                  <li>
+                    DDL changes such as creating or dropping tables refresh the
+                    Database sidebar after execution.
+                  </li>
+                  <li>
+                    Query History stores recent runs locally, including status,
+                    row count, and execution time. You can reload, download, or
+                    delete entries from the sidebar.
+                  </li>
+                  <li>
+                    Editor tab names and SQL drafts are persisted locally in
+                    your browser so you can come back to unfinished work.
+                  </li>
+                </ul>
+
+                <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                  Example queries
+                </h3>
+
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Inspect an imported table
+                    </p>
+                    <pre className={codeBlockClass}>
+                      <code>{`SELECT *
+FROM sales
+LIMIT 25;`}</code>
+                    </pre>
+                  </div>
+
+                  <div className="space-y-3">
+                    <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Join two imported files
+                    </p>
+                    <pre className={codeBlockClass}>
+                      <code>{`SELECT
   o.order_id,
   c.customer_name,
   o.total_amount
 FROM orders o
 JOIN customers c ON o.customer_id = c.id
-WHERE o.total_amount > 100;`}</code>
-            </pre>
+WHERE o.total_amount > 100
+ORDER BY o.total_amount DESC;`}</code>
+                    </pre>
+                  </div>
 
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Frequently Asked Questions (FAQ)
-            </h2>
+                  <div className="space-y-3">
+                    <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Build a chart-friendly aggregation
+                    </p>
+                    <pre className={codeBlockClass}>
+                      <code>{`SELECT
+  country,
+  COUNT(*) AS orders,
+  AVG(total_amount) AS avg_order_value
+FROM orders
+GROUP BY country
+ORDER BY orders DESC;`}</code>
+                    </pre>
+                  </div>
+                </div>
+              </section>
 
-            <div className="space-y-4">
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-blue-800 mb-2">
-                  Q: Is my data really private?
-                </h4>
-                <p className="text-blue-900">
-                  <strong>A:</strong> Yes! All data processing happens entirely
-                  in your browser using WebAssembly. Your files never leave your
-                  device and are never sent to any server. You can verify this
-                   by checking your browser's network tab - no data is sent.
-                  occur.
+              <section id="explore-results" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Inspect</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Explore Tables and Results
+                  </h2>
+                </div>
+                <ul className="mb-0 list-disc space-y-2 pl-5 text-slate-700 dark:text-slate-300">
+                  <li>
+                    Expand any table in <strong>Database</strong> to inspect its
+                    columns and data types.
+                  </li>
+                  <li>
+                    Use the preview action to open a new tab with a sample
+                    query:
+                    <code> SELECT * FROM table LIMIT 100</code>.
+                  </li>
+                  <li>
+                    The data grid displays up to 1,000 rows for responsiveness.
+                  </li>
+                  <li>Column headers in the Data tab are sortable.</li>
+                  <li>
+                    CSV export uses the full Arrow result, so exported files can
+                    include all rows even when the UI only shows the first
+                    1,000.
+                  </li>
+                </ul>
+              </section>
+
+              <section id="visualisation" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Charts</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Visualisation
+                  </h2>
+                </div>
+                <div className={surfaceCardClass}>
+                  <ul className="mb-0 list-disc space-y-2 pl-5 text-slate-700 dark:text-slate-300">
+                    <li>
+                      Switch to the <strong>Visualisation</strong> tab after a
+                      query runs.
+                    </li>
+                    <li>
+                      Start with auto-detected defaults, then configure bar,
+                      line, or pie charts in the side panel.
+                    </li>
+                    <li>
+                      Choose category and value columns, add multiple series for
+                      axis-based charts, and set title or subtitle text.
+                    </li>
+                    <li>
+                      If your category values repeat, the app warns that a
+                      <code> GROUP BY</code> query may produce a more meaningful
+                      chart.
+                    </li>
+                    <li>
+                      Export charts as SVG or PNG, or copy a PNG image directly
+                      to your clipboard.
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              <section id="classification" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Stats</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Classification
+                  </h2>
+                </div>
+                <div className={surfaceCardClass}>
+                  <ul className="mb-0 list-disc space-y-2 pl-5 text-slate-700 dark:text-slate-300">
+                    <li>
+                      The <strong>Classification</strong> tab computes
+                      per-column statistics for the current result set.
+                    </li>
+                    <li>
+                      Numeric and date columns show values such as min, max,
+                      mean, median, mode, and null count.
+                    </li>
+                    <li>
+                      String columns show minimum and maximum length plus null
+                      count.
+                    </li>
+                    <li>Boolean columns show true, false, and null counts.</li>
+                    <li>
+                      Stats are computed from the full query result, not just
+                      the rows currently visible in the table.
+                    </li>
+                  </ul>
+                </div>
+              </section>
+
+              <section id="persistence" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Persistence</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Save, Restore, Export, and Import
+                  </h2>
+                </div>
+                <div className={`${sectionGridClass} md:grid-cols-2`}>
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Local persistence
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>
+                        Added and imported tables are stored locally in your
+                        browser using IndexedDB.
+                      </li>
+                      <li>
+                        On a later visit, persisted tables can be restored into
+                        the database automatically.
+                      </li>
+                      <li>
+                        Use <strong>Save</strong> after changing tables with SQL
+                        if you want the current database state written back to
+                        local storage.
+                      </li>
+                      <li>
+                        Query history is stored locally in IndexedDB, while
+                        layout preferences and editor tab drafts are stored
+                        locally in the browser as well.
+                      </li>
+                    </ul>
+                  </div>
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Backups and sharing
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>
+                        <strong>Export</strong> creates a ZIP backup containing
+                        every table as Parquet plus metadata.
+                      </li>
+                      <li>
+                        <strong>Import</strong> restores those backups and can
+                        optionally replace existing tables.
+                      </li>
+                      <li>Use CSV export when you only need a query result.</li>
+                      <li>
+                        Use the Parquet ZIP export when you want a fuller,
+                        lossless backup of your working database.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </section>
+
+              <section id="shortcuts" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Speed Up</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Keyboard Shortcuts
+                  </h2>
+                </div>
+                <div className="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+                  <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+                    <thead className="bg-slate-50 dark:bg-slate-900/70">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                          Shortcut
+                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-950/40">
+                      {keyboardShortcuts.map((item) => (
+                        <tr key={item.keys}>
+                          <td className="px-4 py-3 align-top text-sm font-medium text-slate-900 dark:text-slate-100">
+                            <code>{item.keys}</code>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
+                            {item.description}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+                  On Mac, use <code>Cmd</code> anywhere the interface shows
+                  <code> Ctrl</code>.
                 </p>
-              </div>
+              </section>
 
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-blue-800 mb-2">
-                  Q: What happens if I refresh the page?
-                </h4>
-                <p className="text-blue-900">
-                  <strong>A:</strong> Your query history is automatically saved
-                  to browser storage and will persist across sessions. Added
-                  tables are also restored automatically if they have been saved
-                  to IndexedDB, and database exports give you a lossless Parquet
-                  backup you can import later or move to another browser.
-                </p>
-              </div>
+              <section id="limits" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Scale</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Limits and Performance
+                  </h2>
+                </div>
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-900/80 dark:bg-amber-950/30">
+                  <ul className="mb-0 list-disc space-y-2 pl-5 text-slate-700 dark:text-slate-300">
+                    <li>
+                      SQL for Files runs fully in-browser, so memory is the main
+                      practical limit.
+                    </li>
+                    <li>
+                      Browsers usually top out around 4GB, with a more realistic
+                      working range of roughly 2 to 3GB for analytical
+                      workloads.
+                    </li>
+                    <li>
+                      Start with <code>LIMIT</code>, filter early with
+                      <code> WHERE</code>, and prefer <code>GROUP BY</code> when
+                      you do not need every row.
+                    </li>
+                    <li>
+                      Parquet is usually more memory-efficient than CSV or JSON,
+                      especially for larger datasets.
+                    </li>
+                    <li>
+                      If results are very large, the UI warns about truncation
+                      and keeps the display lightweight while preserving the
+                      full data for CSV export.
+                    </li>
+                  </ul>
+                </div>
+              </section>
 
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-blue-800 mb-2">
-                  Q: Can I use this with Excel (.xlsx) files?
-                </h4>
-                <p className="text-blue-900">
-                  <strong>A:</strong> Unfortunately, Excel files (.xlsx) are not
-                  currently supported due to limitations in the DuckDB WASM
-                  implementation. However, you can easily convert Excel files to
-                  CSV using Excel's "Save As" feature or online converters, then
-                   add the CSV file.
-                </p>
-              </div>
+              <section id="faq" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Common Questions</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    FAQ
+                  </h2>
+                </div>
+                <div className="space-y-5">
+                  {faqItems.map((item) => (
+                    <div key={item.question} className={surfaceCardClass}>
+                      <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        {item.question}
+                      </h3>
+                      <p className="mb-0 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                        {item.answer}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
 
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-blue-800 mb-2">
-                  Q: How large can my files be?
-                </h4>
-                <p className="text-blue-900">
-                  <strong>A:</strong> Browser memory limits typically cap
-                  working data at 2-3GB. Files up to 200MB generally work well.
-                  For larger files, consider using Parquet format (more
-                  memory-efficient) or filtering/aggregating your data to reduce
-                  result set sizes.
-                </p>
-              </div>
+              <section id="troubleshooting" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Fixes</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Troubleshooting
+                  </h2>
+                </div>
+                <div className="space-y-5">
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Adding a file fails
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>Check that the file is CSV, JSON, or Parquet.</li>
+                      <li>
+                        For JSON, use either an array of objects or newline-
+                        delimited records.
+                      </li>
+                      <li>
+                        For CSV, try the Advanced options modal to confirm
+                        header handling and delimiter settings.
+                      </li>
+                      <li>
+                        If the error persists, inspect the browser console for
+                        the exact parsing or DuckDB error.
+                      </li>
+                    </ul>
+                  </div>
 
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-blue-800 mb-2">
-                  Q: Can I execute multiple queries at once?
-                </h4>
-                <p className="text-blue-900">
-                  <strong>A:</strong> You can write multiple SQL statements
-                  separated by semicolons, but only the last statement's results
-                  will be displayed. If you want to see results from multiple
-                  queries, execute them one at a time. You can also select
-                  specific SQL text in the editor and press Ctrl+Enter to run
-                  just that selection.
-                </p>
-              </div>
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Queries are slow or memory-heavy
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>
+                        Start with a smaller sample using <code>LIMIT</code>.
+                      </li>
+                      <li>
+                        Filter early and aggregate before exporting very large
+                        result sets.
+                      </li>
+                      <li>Close other browser tabs to free memory.</li>
+                      <li>
+                        If possible, work from Parquet instead of raw CSV for
+                        the largest inputs.
+                      </li>
+                    </ul>
+                  </div>
 
-              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-blue-800 mb-2">
-                  Q: Does this work offline?
-                </h4>
-                <p className="text-blue-900">
-                  <strong>A:</strong> Once the page is loaded, most
-                  functionality works offline since everything runs in your
-                  browser. However, the initial page load requires an internet
-                  connection to download the application and DuckDB WASM files
-                  (~150MB).
-                </p>
-              </div>
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Tables or autocomplete look out of date
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>
+                        Check the <strong>Database</strong> section to confirm
+                        the table was created successfully.
+                      </li>
+                      <li>
+                        Run the query again after table-creating SQL so the
+                        schema refresh completes.
+                      </li>
+                      <li>
+                        Try typing part of a table or column name and then press
+                        <code> Ctrl + Space</code> to reopen suggestions.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className={plainCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Import or export problems
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>
+                        Database import expects a ZIP backup created by SQL for
+                        Files.
+                      </li>
+                      <li>
+                        Use <strong>Replace existing tables</strong> during
+                        import if you want imported tables to overwrite current
+                        ones.
+                      </li>
+                      <li>
+                        Use CSV export for query output and ZIP export for a
+                        full database backup.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </section>
+
+              <section className={sectionClass}>
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 dark:border-blue-400/30 dark:bg-blue-950/30">
+                  <h2 className="mb-2 text-xl font-bold text-blue-900 dark:text-blue-100">
+                    Still stuck?
+                  </h2>
+                  <p className="mb-3 text-sm leading-6 text-blue-900 dark:text-blue-100/90">
+                    Open your browser developer tools and check the Console tab.
+                    Parsing errors, DuckDB SQL errors, and import issues usually
+                    show the most helpful details there.
+                  </p>
+                  <p className="mb-0 text-sm text-blue-900 dark:text-blue-100/90">
+                    You can also write to{" "}
+                    <a
+                      href="mailto:info@sqlforfiles.app"
+                      className="font-medium underline hover:text-blue-700 dark:hover:text-blue-200"
+                    >
+                      info@sqlforfiles.app
+                    </a>
+                    .
+                  </p>
+                </div>
+              </section>
             </div>
-
-            <h2 className="text-2xl font-bold text-slate-800 mt-8 mb-4">
-              Troubleshooting
-            </h2>
-
-            <div className="space-y-4">
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-amber-800 mb-2">
-                  Issue: "Out of memory" error
-                </h4>
-                <p className="text-amber-900 mb-2">
-                  <strong>Solutions:</strong>
-                </p>
-                <ul className="list-disc list-inside text-amber-900 space-y-1">
-                  <li>Use LIMIT to reduce the number of rows returned</li>
-                  <li>
-                    Use aggregation queries (GROUP BY, COUNT) instead of
-                    selecting all rows
-                  </li>
-                  <li>Close other browser tabs to free up memory</li>
-                  <li>
-                    Try using Parquet format instead of CSV for large files
-                  </li>
-                  <li>Split large files into smaller chunks</li>
-                </ul>
-              </div>
-
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-amber-800 mb-2">
-                   Issue: Adding a file fails or table creation errors
-                </h4>
-                <p className="text-amber-900 mb-2">
-                  <strong>Solutions:</strong>
-                </p>
-                <ul className="list-disc list-inside text-amber-900 space-y-1">
-                  <li>
-                    Ensure your CSV file has a header row with column names
-                  </li>
-                  <li>
-                    Check that your JSON file is valid (array of objects or
-                    newline-delimited JSON)
-                  </li>
-                  <li>
-                    Verify the file isn't corrupted by opening it in a text
-                    editor
-                  </li>
-                  <li>
-                    Try renaming the file if it contains special characters
-                  </li>
-                  <li>
-                    Check browser console (F12) for detailed error messages
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-amber-800 mb-2">
-                  Issue: Query runs forever or browser becomes unresponsive
-                </h4>
-                <p className="text-amber-900 mb-2">
-                  <strong>Solutions:</strong>
-                </p>
-                <ul className="list-disc list-inside text-amber-900 space-y-1">
-                  <li>Queries timeout after 30 seconds automatically</li>
-                  <li>
-                    Add LIMIT clauses to test queries before running on full
-                    dataset
-                  </li>
-                  <li>Use WHERE clauses to filter data early in the query</li>
-                  <li>Avoid cartesian joins (missing JOIN conditions)</li>
-                  <li>If browser freezes, refresh the page and start over</li>
-                </ul>
-              </div>
-
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-amber-800 mb-2">
-                  Issue: Table names don't appear or autocomplete doesn't work
-                </h4>
-                <p className="text-amber-900 mb-2">
-                  <strong>Solutions:</strong>
-                </p>
-                <ul className="list-disc list-inside text-amber-900 space-y-1">
-                  <li>
-                     Wait a few seconds after adding files for tables to be registered
-                  </li>
-                  <li>
-                     Try refreshing the page (note: you'll need to re-add
-                     files)
-                  </li>
-                  <li>
-                    Check the Tables section to verify your tables were created
-                  </li>
-                  <li>
-                    Type a few characters to trigger autocomplete suggestions
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded">
-                <h4 className="text-lg font-semibold text-amber-800 mb-2">
-                  Issue: Page is slow to load
-                </h4>
-                <p className="text-amber-900 mb-2">
-                  <strong>Solutions:</strong>
-                </p>
-                <ul className="list-disc list-inside text-amber-900 space-y-1">
-                  <li>
-                    First load downloads ~150MB of DuckDB WASM files - this is
-                    normal
-                  </li>
-                  <li>
-                    Subsequent loads should be faster thanks to browser caching
-                  </li>
-                  <li>Check your internet connection speed</li>
-                  <li>
-                    Try using a modern browser (Chrome, Firefox, Safari, Edge)
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-8">
-              <h3 className="text-lg font-bold text-blue-800 mb-2">
-                Still having issues?
-              </h3>
-              <p className="text-blue-900 mb-4">
-                Check the browser console (press F12 → Console tab) for detailed
-                error messages. These often provide specific information about
-                what went wrong and can help you debug issues with your queries
-                or data files.
-              </p>
-              <p className="text-blue-900">
-                You can also reach out to{" "}
-                <a
-                  href="mailto:info@sqlforfiles.app"
-                  className="underline hover:text-blue-700 font-medium"
-                >
-                  info@sqlforfiles.app
-                </a>{" "}
-                if problems occur. There's no guarantee, but I try to help.
-              </p>
-            </div>
-          </div>
           </div>
         </div>
       </div>

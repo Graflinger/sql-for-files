@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import Editor from "@monaco-editor/react";
+
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
+import { useTheme } from "../../contexts/ThemeContextDef";
 import type { editor } from "monaco-editor";
 import { withDuckDBConnection } from "../../utils/duckdb";
 import { quoteStringLiteral } from "../../utils/sql";
@@ -30,6 +32,8 @@ export default function SQLEditor({
   value,
   onChange,
 }: SQLEditorProps) {
+  const { resolvedTheme } = useTheme();
+
   // Internal state used when not in controlled mode
   const [internalSql, setInternalSql] = useState("SELECT * FROM your_table LIMIT 10;");
 
@@ -299,7 +303,7 @@ export default function SQLEditor({
       <div
         className={`
           ${flexHeight ? "flex-1 min-h-0 flex flex-col" : ""}
-          ${flexHeight ? "" : "border border-slate-300 rounded-xl shadow-sm hover:border-blue-400"}
+          ${flexHeight ? "" : "border border-slate-300 rounded-xl shadow-sm hover:border-blue-400 dark:border-slate-700 dark:hover:border-blue-500"}
           overflow-hidden transition-colors relative
         `}
         onKeyDown={handleEditorKeyDown}
@@ -310,7 +314,7 @@ export default function SQLEditor({
           value={sql}
           onChange={(value) => setSql(value || "")}
           onMount={handleEditorMount}
-          theme="vs-light"
+          theme={resolvedTheme === "dark" ? "vs-dark" : "vs-light"}
           options={{
             minimap: { enabled: false },
             fontSize: 14,
@@ -335,19 +339,19 @@ export default function SQLEditor({
         {!flexHeight && (
           <div
             onMouseDown={handleResizeStart}
-            className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-slate-200 hover:bg-blue-400 transition-colors ${
+            className={`absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize bg-slate-200 hover:bg-blue-400 transition-colors dark:bg-slate-800 dark:hover:bg-blue-500 ${
               isResizing ? "bg-blue-500" : ""
             } group`}
           >
             <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center">
-              <div className="w-12 h-1 bg-slate-400 rounded-full group-hover:bg-blue-600 transition-colors"></div>
+              <div className="h-1 w-12 rounded-full bg-slate-400 transition-colors group-hover:bg-blue-600 dark:bg-slate-500 dark:group-hover:bg-blue-300"></div>
             </div>
           </div>
         )}
       </div>
 
       {/* Action Buttons */}
-      <div className={`flex items-center justify-between flex-wrap gap-2 ${flexHeight ? "flex-shrink-0 px-3 sm:px-4 py-2 border-t border-slate-200 bg-white" : ""}`}>
+      <div className={`flex items-center justify-between flex-wrap gap-2 ${flexHeight ? "flex-shrink-0 border-t border-slate-200 bg-white px-3 py-2 sm:px-4 dark:border-slate-800 dark:bg-slate-950" : ""}`}>
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleRunQuery}
@@ -358,7 +362,7 @@ export default function SQLEditor({
               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
               ${
                 executing || disabled
-                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  ? "cursor-not-allowed bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
                   : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-lg active:scale-95"
               }
             `}
@@ -418,33 +422,33 @@ export default function SQLEditor({
         </div>
 
         {/* Keyboard Shortcut Hint with Info Popover */}
-        <div className="items-center gap-2 text-sm text-slate-600 hidden sm:flex relative">
+        <div className="relative hidden items-center gap-2 text-sm text-slate-600 sm:flex dark:text-slate-300">
           <span>Press</span>
-          <kbd className="px-3 py-1.5 bg-white border border-slate-300 rounded-lg font-mono text-xs font-semibold shadow-sm">
+          <kbd className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 font-mono text-xs font-semibold shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
             Ctrl+Enter
           </kbd>
           <span>to run</span>
-          <span className="text-slate-400 ml-2">(selection or full query)</span>
+          <span className="ml-2 text-slate-400 dark:text-slate-500">(selection or full query)</span>
 
           {/* Info Icon for Shortcuts */}
           <div className="relative ml-2">
             <button
               onClick={() => setShowShortcuts(!showShortcuts)}
               onBlur={() => setTimeout(() => setShowShortcuts(false), 200)}
-              className="p-1 rounded-full hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="rounded-full p-1 transition-colors hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:hover:bg-slate-800"
               aria-label="View all keyboard shortcuts"
               title="View all shortcuts"
             >
-              <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4 text-slate-500 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </button>
 
             {/* Shortcuts Popover */}
             {showShortcuts && (
-              <div className="absolute right-0 top-8 z-50 w-80 bg-white border border-slate-300 rounded-lg shadow-2xl p-4">
-                <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
-                  <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <div className="absolute right-0 top-8 z-50 w-80 rounded-lg border border-slate-300 bg-white p-4 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+                <div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2 dark:border-slate-700">
+                  <h4 className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
                     <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
@@ -452,7 +456,7 @@ export default function SQLEditor({
                   </h4>
                   <button
                     onClick={() => setShowShortcuts(false)}
-                    className="text-slate-400 hover:text-slate-600"
+                    className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200"
                     aria-label="Close shortcuts"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -462,55 +466,55 @@ export default function SQLEditor({
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-700">Execute query</span>
+                  <div className="flex items-center justify-between border-b border-slate-100 py-2 dark:border-slate-800">
+                    <span className="text-slate-700 dark:text-slate-200">Execute query</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
-                      <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Enter</kbd>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Ctrl</kbd>
+                      <span className="text-slate-400 dark:text-slate-500">+</span>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Enter</kbd>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-700">Toggle comment</span>
+                  <div className="flex items-center justify-between border-b border-slate-100 py-2 dark:border-slate-800">
+                    <span className="text-slate-700 dark:text-slate-200">Toggle comment</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
-                      <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">/</kbd>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Ctrl</kbd>
+                      <span className="text-slate-400 dark:text-slate-500">+</span>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">/</kbd>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-700">Trigger autocomplete</span>
+                  <div className="flex items-center justify-between border-b border-slate-100 py-2 dark:border-slate-800">
+                    <span className="text-slate-700 dark:text-slate-200">Trigger autocomplete</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
-                      <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Space</kbd>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Ctrl</kbd>
+                      <span className="text-slate-400 dark:text-slate-500">+</span>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Space</kbd>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between py-2 border-b border-slate-100">
-                    <span className="text-slate-700">Find in editor</span>
+                  <div className="flex items-center justify-between border-b border-slate-100 py-2 dark:border-slate-800">
+                    <span className="text-slate-700 dark:text-slate-200">Find in editor</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
-                      <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">F</kbd>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Ctrl</kbd>
+                      <span className="text-slate-400 dark:text-slate-500">+</span>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">F</kbd>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between py-2">
-                    <span className="text-slate-700">Multi-cursor edit</span>
+                    <span className="text-slate-700 dark:text-slate-200">Multi-cursor edit</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Alt</kbd>
-                      <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Click</kbd>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Alt</kbd>
+                      <span className="text-slate-400 dark:text-slate-500">+</span>
+                      <kbd className="rounded border border-slate-300 bg-slate-100 px-2 py-1 text-xs font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Click</kbd>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-slate-200">
-                  <p className="text-xs text-slate-500 italic">
-                    💡 Use <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono">Cmd</kbd> instead of <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono">Ctrl</kbd> on Mac
+                <div className="mt-3 border-t border-slate-200 pt-3 dark:border-slate-700">
+                  <p className="text-xs italic text-slate-500 dark:text-slate-400">
+                    Use <kbd className="rounded border border-slate-300 bg-slate-100 px-1 py-0.5 font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Cmd</kbd> instead of <kbd className="rounded border border-slate-300 bg-slate-100 px-1 py-0.5 font-mono dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">Ctrl</kbd> on Mac
                   </p>
                 </div>
               </div>
