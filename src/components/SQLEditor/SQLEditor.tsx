@@ -31,7 +31,9 @@ export default function SQLEditor({
   onChange,
 }: SQLEditorProps) {
   // Internal state used when not in controlled mode
-  const [internalSql, setInternalSql] = useState("SELECT * FROM your_table LIMIT 10;");
+  const [internalSql, setInternalSql] = useState(
+    "SELECT * FROM your_table LIMIT 10;"
+  );
 
   // Use controlled value if provided, otherwise internal state
   const sql = value !== undefined ? value : internalSql;
@@ -252,7 +254,6 @@ export default function SQLEditor({
     await onExecute(queryToExecute);
   };
 
-
   /**
    * Handle keyboard shortcuts
    * Ctrl+Enter / Cmd+Enter = Run query
@@ -276,7 +277,10 @@ export default function SQLEditor({
     if (!isResizing) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const newHeight = Math.max(150, Math.min(600, editorHeight + e.movementY));
+      const newHeight = Math.max(
+        150,
+        Math.min(600, editorHeight + e.movementY)
+      );
       setEditorHeight(newHeight);
     };
 
@@ -294,12 +298,18 @@ export default function SQLEditor({
   }, [isResizing, editorHeight]);
 
   return (
-    <div className={`${flexHeight ? "flex flex-col flex-1 min-h-0" : "space-y-4"}`}>
+    <div
+      className={`${flexHeight ? "flex flex-col flex-1 min-h-0" : "space-y-4"}`}
+    >
       {/* Editor Container */}
       <div
         className={`
           ${flexHeight ? "flex-1 min-h-0 flex flex-col" : ""}
-          ${flexHeight ? "" : "border border-slate-300 rounded-xl shadow-sm hover:border-blue-400"}
+          ${
+            flexHeight
+              ? ""
+              : "border border-slate-300 rounded-xl shadow-sm hover:border-blue-400"
+          }
           overflow-hidden transition-colors relative
         `}
         onKeyDown={handleEditorKeyDown}
@@ -347,7 +357,13 @@ export default function SQLEditor({
       </div>
 
       {/* Action Buttons */}
-      <div className={`flex items-center justify-between flex-wrap gap-2 ${flexHeight ? "flex-shrink-0 px-3 sm:px-4 py-2 border-t border-slate-200 bg-white" : ""}`}>
+      <div
+        className={`flex items-center justify-between flex-wrap gap-2 ${
+          flexHeight
+            ? "flex-shrink-0 px-3 sm:px-4 py-2 border-t border-slate-200 bg-white"
+            : ""
+        }`}
+      >
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleRunQuery}
@@ -435,8 +451,18 @@ export default function SQLEditor({
               aria-label="View all keyboard shortcuts"
               title="View all shortcuts"
             >
-              <svg className="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-4 h-4 text-slate-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
             </button>
 
@@ -445,8 +471,18 @@ export default function SQLEditor({
               <div className="absolute right-0 top-8 z-50 w-80 bg-white border border-slate-300 rounded-lg shadow-2xl p-4">
                 <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
                   <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                    <svg className="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    <svg
+                      className="w-4 h-4 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                      />
                     </svg>
                     Keyboard Shortcuts
                   </h4>
@@ -455,8 +491,18 @@ export default function SQLEditor({
                     className="text-slate-400 hover:text-slate-600"
                     aria-label="Close shortcuts"
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -465,52 +511,80 @@ export default function SQLEditor({
                   <div className="flex items-center justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-700">Execute query</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        Ctrl
+                      </kbd>
                       <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Enter</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        Enter
+                      </kbd>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-700">Toggle comment</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        Ctrl
+                      </kbd>
                       <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">/</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        /
+                      </kbd>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-700">Trigger autocomplete</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        Ctrl
+                      </kbd>
                       <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Space</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        Space
+                      </kbd>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-700">Find in editor</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Ctrl</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        Ctrl
+                      </kbd>
                       <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">F</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        F
+                      </kbd>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between py-2">
                     <span className="text-slate-700">Multi-cursor edit</span>
                     <div className="flex items-center gap-1">
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Alt</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        Alt
+                      </kbd>
                       <span className="text-slate-400">+</span>
-                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">Click</kbd>
+                      <kbd className="px-2 py-1 bg-slate-100 border border-slate-300 rounded text-xs font-mono">
+                        Click
+                      </kbd>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-slate-200">
                   <p className="text-xs text-slate-500 italic">
-                    💡 Use <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono">Cmd</kbd> instead of <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono">Ctrl</kbd> on Mac
+                    💡 Use{" "}
+                    <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono">
+                      Cmd
+                    </kbd>{" "}
+                    instead of{" "}
+                    <kbd className="px-1 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono">
+                      Ctrl
+                    </kbd>{" "}
+                    on Mac
                   </p>
                 </div>
               </div>
