@@ -26,7 +26,7 @@ import { quoteIdentifier } from "../utils/sql";
  */
 function SQLEditorContent() {
   const { db, tables, refreshTables, restoredMessage, clearRestoredMessage } = useDuckDBContext();
-  const { addQuery, history } = useQueryHistory();
+  const { addQuery, history, loading, deleteQuery, clearHistory, getRelativeTime } = useQueryHistory();
   const { addNotification } = useNotifications();
 
   // Show restore notification once, then clear so it won't re-show on navigation
@@ -125,7 +125,16 @@ function SQLEditorContent() {
         addData: <FileAdder compact />,
         tables: <TableList onPreviewTable={handlePreviewTable} />,
         tableCount: tables.length > 0 ? tables.length : undefined,
-        queryHistory: <QueryHistorySidebar onLoadQuery={handleLoadQuery} />,
+        queryHistory: (
+          <QueryHistorySidebar
+            history={history}
+            loading={loading}
+            deleteQuery={deleteQuery}
+            clearHistory={clearHistory}
+            getRelativeTime={getRelativeTime}
+            onLoadQuery={handleLoadQuery}
+          />
+        ),
         historyCount: history.length > 0 ? history.length : undefined,
       }}
       editorContent={

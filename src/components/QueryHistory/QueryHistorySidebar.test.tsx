@@ -4,7 +4,6 @@ import userEvent from "@testing-library/user-event";
 
 import QueryHistorySidebar from "./QueryHistorySidebar";
 
-// Mock the useQueryHistory hook
 const mockDeleteQuery = vi.fn().mockResolvedValue(undefined);
 const mockClearHistory = vi.fn().mockResolvedValue(undefined);
 const mockGetRelativeTime = vi.fn().mockReturnValue("just now");
@@ -19,15 +18,18 @@ let mockHistory: Array<{
 }> = [];
 let mockLoading = false;
 
-vi.mock("../../hooks/useQueryHistory", () => ({
-  useQueryHistory: () => ({
-    history: mockHistory,
-    loading: mockLoading,
-    deleteQuery: mockDeleteQuery,
-    clearHistory: mockClearHistory,
-    getRelativeTime: mockGetRelativeTime,
-  }),
-}));
+function renderSidebar(onLoadQuery = vi.fn()) {
+  return render(
+    <QueryHistorySidebar
+      history={mockHistory}
+      loading={mockLoading}
+      deleteQuery={mockDeleteQuery}
+      clearHistory={mockClearHistory}
+      getRelativeTime={mockGetRelativeTime}
+      onLoadQuery={onLoadQuery}
+    />
+  );
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -38,12 +40,12 @@ beforeEach(() => {
 describe("QueryHistorySidebar", () => {
   it("shows loading state", () => {
     mockLoading = true;
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByText("Loading history...")).toBeInTheDocument();
   });
 
   it("shows empty state when no history", () => {
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByText("No history yet")).toBeInTheDocument();
     expect(
       screen.getByText("Executed queries appear here")
@@ -62,7 +64,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByText(/SELECT \* FROM users/)).toBeInTheDocument();
   });
 
@@ -77,7 +79,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByText(/42 rows/)).toBeInTheDocument();
   });
 
@@ -91,7 +93,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByText("Error")).toBeInTheDocument();
   });
 
@@ -106,7 +108,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByText("12.5ms")).toBeInTheDocument();
   });
 
@@ -121,7 +123,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByText("5 min ago")).toBeInTheDocument();
   });
 
@@ -137,7 +139,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={onLoadQuery} />);
+    renderSidebar(onLoadQuery);
 
     // Click the query entry button
     const button = screen.getByTitle("Click to load query into editor");
@@ -157,7 +159,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
 
     // Should show truncated version with "more" indicator
     expect(screen.getByText("more")).toBeInTheDocument();
@@ -173,7 +175,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByText("Clear All")).toBeInTheDocument();
   });
 
@@ -188,7 +190,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
 
     expect(screen.getByText(/SELECT \* FROM users/)).toHaveClass(
       "dark:bg-slate-900/70",
@@ -221,7 +223,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     await user.click(screen.getByText("Clear All"));
 
     expect(window.confirm).toHaveBeenCalled();
@@ -240,7 +242,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     await user.click(screen.getByText("Clear All"));
 
     expect(window.confirm).toHaveBeenCalled();
@@ -257,7 +259,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(screen.getByLabelText("Delete from history")).toBeInTheDocument();
   });
 
@@ -271,7 +273,7 @@ describe("QueryHistorySidebar", () => {
       },
     ];
 
-    render(<QueryHistorySidebar onLoadQuery={vi.fn()} />);
+    renderSidebar();
     expect(
       screen.getByLabelText("Download query as file")
     ).toBeInTheDocument();
