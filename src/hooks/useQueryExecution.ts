@@ -10,11 +10,11 @@ const MEMORY_DANGER_THRESHOLD = 1000000; // Strong warning for very large result
 interface UseQueryExecutionOptions {
   onQueryExecuted?: (params: {
     query: string;
-    status: 'success' | 'error';
+    status: "success" | "error";
     rowCount?: number;
     executionTime?: number;
     error?: string;
-  }) => void;
+  }) => void | Promise<void>;
 }
 
 /**
@@ -107,9 +107,9 @@ export function useQueryExecution(db: AsyncDuckDB | null, options?: UseQueryExec
 
       // Notify callback of successful execution (for history)
       if (options?.onQueryExecuted) {
-        options.onQueryExecuted({
+        await options.onQueryExecuted({
           query: sql,
-          status: 'success',
+          status: "success",
           rowCount: actualRowCount,
           executionTime,
         });
@@ -123,9 +123,9 @@ export function useQueryExecution(db: AsyncDuckDB | null, options?: UseQueryExec
 
       // Notify callback of failed execution (for history)
       if (options?.onQueryExecuted) {
-        options.onQueryExecuted({
+        await options.onQueryExecuted({
           query: sql,
-          status: 'error',
+          status: "error",
           error: errorObj.message,
         });
       }

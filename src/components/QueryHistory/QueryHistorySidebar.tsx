@@ -1,9 +1,13 @@
 import { useState } from "react";
 
-import { useQueryHistory } from "../../hooks/useQueryHistory";
 import type { QueryHistoryEntry } from "../../hooks/useQueryHistory";
 
 interface QueryHistorySidebarProps {
+  history: QueryHistoryEntry[];
+  loading: boolean;
+  deleteQuery: (id: string) => Promise<void>;
+  clearHistory: () => Promise<void>;
+  getRelativeTime: (timestamp: number) => string;
   onLoadQuery: (query: string) => void;
 }
 
@@ -12,11 +16,13 @@ interface QueryHistorySidebarProps {
  * designed for the IDE sidebar accordion section.
  */
 export default function QueryHistorySidebar({
+  history,
+  loading,
+  deleteQuery,
+  clearHistory,
+  getRelativeTime,
   onLoadQuery,
 }: QueryHistorySidebarProps) {
-  const { history, loading, deleteQuery, clearHistory, getRelativeTime } =
-    useQueryHistory();
-
   const handleClearAll = async () => {
     if (window.confirm("Are you sure you want to clear all query history?")) {
       await clearHistory();
