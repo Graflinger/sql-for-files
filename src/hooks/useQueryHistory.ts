@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { get, set } from 'idb-keyval';
 
 export interface QueryHistoryEntry {
@@ -26,6 +26,11 @@ const MAX_HISTORY_ENTRIES = 50;
 export function useQueryHistory() {
   const [history, setHistory] = useState<QueryHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const historyRef = useRef<QueryHistoryEntry[]>([]);
+
+  useEffect(() => {
+    historyRef.current = history;
+  }, [history]);
 
   const loadHistory = useCallback(async () => {
     try {
@@ -49,6 +54,7 @@ export function useQueryHistory() {
     try {
       // Update state immediately for instant UI feedback
       setHistory(newHistory);
+      historyRef.current = newHistory;
       // Then persist to IndexedDB
       await set(HISTORY_KEY, newHistory);
     } catch (error) {
@@ -68,7 +74,7 @@ export function useQueryHistory() {
     };
 
     // Add to front, keep only last MAX_HISTORY_ENTRIES
-    const newHistory = [newEntry, ...history].slice(0, MAX_HISTORY_ENTRIES);
+    const newHistory = [newEntry, ...historyRef.current].slice(0, MAX_HISTORY_ENTRIES);
     await saveHistory(newHistory);
   };
 
@@ -76,7 +82,7 @@ export function useQueryHistory() {
    * Delete a specific query from history
    */
   const deleteQuery = async (id: string) => {
-    const newHistory = history.filter(entry => entry.id !== id);
+    const newHistory = historyRef.current.filter(entry => entry.id !== id);
     await saveHistory(newHistory);
   };
 

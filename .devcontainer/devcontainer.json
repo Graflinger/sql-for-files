@@ -7,12 +7,10 @@
     "vscode": {
       // Extensions to install inside the container
       "extensions": [
-        "Anthropic.claude-code",            // Claude Code - AI pair programming
-        "dbaeumer.vscode-eslint",           // ESLint for code quality
-        "esbenp.prettier-vscode",           // Code formatting
-        "bradlc.vscode-tailwindcss",        // Tailwind CSS IntelliSense
-        "ms-vscode.vscode-typescript-next", // Latest TypeScript features
-        "dsznajder.es7-react-js-snippets"   // React snippets
+        "dbaeumer.vscode-eslint", // ESLint for code quality
+        "esbenp.prettier-vscode", // Code formatting
+        "bradlc.vscode-tailwindcss", // Tailwind CSS IntelliSense
+        "dsznajder.es7-react-js-snippets" // React snippets
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -36,13 +34,11 @@
   },
 
   // Use 'postCreateCommand' to run commands after the container is created
-  // We'll install dependencies after we initialize the project
-  // "postCreateCommand": "npm install",
+  "waitFor": "postCreateCommand",
+  "postCreateCommand": "npm install",
 
   // Features to add to the dev container
-  "features": {
-    "ghcr.io/devcontainers/features/git:1": {}
-  },
+  "features": {},
 
   // Comment out to connect as root instead
   "remoteUser": "node"

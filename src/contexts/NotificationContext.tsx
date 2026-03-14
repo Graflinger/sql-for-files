@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 
-export type NotificationType = 'success' | 'error' | 'info' | 'uploading' | 'processing';
+export type NotificationType = 'success' | 'error' | 'info' | 'adding' | 'processing';
 
 export interface Notification {
   id: string;
@@ -24,11 +24,15 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
+  const removeNotification = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
+
   const addNotification = useCallback((notification: Omit<Notification, 'id'>) => {
     const id = `notification-${Date.now()}-${Math.random()}`;
     const newNotification: Notification = {
       id,
-      autoClose: notification.type === 'success' || notification.type === 'uploading' || notification.type === 'processing',
+      autoClose: notification.type === 'success' || notification.type === 'adding' || notification.type === 'processing',
       duration: 10000, // 10 seconds
       ...notification,
     };
@@ -43,11 +47,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
 
     return id;
-  }, []);
-
-  const removeNotification = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
+  }, [removeNotification]);
 
   const updateNotification = useCallback((id: string, updates: Partial<Notification>) => {
     setNotifications((prev) =>
@@ -64,6 +64,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useNotifications() {
   const context = useContext(NotificationContext);
   if (!context) {

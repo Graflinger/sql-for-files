@@ -17,10 +17,10 @@ Perfect for data analysts, developers, and anyone who needs to quickly query dat
 ## ✨ Key Features
 
 ### 🔒 100% Private & Secure
-- **Zero server uploads** - Your data never leaves your device
-- All processing happens client-side in your browser
-- No data collection, no tracking, no analytics
-- Files stored locally in IndexedDB for session persistence
+- **No server uploads of your work** - Files, SQL queries, and query results are processed in your browser and are not uploaded by the app
+- Imported files, persisted tables, and query history are stored locally in your browser using IndexedDB
+- Theme, layout, and editor preferences are stored locally in your browser using localStorage
+- No third-party tracking cookies are used by the app; the website uses privacy-friendly aggregate analytics via Cloudflare Web Analytics
 
 ### 📊 Multiple File Formats
 - **CSV** - Automatic delimiter detection and type inference
@@ -41,8 +41,9 @@ Perfect for data analysts, developers, and anyone who needs to quickly query dat
 
 ### 💾 Data Management
 - Export query results to CSV (with full dataset, not just displayed rows)
-- Export/import entire database as ZIP bundles
+- Export/import entire databases as lossless Parquet ZIP backups
 - View table schemas with column types and nullability
+- Automatic local persistence in IndexedDB
 - Multi-file table management
 
 ## 🎯 Use Cases
@@ -105,7 +106,7 @@ npm run preview
 2. Select a table from the sidebar to view its schema
 3. Write a SQL query in the editor
 4. Press **Ctrl/Cmd + Enter** to execute
-5. Export results to CSV or save the entire database as a ZIP
+5. Export results to CSV or save the entire database as a Parquet ZIP backup
 
 ### Example Queries
 
@@ -135,9 +136,9 @@ FROM employees;
 
 ## 🔐 Privacy & Security
 
-- **Client-side processing** - All data processing happens in your browser
-- **Local storage only** - Files stored in IndexedDB, never sent to servers
-- **No tracking** - Zero analytics, no usage data collection
+- **Local browser processing** - Files, SQL queries, and query results are processed in your browser and are not uploaded by the app
+- **Local browser storage** - Imported files, persisted tables, and query history use IndexedDB; theme, layout, and editor state use localStorage
+- **Privacy-friendly analytics only** - No third-party tracking cookies, no fingerprinting, and no query-data tracking; limited aggregate usage metrics are collected via Cloudflare Web Analytics
 - **Open source** - Audit the entire codebase on GitHub
 
 ## 🤝 Contributing
@@ -174,11 +175,10 @@ This license ensures SQL for Files remains open source while preventing others f
 
 ## 🗺️ Roadmap
 
-- Query history and saved queries
 - Parquet and JSON export from query results
-- Dark mode support
-- Query result visualization (charts)
-- Table preview with sampling
+- Saved chart presets
+- Broader file import options where DuckDB WASM supports them
+- Shareable example datasets and starter queries
 
 ## 📧 Support
 

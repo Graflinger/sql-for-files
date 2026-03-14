@@ -1,7 +1,7 @@
 {
   "name": "SQL for Files - Query Data Files with SQL",
   "short_name": "SQL for Files",
-  "description": "Query CSV, JSON, and Parquet files with SQL directly in your browser. 100% private - your data never leaves your device.",
+  "description": "Query CSV, JSON, and Parquet files with SQL directly in your browser. Files, SQL queries, and results stay local in your browser.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

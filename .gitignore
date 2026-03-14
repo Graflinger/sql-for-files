@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+test-results/*
+
+playwright-report/index.html
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -24,5 +27,7 @@ dist-ssr
 *.sw?
 
 *.md
-!claude.md
 !README.md
+!AGENTS.md
+!.agents/skills/**/SKILL.md
+!.agents/skills/*/*.md

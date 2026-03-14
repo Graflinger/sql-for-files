@@ -1,11 +1,23 @@
 import { useDuckDBContext } from "../contexts/DuckDBContext";
 import { useNotifications } from "../contexts/NotificationContext";
+import {
+  exportTableToParquetBuffer,
+  saveTableToIndexedDB,
+  saveAllTablesToIndexedDB,
+  restoreDatabaseFromIndexedDB,
+  clearAllDatabaseState,
+  removeTableFromIndexedDB,
+} from "../utils/databasePersistence";
+import { withDuckDBConnection } from "../utils/duckdb";
+import { quoteIdentifier, quoteStringLiteral } from "../utils/sql";
 
 interface DatabaseMetadata {
+  format: string;
   version: string;
   exportDate: string;
   tables: {
     name: string;
+    fileName: string;
     rowCount: number;
     columns: Array<{
       name: string;
@@ -14,69 +26,66 @@ interface DatabaseMetadata {
   }[];
 }
 
-/**
- * Convert array of objects to CSV string
- * Handles special cases: nulls, quotes, commas, BigInts
- */
-function convertToCSV(data: any[], columnNames: string[]): string {
-  if (data.length === 0) {
-    return columnNames.join(",") + "\n";
+const DATABASE_EXPORT_FORMAT = "sql-for-files-parquet";
+const DATABASE_EXPORT_VERSION = "2.0";
+
+function createExportFileName(index: number): string {
+  return `table-${String(index + 1).padStart(4, "0")}.parquet`;
+}
+
+function isDatabaseMetadata(value: unknown): value is DatabaseMetadata {
+  if (!value || typeof value !== "object") return false;
+
+  const candidate = value as Partial<DatabaseMetadata>;
+  return (
+    candidate.format === DATABASE_EXPORT_FORMAT &&
+    candidate.version === DATABASE_EXPORT_VERSION &&
+    typeof candidate.exportDate === "string" &&
+    Array.isArray(candidate.tables) &&
+    candidate.tables.every(
+      (table) =>
+        table &&
+        typeof table === "object" &&
+        typeof table.name === "string" &&
+        typeof table.fileName === "string" &&
+        typeof table.rowCount === "number" &&
+        Array.isArray(table.columns)
+    )
+  );
+}
+
+function getImportErrorNotification(error: unknown): {
+  type: "error";
+  title: string;
+  message?: string;
+} {
+  if (
+    error instanceof Error &&
+    error.message === "UNSUPPORTED_DATABASE_EXPORT_FORMAT"
+  ) {
+    return {
+      type: "error",
+      title: "Unsupported database export format",
+      message:
+        "Import a Parquet backup created by the current version of SQL for Files.",
+    };
   }
 
-  // Helper to escape CSV values
-  const escapeCSVValue = (value: any): string => {
-    if (value === null || value === undefined) {
-      return "";
-    }
-
-    // Convert BigInt to number
-    if (typeof value === "bigint") {
-      value = Number(value);
-    }
-
-    // Convert dates to ISO string
-    if (value instanceof Date) {
-      value = value.toISOString();
-    }
-
-    // Convert to string
-    const stringValue = String(value);
-
-    // If value contains comma, quote, or newline, wrap in quotes and escape quotes
-    if (
-      stringValue.includes(",") ||
-      stringValue.includes('"') ||
-      stringValue.includes("\n") ||
-      stringValue.includes("\r")
-    ) {
-      return `"${stringValue.replace(/"/g, '""')}"`;
-    }
-
-    return stringValue;
+  return {
+    type: "error",
+    title: "Failed to import database",
   };
-
-  // Build CSV string
-  const lines: string[] = [];
-
-  // Header row
-  lines.push(columnNames.map(escapeCSVValue).join(","));
-
-  // Data rows
-  for (const row of data) {
-    const values = columnNames.map((colName) => escapeCSVValue(row[colName]));
-    lines.push(values.join(","));
-  }
-
-  return lines.join("\n");
 }
 
 export const usePersistence = () => {
   const { db, tables: tableNames, refreshTables } = useDuckDBContext();
   const { addNotification, removeNotification } = useNotifications();
 
+  // ── ZIP Export (Parquet-based, lossless round-tripping) ─────────────────
+
   /**
-   * Export the entire database as a downloadable file
-   * Creates a ZIP containing Parquet files for each table + metadata
+   * Export the entire database as a downloadable ZIP file.
+   * Each table is stored as Parquet + a metadata.json manifest.
    */
   const exportDatabase = async (): Promise<void> => {
     if (!db) {
@@ -94,9 +103,9 @@ export const usePersistence = () => {
         title: "Exporting database...",
       });
 
-      const conn = await db.connect();
       const metadata: DatabaseMetadata = {
-        version: "1.0",
+        format: DATABASE_EXPORT_FORMAT,
+        version: DATABASE_EXPORT_VERSION,
         exportDate: new Date().toISOString(),
         tables: [],
       };
@@ -106,44 +115,42 @@ export const usePersistence = () => {
       const zip = new JSZip();
 
       // Export each table
-      for (const tableName of tableNames) {
+      for (const [index, tableName] of tableNames.entries()) {
         try {
-          // Get table schema
-          const schemaResult = await conn.query(`DESCRIBE ${tableName}`);
+          const schemaResult = await withDuckDBConnection(db, async (conn) =>
+            conn.query(`DESCRIBE ${quoteIdentifier(tableName)}`)
+          );
           const schemaData = schemaResult.toArray();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const columns = schemaData.map((row: any) => ({
             name: row.column_name,
             type: row.column_type,
           }));
 
-          // Get row count
-          const countResult = await conn.query(
-            `SELECT COUNT(*) as count FROM ${tableName}`
+          const countResult = await withDuckDBConnection(db, async (conn) =>
+            conn.query(
+              `SELECT COUNT(*) as count FROM ${quoteIdentifier(tableName)}`
+            )
           );
           const rowCountRaw = countResult.toArray()[0].count;
           // Convert BigInt to number (DuckDB returns BigInt for COUNT)
           const rowCount =
             typeof rowCountRaw === "bigint" ? Number(rowCountRaw) : rowCountRaw;
+          const fileName = createExportFileName(index);
 
           metadata.tables.push({
             name: tableName,
+            fileName,
             rowCount,
             columns,
           });
 
-          // Export table data as CSV
-          // Query all data from the table
-          const dataResult = await conn.query(`SELECT * FROM ${tableName}`);
-
-          // Convert to array of objects
-          const data = dataResult.toArray();
-
-          // Convert to CSV format
-          const csvData = convertToCSV(data, columns.map((col) => col.name));
-
-          // Add to ZIP with .csv extension
-          const fileName = `${tableName}.csv`;
-          zip.file(fileName, csvData);
+          const parquetBuffer = await exportTableToParquetBuffer(
+            db,
+            tableName,
+            fileName
+          );
+          zip.file(fileName, parquetBuffer);
         } catch (error) {
           console.error(`Error exporting table ${tableName}:`, error);
           addNotification({
@@ -176,10 +183,11 @@ export const usePersistence = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      conn.close();
       addNotification({
         type: "success",
-        title: `Database exported (${tableNames.length} ${tableNames.length === 1 ? 'table' : 'tables'})`,
+        title: `Database exported (${tableNames.length} ${
+          tableNames.length === 1 ? "table" : "tables"
+        })`,
       });
     } catch (error) {
       console.error("Database export error:", error);
@@ -194,11 +202,18 @@ export const usePersistence = () => {
     }
   };
 
+  // ── ZIP Import (Parquet-based) ───────────────────────────────────────────
+
   /**
-   * Import a database from a ZIP file
-   * Restores all tables from Parquet files
+   * Import a database from a ZIP file.
+   * Restores all tables from Parquet files + metadata.
+   * @param replaceExisting If true, uses CREATE OR REPLACE to overwrite existing tables.
+   *                        If false (default), skips tables that already exist.
    */
-  const importDatabase = async (file: File): Promise<void> => {
+  const importDatabase = async (
+    file: File,
+    replaceExisting = false
+  ): Promise<void> => {
     if (!db) {
       addNotification({
         type: "error",
@@ -225,56 +240,107 @@ export const usePersistence = () => {
       }
 
       const metadataText = await metadataFile.async("text");
-      const metadata: DatabaseMetadata = JSON.parse(metadataText);
+      const parsedMetadata = JSON.parse(metadataText) as unknown;
+      if (!isDatabaseMetadata(parsedMetadata)) {
+        throw new Error("UNSUPPORTED_DATABASE_EXPORT_FORMAT");
+      }
 
-      const conn = await db.connect();
+      const metadata = parsedMetadata;
       let importedCount = 0;
+      const importedTableNames: string[] = [];
 
       // Import each table
       for (const tableInfo of metadata.tables) {
         try {
-          const fileName = `${tableInfo.name}.csv`;
-          const csvFile = zip.file(fileName);
+          const fileName = tableInfo.fileName;
+          const parquetFile = zip.file(fileName);
 
-          if (!csvFile) {
+          if (!parquetFile) {
             console.warn(`Table file not found: ${fileName}`);
             continue;
           }
 
-          // Get CSV file as text
-          const csvText = await csvFile.async("text");
+          const parquetBuffer = await parquetFile.async("uint8array");
+          await db.registerFileBuffer(fileName, parquetBuffer);
 
-          // Register the CSV buffer with DuckDB
-          const csvBuffer = new TextEncoder().encode(csvText);
-          await db.registerFileBuffer(fileName, csvBuffer);
-
-          // Create table from CSV data using read_csv_auto
-          await conn.query(
-            `CREATE TABLE ${tableInfo.name} AS SELECT * FROM read_csv_auto('${fileName}')`
-          );
+          const createStatement = replaceExisting
+            ? `CREATE OR REPLACE TABLE ${quoteIdentifier(
+                tableInfo.name
+              )} AS SELECT * FROM read_parquet(${quoteStringLiteral(fileName)})`
+            : `CREATE TABLE ${quoteIdentifier(
+                tableInfo.name
+              )} AS SELECT * FROM read_parquet(${quoteStringLiteral(
+                fileName
+              )})`;
+          await withDuckDBConnection(db, async (conn) => {
+            await conn.query(createStatement);
+          });
 
           importedCount++;
+          importedTableNames.push(tableInfo.name);
         } catch (error) {
           console.error(`Error importing table ${tableInfo.name}:`, error);
           addNotification({
             type: "error",
-            title: `Failed to import table: ${tableInfo.name}`,
+            title: replaceExisting
+              ? `Failed to import table: ${tableInfo.name}`
+              : `Skipped table "${tableInfo.name}": already exists`,
           });
+        } finally {
+          try {
+            await db.dropFile(tableInfo.fileName);
+          } catch {
+            // Ignore cleanup failures for files that were not registered.
+          }
         }
       }
 
-      conn.close();
+      const persistenceWarnings: string[] = [];
+      const persistenceErrors: string[] = [];
+
+      for (const tableName of importedTableNames) {
+        try {
+          const { warning } = await saveTableToIndexedDB(db, tableName);
+          if (warning) {
+            persistenceWarnings.push(warning);
+          }
+        } catch (error) {
+          console.error(
+            `Failed to persist imported table "${tableName}":`,
+            error
+          );
+          persistenceErrors.push(tableName);
+        }
+      }
+
       await refreshTables();
       addNotification({
         type: "success",
-        title: `Database imported (${importedCount}/${metadata.tables.length} ${metadata.tables.length === 1 ? 'table' : 'tables'})`,
+        title: `Database imported (${importedCount}/${metadata.tables.length} ${
+          metadata.tables.length === 1 ? "table" : "tables"
+        })`,
       });
+
+      for (const warning of persistenceWarnings) {
+        addNotification({
+          type: "info",
+          title: warning,
+        });
+      }
+
+      if (persistenceErrors.length > 0) {
+        addNotification({
+          type: "error",
+          title: "Imported database, but failed to save some tables",
+          message:
+            persistenceErrors.length === 1
+              ? `The table "${persistenceErrors[0]}" was imported, but it will not be restored next session unless you save it again.`
+              : `${persistenceErrors.length} imported tables will not be restored next session unless you save them again.`,
+        });
+      }
     } catch (error) {
       console.error("Database import error:", error);
-      addNotification({
-        type: "error",
-        title: "Failed to import database",
-      });
+      addNotification(getImportErrorNotification(error));
     } finally {
       if (importingNotificationId) {
         removeNotification(importingNotificationId);
@@ -282,98 +348,65 @@ export const usePersistence = () => {
     }
   };
 
+  // ── IndexedDB Persistence (Parquet-based) ───────────────────────────────
+
   /**
-   * Save database state to IndexedDB for auto-restore on page load
-   * This provides persistence between sessions
+   * Save all tables to IndexedDB as Parquet.
+   * Delegates to the databasePersistence utility.
    */
   const saveStateToIndexedDB = async (): Promise<void> => {
     if (!db) return;
 
     try {
-      const conn = await db.connect();
-      const state: any = {
-        tables: [],
-        savedAt: new Date().toISOString(),
-      };
+      const result = await saveAllTablesToIndexedDB(db, tableNames);
 
-      // For each table, get schema and data
-      for (const tableName of tableNames) {
-        const schemaResult = await conn.query(`DESCRIBE ${tableName}`);
-        const dataResult = await conn.query(`SELECT * FROM ${tableName}`);
+      for (const warning of result.warnings) {
+        addNotification({ type: "info", title: warning });
+      }
 
-        state.tables.push({
-          name: tableName,
-          schema: schemaResult.toArray(),
-          data: dataResult.toArray(),
+      for (const err of result.errors) {
+        addNotification({
+          type: "error",
+          title: `Failed to save table: ${err.table}`,
         });
       }
 
-      // Store in IndexedDB
-      const { set } = await import("idb-keyval");
-      await set("database-state", state);
-
-      conn.close();
-      console.log("Database state saved to IndexedDB");
+      if (result.saved.length > 0) {
+        addNotification({
+          type: "success",
+          title: `Database saved (${result.saved.length} ${
+            result.saved.length === 1 ? "table" : "tables"
+          })`,
+        });
+      }
     } catch (error) {
       console.error("Failed to save state to IndexedDB:", error);
+      addNotification({
+        type: "error",
+        title: "Failed to save database",
+      });
     }
   };
 
   /**
-   * Restore database state from IndexedDB on page load
+   * Restore all tables from IndexedDB.
+   * Delegates to the databasePersistence utility.
    */
   const restoreStateFromIndexedDB = async (): Promise<boolean> => {
     if (!db) return false;
 
     try {
-      const { get } = await import("idb-keyval");
-      const state = await get("database-state");
-
-      if (!state || !state.tables) {
-        return false;
-      }
-
-      const conn = await db.connect();
-      let restoredCount = 0;
-
-      for (const table of state.tables) {
-        try {
-          // Create table with schema
-          const columns = table.schema
-            .map((col: any) => `${col.column_name} ${col.column_type}`)
-            .join(", ");
-
-          await conn.query(`CREATE TABLE ${table.name} (${columns})`);
-
-          // Insert data (in batches if large)
-          if (table.data.length > 0) {
-            // For simplicity, we'll create a temporary table and insert from it
-            // In production, you might want to batch inserts
-            const tempData = table.data;
-            // This is a simplified approach - you'd want to use prepared statements
-            // or COPY FROM for better performance
-            console.log(
-              `Restored table ${table.name} with ${tempData.length} rows`
-            );
-          }
-
-          restoredCount++;
-        } catch (error) {
-          console.error(`Error restoring table ${table.name}:`, error);
-        }
-      }
-
-      conn.close();
-      await refreshTables();
-
+      const { restoredCount } = await restoreDatabaseFromIndexedDB(db);
       if (restoredCount > 0) {
+        await refreshTables();
         addNotification({
           type: "info",
-          title: `Restored ${restoredCount} ${restoredCount === 1 ? 'table' : 'tables'} from previous session`,
+          title: `Restored ${restoredCount} ${
+            restoredCount === 1 ? "table" : "tables"
+          } from previous session`,
         });
         return true;
       }
-
       return false;
     } catch (error) {
       console.error("Failed to restore state from IndexedDB:", error);
@@ -382,18 +415,73 @@ export const usePersistence = () => {
   };
 
   /**
-   * Clear all database state from IndexedDB
+   * Clear all saved database state from IndexedDB.
    */
   const clearSavedState = async (): Promise<void> => {
     try {
-      const { del } = await import("idb-keyval");
-      await del("database-state");
-      addNotification({
-        type: "info",
-        title: "Saved database state cleared",
-      });
+      await clearAllDatabaseState();
     } catch (error) {
       console.error("Failed to clear saved state:", error);
+    }
+  };
+
+  // ── Drop Table(s) ──────────────────────────────────────────────────────
+
+  /**
+   * Drop a single table from DuckDB and remove its Parquet from IndexedDB.
+   */
+  const dropTable = async (tableName: string): Promise<void> => {
+    if (!db) return;
+
+    try {
+      await withDuckDBConnection(db, async (conn) => {
+        await conn.query(`DROP TABLE IF EXISTS ${quoteIdentifier(tableName)}`);
+      });
+
+      await removeTableFromIndexedDB(tableName);
+      await refreshTables();
+
+      addNotification({
+        type: "success",
+        title: `Table "${tableName}" dropped`,
+      });
+    } catch (error) {
+      console.error(`Failed to drop table "${tableName}":`, error);
+      addNotification({
+        type: "error",
+        title: `Failed to drop table: ${tableName}`,
+      });
+    }
+  };
+
+  /**
+   * Drop ALL tables from DuckDB and clear all IndexedDB persistence state.
+   */
+  const dropAllTables = async (): Promise<void> => {
+    if (!db) return;
+
+    try {
+      await withDuckDBConnection(db, async (conn) => {
+        for (const tableName of tableNames) {
+          await conn.query(
+            `DROP TABLE IF EXISTS ${quoteIdentifier(tableName)}`
+          );
+        }
+      });
+
+      await clearAllDatabaseState();
+      await refreshTables();
+
+      addNotification({
+        type: "success",
+        title: "All tables dropped",
+      });
+    } catch (error) {
+      console.error("Failed to drop all tables:", error);
+      addNotification({
+        type: "error",
+        title: "Failed to drop all tables",
+      });
     }
   };
 
@@ -403,5 +491,7 @@ export const usePersistence = () => {
     saveStateToIndexedDB,
     restoreStateFromIndexedDB,
     clearSavedState,
+    dropTable,
+    dropAllTables,
   };
 };

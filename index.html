@@ -6,6 +6,46 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>SQL for Files</title>
     <meta name="theme-color" content="#2563eb" />
+    <script>
+      (function () {
+        var storageKey = "ui-theme-mode";
+        var darkMediaQuery = "(prefers-color-scheme: dark)";
+        var lightThemeColor = "#f8fafc";
+        var darkThemeColor = "#020617";
+        var mode = "system";
+
+        try {
+          var storedMode = window.localStorage.getItem(storageKey);
+
+          if (storedMode === "system" || storedMode === "light" || storedMode === "dark") {
+            mode = storedMode;
+          }
+        } catch {}
+
+        var resolvedTheme = mode === "dark" ? "dark" : "light";
+
+        if (mode === "system") {
+          try {
+            if (window.matchMedia && window.matchMedia(darkMediaQuery).matches) {
+              resolvedTheme = "dark";
+            }
+          } catch {}
+        }
+
+        var root = document.documentElement;
+        root.classList.toggle("dark", resolvedTheme === "dark");
+        root.dataset.themeMode = mode;
+        root.style.colorScheme = resolvedTheme;
+
+        var themeColorMeta = document.querySelector('meta[name="theme-color"]');
+        if (themeColorMeta) {
+          themeColorMeta.setAttribute(
+            "content",
+            resolvedTheme === "dark" ? darkThemeColor : lightThemeColor
+          );
+        }
+      })();
+    </script>
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -16,12 +56,6 @@
     <!-- Web App Manifest -->
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Performance Optimizations -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-
-    <!-- Preload critical assets -->
-    <link rel="modulepreload" href="/src/main.tsx" />
 
   </head>
   <body>

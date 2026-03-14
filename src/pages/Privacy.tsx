@@ -10,15 +10,15 @@ export default function Privacy() {
     <>
       <SEO
         title="Privacy Policy | SQL for Files"
-        description="Learn how SQL for Files protects your privacy with 100% local, in-browser data processing."
+        description="Learn how SQL for Files keeps files, SQL queries, and query results local in your browser."
         canonicalPath="/privacy"
         ogType="article"
         imageAlt="SQL for Files privacy policy"
       />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-12">
+      <div className="theme-page min-h-screen bg-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200/50 p-8 md:p-12">
-            <h1 className="text-4xl font-bold text-slate-900 mb-8">
+          <div className="rounded-xl border border-slate-200 p-8 md:p-12">
+            <h1 className="text-3xl font-bold text-slate-900 mb-8">
               Privacy Policy
             </h1>
 
@@ -62,8 +62,8 @@ export default function Privacy() {
             </p>
             <p className="text-slate-700">
               SQL for Files is designed with privacy as a core principle. All
-              data processing happens entirely in your browser - your files and
-              queries never leave your device.
+              file and query processing happens in your browser - the app does
+              not upload your files, SQL queries, or query results.
             </p>
           </section>
 
@@ -78,13 +78,16 @@ export default function Privacy() {
                 WebAssembly technology
               </p>
               <p className="text-green-800 font-semibold">
-                ✓ Your data never touches our servers
+                ✓ Files, SQL queries, and query results are not uploaded by the
+                app
               </p>
               <p className="text-green-800 font-semibold">
-                ✓ No user tracking, behavioral analytics, or cookies
+                ✓ No cookies, no fingerprinting, and no tracking of file or
+                query content
               </p>
               <p className="text-green-800 font-semibold text-sm mt-1">
-                (Only essential server logs for website operation)
+                (Only privacy-friendly, aggregate analytics via Cloudflare Web
+                Analytics and essential server logs)
               </p>
             </div>
           </section>
@@ -104,11 +107,13 @@ export default function Privacy() {
                 Hosting Provider:
               </p>
               <p className="text-slate-700">
-                Cloudflare Germany GmbH
+                Cloudflare, Inc.
                 <br />
-                Rosental 7, c/o Mindspace
+                101 Townsend St
                 <br />
-                80331 München, Germany
+                San Francisco, CA 94107
+                <br />
+                United States
               </p>
             </div>
             <p className="text-slate-700 mb-2">
@@ -154,35 +159,32 @@ export default function Privacy() {
               Cloudflare Web Analytics
             </h2>
             <p className="text-slate-700 mb-4">
-              Diese Website nutzt Cloudflare Web Analytics zur Erhebung von
-              Nutzungskennzahlen. Im Gegensatz zu vielen anderen
-              Analytics-Anbietern verfolgt Cloudflare ein datenschutzfreundliches
-              Modell:
+              This website uses Cloudflare Web Analytics to collect usage
+              metrics. Unlike many other analytics providers, Cloudflare follows
+              a privacy-friendly model:
             </p>
             <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
               <li>
-                Es werden <strong>keine clientseitigen Informationen</strong>{" "}
-                verwendet, die etwa mithilfe von Cookies oder localStorage erfasst
-                werden
+                <strong>No client-side information</strong> is used, such as
+                data collected via cookies or localStorage
               </li>
               <li>
-                Es werden <strong>keine "Fingerabdrücke"</strong> von
-                Einzelpersonen in Form ihrer IP-Adresse, User Agent Strings oder
-                anderer Daten für Analysezwecke erstellt
+                <strong>No fingerprinting</strong> of individuals via their IP
+                address, User Agent string, or other data for analytics purposes
               </li>
               <li>
-                Es werden <strong>keine Besucherprofile</strong> erstellt und
-                Besucher werden nicht mit Werbung erneut angesprochen
+                <strong>No visitor profiles</strong> are created and visitors are
+                not retargeted with advertising
               </li>
             </ul>
             <p className="text-slate-700 mt-4">
-              Die Analytics sind nicht invasiv und respektieren die Privatsphäre
-              der Besucher.
+              The analytics are non-invasive and respect the privacy of
+              visitors.
             </p>
             <p className="text-slate-700 mt-4">
-              Weitere Informationen:{" "}
+              More information:{" "}
               <a
-                href="https://www.cloudflare.com/de-de/web-analytics/"
+                href="https://www.cloudflare.com/web-analytics/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-700"
@@ -224,22 +226,27 @@ export default function Privacy() {
               Local Data Storage
             </h2>
             <p className="text-slate-700 mb-4">
-              SQL for Files uses your browser's IndexedDB to store:
+              SQL for Files uses browser storage on your device to store:
             </p>
             <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
-              <li>Your uploaded files (stored locally on your device only)</li>
+               <li>
+                Imported file copies and persisted tables in IndexedDB
+               </li>
               <li>
-                Your SQL query history (stored locally on your device only)
+                Your SQL query history in IndexedDB
               </li>
               <li>
-                Application preferences (stored locally on your device only)
+                Application preferences such as theme, layout, and editor tabs
+                in localStorage
               </li>
             </ul>
             <p className="text-slate-700 mt-4">
-              <strong>Important:</strong> This data is stored entirely in your
-              browser's local storage and never transmitted to any server. You
-              can delete this data at any time by clearing your browser's
-              storage or using your browser's developer tools.
+              <strong>Important:</strong> This data stays in browser storage on
+              your device and is not uploaded by the app. You can delete it at
+              any time through your browser's site-data settings for
+              sqlforfiles.app. This clears imported file copies, persisted
+              tables, query history, and UI preferences stored in IndexedDB and
+              localStorage.
             </p>
           </section>
 
@@ -248,7 +255,8 @@ export default function Privacy() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Cookies</h2>
             <p className="text-slate-700 mb-4">
               Currently, SQL for Files <strong>does not use any cookies</strong>
-              . All data is stored in your browser's local IndexedDB storage.
+              . Local app data is stored in browser storage, including
+              IndexedDB and localStorage.
             </p>
             <p className="text-slate-700">
               If we add cookies in the future (for example, for analytics or
@@ -329,12 +337,18 @@ export default function Privacy() {
               data:
             </p>
             <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
-              <li>All data processing occurs locally in your browser</li>
+              <li>
+                Files, SQL queries, and query results are processed locally in
+                your browser
+              </li>
               <li>This website is served over HTTPS (encrypted connection)</li>
               <li>
                 We do not collect or store your personal data on our servers
               </li>
-              <li>No third-party analytics or tracking services are used</li>
+              <li>
+                Only privacy-friendly, aggregate analytics (Cloudflare Web
+                Analytics) — no individual tracking
+              </li>
             </ul>
             <p className="text-slate-700 mt-4">
               Please note that data transmission over the internet (e.g., via
