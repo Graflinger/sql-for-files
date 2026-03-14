@@ -17,10 +17,10 @@ Perfect for data analysts, developers, and anyone who needs to quickly query dat
 ## ✨ Key Features
 
 ### 🔒 100% Private & Secure
-- **Zero server uploads** - Your data never leaves your device
-- All processing happens client-side in your browser
-- No data collection, no tracking, no analytics
-- Files stored locally in IndexedDB for session persistence
+- **No server uploads of your work** - Files, SQL queries, query results, and saved tables stay in your browser
+- Core data processing happens in your browser
+- No invasive tracking; only privacy-friendly aggregate website analytics
+- Tables and query history are stored locally in IndexedDB; UI preferences use local browser storage
 
 ### 📊 Multiple File Formats
 - **CSV** - Automatic delimiter detection and type inference
@@ -136,9 +136,9 @@ FROM employees;
 
 ## 🔐 Privacy & Security
 
-- **Client-side processing** - All data processing happens in your browser
-- **Local storage only** - Tables and history are stored in IndexedDB, never sent to servers
-- **No tracking** - Zero analytics, no usage data collection
+- **Local browser processing** - Files, SQL queries, query results, and saved tables stay in your browser
+- **Local browser storage** - Tables and query history use IndexedDB; theme and editor state use localStorage
+- **Privacy-friendly analytics only** - No cookies, no fingerprinting, no query-data tracking
 - **Open source** - Audit the entire codebase on GitHub
 
 ## 🤝 Contributing
@@ -176,9 +176,9 @@ This license ensures SQL for Files remains open source while preventing others f
 ## 🗺️ Roadmap
 
 - Parquet and JSON export from query results
-- Dark mode support
 - Saved chart presets
 - Broader file import options where DuckDB WASM supports them
+- Shareable example datasets and starter queries
 
 ## 📧 Support
 

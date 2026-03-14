@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 
-import type { ChartType, ChartConfig } from "../types/visualisation";
+import type { ChartType, ChartConfig, ChartTheme } from "../types/visualisation";
 import { DEFAULT_COLORS } from "../types/visualisation";
 import type { QueryResult } from "../types/query";
 import type { EChartsCoreOption } from "echarts/core";
@@ -93,7 +93,8 @@ interface UseChartConfigReturn {
  */
 export function useChartConfig(
   result: QueryResult | null,
-  tabId: string
+  tabId: string,
+  theme: ChartTheme
 ): UseChartConfigReturn {
   const [config, setConfig] = useState<ChartConfig>(() => {
     const cached = configCache.get(tabId);
@@ -166,8 +167,8 @@ export function useChartConfig(
   // Delegate to the registry's per-type builder
   const echartsOption = useMemo(() => {
     const descriptor = CHART_TYPE_REGISTRY[config.chartType];
-    return descriptor.buildOption(config, result?.data ?? []);
-  }, [config, result?.data]);
+    return descriptor.buildOption(config, result?.data ?? [], theme);
+  }, [config, result?.data, theme]);
 
   // Universal: if the builder produced an option, the chart can render
   const canRender = echartsOption !== null;

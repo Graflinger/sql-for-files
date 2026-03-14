@@ -10,12 +10,12 @@ export default function Privacy() {
     <>
       <SEO
         title="Privacy Policy | SQL for Files"
-        description="Learn how SQL for Files protects your privacy with 100% local, in-browser data processing."
+        description="Learn how SQL for Files keeps files, SQL queries, and query results local in your browser."
         canonicalPath="/privacy"
         ogType="article"
         imageAlt="SQL for Files privacy policy"
       />
-      <div className="min-h-screen bg-white py-12">
+      <div className="theme-page min-h-screen bg-white py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-xl border border-slate-200 p-8 md:p-12">
             <h1 className="text-3xl font-bold text-slate-900 mb-8">
@@ -62,8 +62,8 @@ export default function Privacy() {
             </p>
             <p className="text-slate-700">
               SQL for Files is designed with privacy as a core principle. All
-              data processing happens entirely in your browser - your files and
-              queries never leave your device.
+              file and query processing happens in your browser - the app does
+              not upload your files, SQL queries, or query results.
             </p>
           </section>
 
@@ -78,10 +78,12 @@ export default function Privacy() {
                 WebAssembly technology
               </p>
               <p className="text-green-800 font-semibold">
-                ✓ Your data never touches our servers
+                ✓ Files, SQL queries, and query results are not uploaded by the
+                app
               </p>
               <p className="text-green-800 font-semibold">
-                ✓ No user tracking, cookies, or fingerprinting
+                ✓ No cookies, no fingerprinting, and no tracking of file or
+                query content
               </p>
               <p className="text-green-800 font-semibold text-sm mt-1">
                 (Only privacy-friendly, aggregate analytics via Cloudflare Web
@@ -224,22 +226,25 @@ export default function Privacy() {
               Local Data Storage
             </h2>
             <p className="text-slate-700 mb-4">
-              SQL for Files uses your browser's IndexedDB to store:
+              SQL for Files uses browser storage on your device to store:
             </p>
             <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
-               <li>Your added files (stored locally on your device only)</li>
+               <li>
+                Imported file copies and persisted tables in IndexedDB
+               </li>
               <li>
-                Your SQL query history (stored locally on your device only)
+                Your SQL query history in IndexedDB
               </li>
               <li>
-                Application preferences (stored locally on your device only)
+                Application preferences such as theme, layout, and editor tabs
+                in localStorage
               </li>
             </ul>
             <p className="text-slate-700 mt-4">
-              <strong>Important:</strong> This data is stored entirely in your
-              browser's local storage and never transmitted to any server. You
-              can delete this data at any time by clearing your browser's
-              storage or using your browser's developer tools.
+              <strong>Important:</strong> This data stays in browser storage on
+              your device and is not uploaded by the app. You can delete it at
+              any time by clearing your browser storage or using your browser's
+              developer tools.
             </p>
           </section>
 
@@ -248,7 +253,8 @@ export default function Privacy() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Cookies</h2>
             <p className="text-slate-700 mb-4">
               Currently, SQL for Files <strong>does not use any cookies</strong>
-              . All data is stored in your browser's local IndexedDB storage.
+              . Local app data is stored in browser storage, including
+              IndexedDB and localStorage.
             </p>
             <p className="text-slate-700">
               If we add cookies in the future (for example, for analytics or
@@ -329,7 +335,10 @@ export default function Privacy() {
               data:
             </p>
             <ul className="list-disc list-inside text-slate-700 space-y-2 ml-4">
-              <li>All data processing occurs locally in your browser</li>
+              <li>
+                Files, SQL queries, and query results are processed locally in
+                your browser
+              </li>
               <li>This website is served over HTTPS (encrypted connection)</li>
               <li>
                 We do not collect or store your personal data on our servers

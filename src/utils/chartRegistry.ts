@@ -2,11 +2,55 @@ import type {
   ChartType,
   ChartConfig,
   ChartTypeDescriptor,
+  ChartTheme,
 } from "../types/visualisation";
 import { DEFAULT_COLORS } from "../types/visualisation";
 import type { EChartsCoreOption } from "echarts/core";
 
 /* ─── Shared helpers ─── */
+
+interface ChartPalette {
+  title: string;
+  subtitle: string;
+  axisLabel: string;
+  axisName: string;
+  axisLine: string;
+  splitLine: string;
+  legendText: string;
+  tooltipBackground: string;
+  tooltipBorder: string;
+  tooltipText: string;
+}
+
+function getChartPalette(theme: ChartTheme): ChartPalette {
+  if (theme === "dark") {
+    return {
+      title: "#f8fafc",
+      subtitle: "#94a3b8",
+      axisLabel: "#cbd5e1",
+      axisName: "#94a3b8",
+      axisLine: "rgba(148, 163, 184, 0.45)",
+      splitLine: "rgba(51, 65, 85, 0.7)",
+      legendText: "#cbd5e1",
+      tooltipBackground: "rgba(15, 23, 42, 0.96)",
+      tooltipBorder: "rgba(51, 65, 85, 0.95)",
+      tooltipText: "#f8fafc",
+    };
+  }
+
+  return {
+    title: "#0f172a",
+    subtitle: "#64748b",
+    axisLabel: "#475569",
+    axisName: "#64748b",
+    axisLine: "rgba(148, 163, 184, 0.8)",
+    splitLine: "rgba(226, 232, 240, 0.9)",
+    legendText: "#334155",
+    tooltipBackground: "rgba(255, 255, 255, 0.98)",
+    tooltipBorder: "rgba(203, 213, 225, 0.95)",
+    tooltipText: "#0f172a",
+  };
+}
 
 /**
  * Determine whether a column appears numeric by sampling the first rows.
@@ -76,7 +120,8 @@ function autoDetectAxis(
 
 function buildAxisOption(
   config: ChartConfig,
-  data: Record<string, unknown>[]
+  data: Record<string, unknown>[],
+  theme: ChartTheme
 ): EChartsCoreOption | null {
   if (!config.xAxisColumn || config.series.length === 0 || data.length === 0) {
     return null;
@@ -84,6 +129,7 @@ function buildAxisOption(
 
   const hasTitle = config.title || config.subtitle;
   const hasLegend = config.series.length > 1;
+  const palette = getChartPalette(theme);
 
   // Compute top spacing: title + optional subtitle + optional legend + base gap
   let gridTop = 20;
@@ -95,11 +141,18 @@ function buildAxisOption(
 
   return {
     title: hasTitle
-      ? {
-          text: config.title,
-          subtext: config.subtitle,
-          left: "center" as const,
-        }
+        ? {
+            text: config.title,
+            subtext: config.subtitle,
+            left: "center" as const,
+            textStyle: {
+              color: palette.title,
+              fontWeight: 600,
+            },
+            subtextStyle: {
+              color: palette.subtitle,
+            },
+          }
       : undefined,
     dataset: {
       source: data,
@@ -109,9 +162,33 @@ function buildAxisOption(
       name: config.xAxisColumn,
       nameLocation: "center" as const,
       nameGap: 30,
+      nameTextStyle: {
+        color: palette.axisName,
+      },
+      axisLabel: {
+        color: palette.axisLabel,
+      },
+      axisLine: {
+        lineStyle: {
+          color: palette.axisLine,
+        },
+      },
     },
     yAxis: {
       type: "value" as const,
+      axisLabel: {
+        color: palette.axisLabel,
+      },
+      axisLine: {
+        lineStyle: {
+          color: palette.axisLine,
+        },
+      },
+      splitLine: {
+        lineStyle: {
+          color: palette.splitLine,
+        },
+      },
     },
     series: config.series.map((s) => ({
       type: config.chartType,
@@ -121,10 +198,18 @@ function buildAxisOption(
     })),
     tooltip: {
       trigger: "axis" as const,
+      backgroundColor: palette.tooltipBackground,
+      borderColor: palette.tooltipBorder,
+      textStyle: {
+        color: palette.tooltipText,
+      },
     },
     legend: {
       show: hasLegend,
       top: hasTitle ? (config.subtitle ? 50 : 30) : undefined,
+      textStyle: {
+        color: palette.legendText,
+      },
     },
     grid: {
       left: 60,
@@ -163,21 +248,30 @@ function autoDetectPie(
 
 function buildPieOption(
   config: ChartConfig,
-  data: Record<string, unknown>[]
+  data: Record<string, unknown>[],
+  theme: ChartTheme
 ): EChartsCoreOption | null {
   if (!config.labelColumn || !config.valueColumn || data.length === 0) {
     return null;
   }
 
   const hasTitle = config.title || config.subtitle;
+  const palette = getChartPalette(theme);
 
   return {
     title: hasTitle
-      ? {
-          text: config.title,
-          subtext: config.subtitle,
-          left: "center" as const,
-        }
+        ? {
+            text: config.title,
+            subtext: config.subtitle,
+            left: "center" as const,
+            textStyle: {
+              color: palette.title,
+              fontWeight: 600,
+            },
+            subtextStyle: {
+              color: palette.subtitle,
+            },
+          }
       : undefined,
     dataset: {
       source: data,
@@ -202,10 +296,18 @@ function buildPieOption(
     ],
     tooltip: {
       trigger: "item" as const,
+      backgroundColor: palette.tooltipBackground,
+      borderColor: palette.tooltipBorder,
+      textStyle: {
+        color: palette.tooltipText,
+      },
     },
     legend: {
       orient: "horizontal" as const,
       top: hasTitle ? (config.subtitle ? 50 : 30) : "top",
+      textStyle: {
+        color: palette.legendText,
+      },
     },
   };
 }

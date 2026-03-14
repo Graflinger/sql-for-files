@@ -4,12 +4,15 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
 import Navbar from "./Navbar";
+import { ThemeProvider } from "../../contexts/ThemeContext";
 
 function renderNavbar(initialRoute = "/") {
   return render(
-    <MemoryRouter initialEntries={[initialRoute]}>
-      <Navbar />
-    </MemoryRouter>
+    <ThemeProvider>
+      <MemoryRouter initialEntries={[initialRoute]}>
+        <Navbar />
+      </MemoryRouter>
+    </ThemeProvider>
   );
 }
 
@@ -46,6 +49,12 @@ describe("Navbar", () => {
   it("renders mobile menu toggle button", () => {
     renderNavbar();
     expect(screen.getByLabelText("Toggle menu")).toBeInTheDocument();
+  });
+
+  it("does not render theme controls in the navbar", () => {
+    renderNavbar();
+    expect(screen.queryByRole("group", { name: "Theme controls" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Theme System" })).not.toBeInTheDocument();
   });
 
   it("toggles mobile menu on button click", async () => {

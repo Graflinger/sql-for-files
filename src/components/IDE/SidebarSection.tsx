@@ -25,16 +25,16 @@ export default function SidebarSection({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
-    <div className="border-b border-slate-200 last:border-b-0">
+    <div className="border-b border-slate-200 last:border-b-0 dark:border-slate-800">
       {/* Section Header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-slate-50 transition-colors group"
+        className="group flex w-full items-center gap-2 px-3 py-2.5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/80"
         aria-expanded={isExpanded}
       >
         {/* Expand/Collapse Chevron */}
         <svg
-          className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${
+          className={`w-4 h-4 text-slate-400 transition-transform duration-200 dark:text-slate-500 ${
             isExpanded ? "rotate-90" : ""
           }`}
           fill="none"
@@ -50,16 +50,16 @@ export default function SidebarSection({
         </svg>
 
         {/* Icon */}
-        <span className="w-5 h-5 text-blue-600 flex-shrink-0">{icon}</span>
+        <span className="h-5 w-5 flex-shrink-0 text-blue-600 dark:text-blue-400">{icon}</span>
 
         {/* Title */}
-        <span className="flex-1 text-sm font-semibold text-slate-700 group-hover:text-slate-900">
+        <span className="flex-1 text-sm font-semibold text-slate-700 group-hover:text-slate-900 dark:text-slate-200 dark:group-hover:text-white">
           {title}
         </span>
 
         {/* Optional Badge */}
         {badge !== undefined && (
-          <span className="px-1.5 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 rounded">
+          <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
             {badge}
           </span>
         )}

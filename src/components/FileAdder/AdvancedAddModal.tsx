@@ -270,24 +270,29 @@ export default function AdvancedAddModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         className="absolute inset-0 bg-slate-900/60"
         onClick={onClose}
       ></div>
-      <div className="relative bg-white w-[min(1100px,95vw)] max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
-        <div className="flex items-start justify-between px-6 py-4 border-b border-slate-200">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="advanced-options-title"
+        className="relative w-[min(1100px,95vw)] max-h-[90vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950"
+      >
+        <div className="flex items-start justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 id="advanced-options-title" className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               Advanced Options
             </h2>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               Preview data and configure CSV settings before creating a table
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
             aria-label="Close advanced options"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -297,13 +302,13 @@ export default function AdvancedAddModal({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-0 max-h-[calc(90vh-120px)] overflow-hidden">
-          <div className="border-r border-slate-200 p-6 overflow-y-auto">
+          <div className="overflow-y-auto border-r border-slate-200 bg-slate-50/60 p-6 dark:border-slate-800 dark:bg-slate-900/40">
             <div className="space-y-5">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                   File
                 </label>
-                <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all duration-200 border-slate-300 hover:border-blue-400 bg-slate-50 hover:bg-blue-50">
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center transition-all duration-200 hover:border-blue-400 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-blue-500 dark:hover:bg-blue-950/30">
                   <input
                     type="file"
                     accept=".csv,.json,.parquet"
@@ -312,17 +317,17 @@ export default function AdvancedAddModal({
                       handleFileChange(event.target.files?.[0] ?? null)
                     }
                   />
-                  <div className="text-sm font-medium text-slate-700">
+                  <div className="text-sm font-medium text-slate-700 dark:text-slate-200">
                     {selectedFile ? selectedFile.name : "Select a file"}
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
                     {selectedFile ? getFileTypeLabel(selectedFile) : "CSV, JSON, or Parquet"}
                   </div>
                 </label>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700" htmlFor="table-name">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-200" htmlFor="table-name">
                   Table name
                 </label>
                 <input
@@ -334,27 +339,27 @@ export default function AdvancedAddModal({
                     setTableNameTouched(true);
                   }}
                   placeholder={selectedFile ? defaultTableNameFromFile(selectedFile.name) : "table_name"}
-                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
                 />
                 {showSanitizedHint && (
-                  <p className="text-xs text-slate-500">
-                    Saved as <span className="font-mono text-slate-700">{sanitizedTableName}</span>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Saved as <span className="font-mono text-slate-700 dark:text-slate-200">{sanitizedTableName}</span>
                   </p>
                 )}
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-slate-700">CSV options</h3>
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">CSV options</h3>
                   {!isCsvFile(selectedFile) && (
-                    <span className="text-xs text-slate-400">CSV only</span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">CSV only</span>
                   )}
                 </div>
 
-                <div className={`space-y-3 ${!isCsvFile(selectedFile) ? "opacity-50 pointer-events-none" : ""}`}>
+                <div className={`space-y-3 ${!isCsvFile(selectedFile) ? "pointer-events-none opacity-50" : ""}`}>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-medium text-slate-600">Skip rows</label>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Skip rows</label>
                       <input
                         type="number"
                         min={0}
@@ -365,11 +370,11 @@ export default function AdvancedAddModal({
                             skip: toOptionalNumber(event.target.value),
                           }))
                         }
-                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-600">Header row</label>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Header row</label>
                       <select
                         value={
                           typeof csvOptions.header === "boolean"
@@ -385,7 +390,7 @@ export default function AdvancedAddModal({
                                 : event.target.value === "true",
                           }))
                         }
-                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                       >
                         <option value="auto">Auto</option>
                         <option value="true">Yes</option>
@@ -396,7 +401,7 @@ export default function AdvancedAddModal({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-medium text-slate-600">Delimiter</label>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Delimiter</label>
                       <input
                         type="text"
                         value={csvOptions.delim ?? ""}
@@ -406,12 +411,12 @@ export default function AdvancedAddModal({
                             delim: event.target.value || undefined,
                           }))
                         }
-                        placeholder=","
-                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                        placeholder="," 
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-600">Quote</label>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Quote</label>
                       <input
                         type="text"
                         value={csvOptions.quote ?? ""}
@@ -422,14 +427,14 @@ export default function AdvancedAddModal({
                           }))
                         }
                         placeholder={'"'}
-                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-medium text-slate-600">Escape</label>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Escape</label>
                       <input
                         type="text"
                         value={csvOptions.escape ?? ""}
@@ -440,11 +445,11 @@ export default function AdvancedAddModal({
                           }))
                         }
                         placeholder="\\"
-                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-600">Null string</label>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Null string</label>
                       <input
                         type="text"
                         value={csvOptions.nullStr ?? ""}
@@ -455,14 +460,14 @@ export default function AdvancedAddModal({
                           }))
                         }
                         placeholder="NULL"
-                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-xs font-medium text-slate-600">Date format</label>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Date format</label>
                       <input
                         type="text"
                         value={csvOptions.dateformat ?? ""}
@@ -473,11 +478,11 @@ export default function AdvancedAddModal({
                           }))
                         }
                         placeholder="%Y-%m-%d"
-                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-slate-600">Decimal separator</label>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Decimal separator</label>
                       <input
                         type="text"
                         value={csvOptions.decimal_separator ?? ""}
@@ -488,7 +493,7 @@ export default function AdvancedAddModal({
                           }))
                         }
                         placeholder="."
-                        className="mt-1 w-full rounded-md border border-slate-300 px-2 py-1 text-sm"
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
                       />
                     </div>
                   </div>
@@ -497,43 +502,43 @@ export default function AdvancedAddModal({
             </div>
           </div>
 
-          <div className="p-6 overflow-y-auto">
+          <div className="overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-slate-700">Preview (first {PREVIEW_LIMIT} rows)</h3>
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Preview (first {PREVIEW_LIMIT} rows)</h3>
               {selectedFile && isSupportedFile(selectedFile) && (
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500 dark:text-slate-400">
                   {getFileTypeLabel(selectedFile)}
                 </span>
               )}
             </div>
 
-            <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
+            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
               {previewState ? (
-                <div className="p-6 text-sm text-slate-500 text-center">
+                <div className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
                   {previewState}
                 </div>
               ) : preview ? (
                 <div className="overflow-auto max-h-[50vh]">
                   <table className="min-w-full text-sm">
-                    <thead className="bg-slate-50 text-slate-600">
+                    <thead className="bg-slate-50 text-slate-600 dark:bg-slate-900 dark:text-slate-300">
                       <tr>
                         {preview.columns.map((col) => (
                           <th
                             key={col}
-                            className="px-3 py-2 text-left font-semibold border-b border-slate-200"
+                            className="border-b border-slate-200 px-3 py-2 text-left font-semibold dark:border-slate-800"
                           >
                             {col}
                           </th>
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="text-slate-700">
+                    <tbody className="text-slate-700 dark:text-slate-200">
                       {preview.rows.map((row, rowIndex) => (
-                        <tr key={rowIndex} className="odd:bg-white even:bg-slate-50">
+                        <tr key={rowIndex} className="odd:bg-white even:bg-slate-50 dark:odd:bg-slate-950 dark:even:bg-slate-900/80">
                           {preview.columns.map((col) => (
-                            <td key={col} className="px-3 py-2 border-b border-slate-100">
+                            <td key={col} className="border-b border-slate-100 px-3 py-2 dark:border-slate-800/70">
                               {row[col] === null || row[col] === undefined ? (
-                                <span className="text-xs text-slate-400">null</span>
+                                <span className="text-xs text-slate-400 dark:text-slate-500">null</span>
                               ) : (
                                 String(row[col])
                               )}
@@ -549,21 +554,21 @@ export default function AdvancedAddModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 px-6 py-4 border-t border-slate-200 bg-slate-50">
-          <div className="text-xs text-slate-500">
+        <div className="flex items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-900/80">
+          <div className="text-xs text-slate-500 dark:text-slate-400">
             Preview does not create a table until you click Create table
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-200 transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-800 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
             >
               Cancel
             </button>
             <button
               onClick={handleCreate}
               disabled={!db || !selectedFile || !sanitizedTableName || !isSupportedFile(selectedFile) || creating}
-              className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700 dark:disabled:text-slate-400"
             >
               {creating ? "Creating..." : "Create table"}
             </button>

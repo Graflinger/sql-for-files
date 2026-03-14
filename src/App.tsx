@@ -10,6 +10,7 @@ import { NotificationProvider } from "./contexts/NotificationContext";
 import NotificationContainer from "./components/Notification/NotificationContainer";
 import { DuckDBProvider } from "./contexts/DuckDBContext";
 import { EditorTabsProvider } from "./contexts/EditorTabsContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 const SqlEditor = lazy(() => import("./pages/SQLEditor"));
 
@@ -22,31 +23,33 @@ const SqlEditor = lazy(() => import("./pages/SQLEditor"));
  */
 function App() {
   return (
-    <NotificationProvider>
-      <DuckDBProvider>
-        <EditorTabsProvider>
-          <ScrollToTop />
-          <NotificationContainer />
-          <Layout>
-            <Suspense
-              fallback={
-                <div className="mx-auto max-w-5xl px-4 py-16 text-center text-slate-600">
-                  Loading the SQL editor...
-                </div>
-              }
-            >
-              <Routes>
-                <Route path="/editor" element={<SqlEditor />} />
-                <Route path="/" element={<About />} />
-                <Route path="/docs" element={<Docs />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/legal" element={<Legal />} />
-              </Routes>
-            </Suspense>
-          </Layout>
-        </EditorTabsProvider>
-      </DuckDBProvider>
-    </NotificationProvider>
+    <ThemeProvider>
+      <NotificationProvider>
+        <DuckDBProvider>
+          <EditorTabsProvider>
+            <ScrollToTop />
+            <NotificationContainer />
+            <Layout>
+              <Suspense
+                fallback={
+                  <div className="mx-auto max-w-5xl px-4 py-16 text-center text-slate-600 dark:text-slate-300">
+                    Loading the SQL editor...
+                  </div>
+                }
+              >
+                <Routes>
+                  <Route path="/editor" element={<SqlEditor />} />
+                  <Route path="/" element={<About />} />
+                  <Route path="/docs" element={<Docs />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/legal" element={<Legal />} />
+                </Routes>
+              </Suspense>
+            </Layout>
+          </EditorTabsProvider>
+        </DuckDBProvider>
+      </NotificationProvider>
+    </ThemeProvider>
   );
 }
 

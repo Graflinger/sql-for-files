@@ -176,8 +176,8 @@ export default function IDELayout({
             }
             defaultExpanded={true}
           >
-            <div className="text-xs text-slate-500 mb-2">
-              Your data never leaves your device
+            <div className="mb-2 text-xs text-slate-500 dark:text-slate-400">
+              Files and query results stay in your browser
             </div>
             {sidebarContent.addData}
           </SidebarSection>
@@ -220,7 +220,7 @@ export default function IDELayout({
         </Sidebar>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 bg-slate-50">
+        <div className="flex-1 flex min-w-0 flex-col bg-slate-50/80 dark:bg-slate-900/40">
           {/* Editor Panel - Flex grow to fill available space */}
           <div className="flex-1 min-h-0 flex flex-col">
             <EditorPanel
@@ -267,11 +267,11 @@ export default function IDELayout({
       {/* Mobile Layout */}
       <div className="md:hidden flex flex-col h-[calc(100vh-8rem)]">
         {/* Mobile Toolbar: sidebar toggle + tab switcher */}
-        <div className="flex items-center bg-white border-b border-slate-200 flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center border-b border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
           {/* Sidebar Toggle */}
           <button
             onClick={() => setMobileDrawerOpen(true)}
-            className="flex items-center justify-center w-11 h-11 text-slate-600 hover:bg-slate-100 transition-colors border-r border-slate-200"
+            className="flex h-11 w-11 items-center justify-center border-r border-slate-200 text-slate-600 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-900"
             aria-label="Open sidebar"
           >
             <svg
@@ -295,9 +295,9 @@ export default function IDELayout({
               onClick={() => setMobileActiveTab("editor")}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-semibold transition-colors relative ${
                 mobileActiveTab === "editor"
-                  ? "text-blue-600"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
+                  ? "text-blue-600 dark:text-blue-300"
+                  : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+               }`}
             >
               <svg
                 className="w-4 h-4"
@@ -315,16 +315,16 @@ export default function IDELayout({
               Editor
               {/* Active indicator */}
               {mobileActiveTab === "editor" && (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600 rounded-full" />
-              )}
-            </button>
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                )}
+              </button>
             <button
               onClick={() => setMobileActiveTab("results")}
               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-semibold transition-colors relative ${
                 mobileActiveTab === "results"
-                  ? "text-blue-600"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
+                  ? "text-blue-600 dark:text-blue-300"
+                  : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+               }`}
             >
               <svg
                 className={`w-4 h-4 ${
@@ -347,9 +347,9 @@ export default function IDELayout({
                 <span
                   className={`ml-1 px-1.5 py-0.5 text-xs font-medium rounded-full ${
                     resultStats.hasError
-                      ? "bg-red-100 text-red-700"
-                      : "bg-blue-100 text-blue-700"
-                  }`}
+                       ? "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300"
+                       : "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300"
+                   }`}
                 >
                   {resultStats.hasError
                     ? "!"
@@ -358,7 +358,7 @@ export default function IDELayout({
               )}
               {/* Active indicator */}
               {mobileActiveTab === "results" && (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-blue-600 rounded-full" />
+                <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400" />
               )}
             </button>
           </div>
@@ -372,19 +372,19 @@ export default function IDELayout({
           >
             {/* Drawer Content */}
             <div
-              className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-xl overflow-y-auto"
+              className="absolute left-0 top-0 bottom-0 w-80 max-w-[85vw] overflow-y-auto bg-white shadow-xl dark:bg-slate-950"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
-              <div className="flex items-center justify-between p-4 border-b border-slate-200">
-                <span className="font-semibold text-slate-800">Menu</span>
+              <div className="flex items-center justify-between border-b border-slate-200 p-4 dark:border-slate-800">
+                <span className="font-semibold text-slate-800 dark:text-slate-100">Menu</span>
                 <button
                   onClick={() => setMobileDrawerOpen(false)}
-                  className="p-1 rounded-lg hover:bg-slate-100 transition-colors"
+                  className="rounded-lg p-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-900"
                   aria-label="Close menu"
                 >
                   <svg
-                    className="w-6 h-6 text-slate-600"
+                    className="w-6 h-6 text-slate-600 dark:text-slate-300"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -413,8 +413,8 @@ export default function IDELayout({
                   </svg>
                 }
               >
-                <div className="text-xs text-slate-500 mb-2">
-                  Your data never leaves your device
+                <div className="mb-2 text-xs text-slate-500 dark:text-slate-400">
+                  Files and query results stay in your browser
                 </div>
                 {sidebarContent.addData}
               </SidebarSection>
@@ -477,7 +477,7 @@ export default function IDELayout({
 
           {/* Results Tab */}
           {mobileActiveTab === "results" && (
-            <div className="flex-1 min-h-0 overflow-auto bg-white">
+            <div className="flex-1 min-h-0 overflow-auto bg-white dark:bg-slate-950">
               {resultsContent}
             </div>
           )}

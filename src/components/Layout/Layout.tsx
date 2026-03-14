@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+
 import Navbar from "../Navbar/Navbar";
+import FooterThemeSwitcher from "../Theme/FooterThemeSwitcher";
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,35 +15,39 @@ interface LayoutProps {
  */
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen flex flex-col text-slate-900 dark:text-slate-100">
       <Navbar />
       <main className="flex-1 min-h-0">{children}</main>
-      <footer className="py-4 border-t border-slate-100">
+      <footer className="border-t border-slate-200/80 py-4 dark:border-slate-800/90">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="flex flex-wrap justify-center items-center gap-3 text-sm text-slate-400">
+          <div className="flex flex-wrap justify-center items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+            <FooterThemeSwitcher />
             <Link
               to="/privacy"
-              className="hover:text-slate-600 transition-colors"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
             >
               Privacy
             </Link>
-            <span className="text-slate-200">·</span>
-            <Link to="/legal" className="hover:text-slate-600 transition-colors">
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <Link
+              to="/legal"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+            >
               Legal
             </Link>
-            <span className="text-slate-200">·</span>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
             <a
               href="mailto:info@sqlforfiles.app"
-              className="hover:text-slate-600 transition-colors"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
             >
               Contact
             </a>
-            <span className="text-slate-200">·</span>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
             <a
               href="https://github.com/graflinger/sql-for-files"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 hover:text-slate-600 transition-colors"
+              className="inline-flex items-center gap-1 transition-colors hover:text-slate-700 dark:hover:text-slate-200"
               title="View source code on GitHub (AGPL v3)"
             >
               <svg
@@ -54,8 +60,8 @@ export default function Layout({ children }: LayoutProps) {
               </svg>
               GitHub
             </a>
-            <span className="text-slate-200">·</span>
-            <span className="text-slate-300">&copy; 2026 SQL for Files</span>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <span className="text-slate-400 dark:text-slate-500">&copy; 2026 SQL for Files</span>
           </div>
         </div>
       </footer>

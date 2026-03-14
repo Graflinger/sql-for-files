@@ -170,7 +170,7 @@ export default function SqlEditorPage() {
     <>
       <SEO
         title="SQL Editor for CSV, JSON & Parquet | SQL for Files"
-        description="Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Private, client-side data processing powered by DuckDB WASM."
+        description="Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Files, SQL queries, and results stay local in your browser."
         canonicalPath="/editor"
         ogType="website"
         imageAlt="SQL for Files SQL editor"

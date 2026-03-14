@@ -188,7 +188,7 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
           <div className="absolute inset-0 rounded-full border-4 border-blue-100"></div>
           <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
         </div>
-        <p className="text-sm text-slate-600 font-medium">
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
           Loading database...
         </p>
       </div>
@@ -198,7 +198,7 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
   // Error state
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/80 dark:bg-red-950/40">
         <div className="flex items-start gap-2">
           <svg
             className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
@@ -231,11 +231,11 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
     return (
       <>
         {/* Import button even when empty */}
-        <div className="mb-4 pb-4 border-b border-slate-200">
-          <button
-            onClick={handleImport}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50 hover:border-blue-400 transition-all duration-200"
-          >
+          <div className="mb-4 border-b border-slate-200 pb-4 dark:border-slate-800">
+            <button
+              onClick={handleImport}
+              className="w-full flex items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-all duration-200 hover:border-blue-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
             <svg
               className="w-4 h-4"
               fill="none"
@@ -259,10 +259,10 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
             className="hidden"
           />
           {importFile && (
-            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
-              <p className="text-xs font-medium text-slate-700 truncate">
-                Import: {importFile.name}
-              </p>
+             <div className="mt-3 space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/80 dark:bg-blue-950/30">
+               <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">
+                 Import: {importFile.name}
+               </p>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -270,16 +270,16 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                   onChange={(e) => setReplaceExisting(e.target.checked)}
                   className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="text-xs text-slate-600">
-                  Replace existing tables
-                </span>
+                 <span className="text-xs text-slate-600 dark:text-slate-300">
+                   Replace existing tables
+                 </span>
               </label>
               <div className="flex gap-2">
                 <button
                   onClick={handleCancelImport}
                   disabled={importing}
-                  className="flex-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
-                >
+                   className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                 >
                   Cancel
                 </button>
                 <button
@@ -293,14 +293,14 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
             </div>
           )}
         </div>
-        <div className="text-center py-10">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center mb-4"></div>
-          <p className="text-sm font-semibold text-slate-700 mb-1">
-            No tables yet
-          </p>
-          <p className="text-xs text-slate-500">
-            Add a file or import a database to get started
-          </p>
+         <div className="py-10 text-center">
+           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700"></div>
+           <p className="mb-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+             No tables yet
+           </p>
+           <p className="text-xs text-slate-500 dark:text-slate-400">
+             Add a file or import a database to get started
+           </p>
         </div>
       </>
     );
@@ -312,15 +312,15 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
       {/* Database Management Actions */}
       {confirmingDropAll ? (
         /* Drop All Confirmation */
-        <div className="flex items-center gap-2 pb-4 border-b border-slate-200">
+         <div className="flex items-center gap-2 border-b border-slate-200 pb-4 dark:border-slate-800">
           <span className="flex-1 text-sm font-medium text-red-700">
             Drop all {tables.length} {tables.length === 1 ? "table" : "tables"}?
           </span>
           <button
             onClick={() => setConfirmingDropAll(false)}
             disabled={droppingAll}
-            className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
-          >
+             className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+           >
             Cancel
           </button>
           <button
@@ -333,7 +333,7 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
         </div>
       ) : (
         /* Normal action buttons */
-        <div className="flex gap-2 pb-4 border-b border-slate-200 flex-wrap">
+         <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-4 dark:border-slate-800">
           <button
             onClick={handleExport}
             disabled={tables.length === 0}
@@ -358,8 +358,8 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
           <button
             onClick={handleImport}
             aria-label="Import database"
-            className="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-white border border-slate-300 text-slate-700 text-xs font-medium rounded-lg hover:bg-slate-50 hover:border-blue-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
+             className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs font-medium text-slate-700 transition-all duration-200 hover:border-blue-400 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+           >
             <svg
               className="w-3.5 h-3.5"
               fill="none"
@@ -399,8 +399,8 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
           <button
             onClick={() => setConfirmingDropAll(true)}
             aria-label="Drop all tables"
-            className="flex items-center justify-center gap-1.5 px-2 py-2 bg-white border border-red-200 text-red-600 text-xs font-medium rounded-lg hover:bg-red-50 hover:border-red-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-          >
+             className="flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-white px-2 py-2 text-xs font-medium text-red-600 transition-all duration-200 hover:border-red-400 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:border-red-900/80 dark:bg-slate-900 dark:text-red-300 dark:hover:bg-red-950/40"
+           >
             <svg
               className="w-3.5 h-3.5"
               fill="none"
@@ -428,8 +428,8 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
 
       {/* Import Confirmation Dialog */}
       {importFile && (
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
-          <p className="text-xs font-medium text-slate-700 truncate">
+         <div className="space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/80 dark:bg-blue-950/30">
+           <p className="truncate text-xs font-medium text-slate-700 dark:text-slate-200">
             Import: {importFile.name}
           </p>
           <label className="flex items-center gap-2 cursor-pointer">
@@ -439,16 +439,16 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
               onChange={(e) => setReplaceExisting(e.target.checked)}
               className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
             />
-            <span className="text-xs text-slate-600">
-              Replace existing tables
-            </span>
+             <span className="text-xs text-slate-600 dark:text-slate-300">
+               Replace existing tables
+             </span>
           </label>
           <div className="flex gap-2">
             <button
               onClick={handleCancelImport}
               disabled={importing}
-              className="flex-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
-            >
+               className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+             >
               Cancel
             </button>
             <button
@@ -463,9 +463,9 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
       )}
 
       {/* Tables Header */}
-      <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-        Tables
-      </h3>
+       <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+         Tables
+       </h3>
 
       {/* Tables List */}
       <div className="space-y-2">
@@ -480,10 +480,10 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
             <div
               key={tableName}
               className={`overflow-hidden rounded-lg border transition-all duration-200 ${
-                isConfirmingDelete
-                  ? "border-red-200 bg-red-50"
-                  : "border-slate-200 bg-slate-50/80 hover:border-blue-300 hover:bg-blue-50/50"
-              }`}
+                 isConfirmingDelete
+                   ? "border-red-200 bg-red-50 dark:border-red-900/80 dark:bg-red-950/40"
+                   : "border-slate-200 bg-slate-50/80 hover:border-blue-300 hover:bg-blue-50/50 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:bg-blue-950/20"
+               }`}
             >
               {isConfirmingDelete ? (
                 /* Per-table delete confirmation */
@@ -500,8 +500,8 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                     <button
                       onClick={() => setConfirmingDeleteTable(null)}
                       disabled={isDroppingThis}
-                      className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1"
-                    >
+                       className="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                     >
                       Cancel
                     </button>
                     <button
@@ -523,7 +523,7 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                       aria-label={`${isExpanded ? "Collapse" : "Expand"} ${tableName} table schema`}
                       className="group flex min-w-0 flex-1 items-center gap-2 rounded-md px-1 py-1 text-left focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
                     >
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors duration-200 group-hover:border-blue-300 group-hover:bg-blue-50 group-hover:text-blue-600">
+                       <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors duration-200 group-hover:border-blue-300 group-hover:bg-blue-50 group-hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:group-hover:bg-blue-950/40 dark:group-hover:text-blue-300">
                         <svg
                           className="h-4 w-4"
                           fill="none"
@@ -539,15 +539,15 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                         </svg>
                       </div>
                       <span
-                        className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700 transition-colors duration-200 group-hover:text-blue-700"
+                         className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700 transition-colors duration-200 group-hover:text-blue-700 dark:text-slate-200 dark:group-hover:text-blue-300"
                         title={tableName}
                       >
                         {tableName}
                       </span>
                       <svg
-                        className={`h-3.5 w-3.5 flex-shrink-0 text-slate-400 transition-all duration-200 group-hover:text-blue-600 ${
-                          isExpanded ? "rotate-90" : ""
-                        }`}
+                         className={`h-3.5 w-3.5 flex-shrink-0 text-slate-400 transition-all duration-200 group-hover:text-blue-600 dark:text-slate-500 dark:group-hover:text-blue-300 ${
+                           isExpanded ? "rotate-90" : ""
+                         }`}
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -561,14 +561,14 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                       </svg>
                     </button>
 
-                    <div className="flex flex-shrink-0 items-center border-l border-slate-200 pl-1">
+                     <div className="flex flex-shrink-0 items-center border-l border-slate-200 pl-1 dark:border-slate-800">
                       <div className="flex flex-col gap-0.5">
                       {onPreviewTable && (
                         <button
                           onClick={() => onPreviewTable(tableName)}
                           aria-label={`Preview ${tableName} table`}
-                          className="rounded-sm p-0.5 text-slate-500 transition-colors hover:bg-blue-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          title="Quick preview (first 10 rows)"
+                           className="rounded-sm p-0.5 text-slate-500 transition-colors hover:bg-blue-100 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-slate-400 dark:hover:bg-blue-950/40 dark:hover:text-blue-300"
+                          title="Quick preview (first 100 rows)"
                         >
                           <svg
                             className="h-3 w-3"
@@ -594,7 +594,7 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
                       <button
                         onClick={() => setConfirmingDeleteTable(tableName)}
                         aria-label={`Delete ${tableName} table`}
-                        className="rounded-sm p-0.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                         className="rounded-sm p-0.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-300"
                         title={`Drop table ${tableName}`}
                       >
                         <svg
@@ -617,37 +617,37 @@ export default function TableList({ onPreviewTable }: TableListProps = {}) {
 
                   {/* Schema Details - Expandable */}
                   {isExpanded && (
-                    <div className="border-t border-slate-200 bg-white px-3 pb-3 pt-2">
-                      <div className="rounded-lg bg-slate-50/80 p-3 ring-1 ring-slate-200/70">
-                        {isLoadingThisSchema ? (
-                          <div className="py-2 flex items-center gap-2 text-xs text-slate-500">
-                            <div className="w-3 h-3 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin"></div>
-                            Loading schema...
-                          </div>
-                        ) : schema ? (
-                          <div className="space-y-1 py-1">
-                            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                              Columns ({schema.length})
-                            </div>
-                            {schema.map((col) => (
-                              <div
-                                key={col.column_name}
-                                className="rounded-lg border border-slate-200 bg-white px-2.5 py-2"
-                              >
-                                <div className="min-w-0">
-                                  <div className="text-xs font-medium text-slate-700 whitespace-normal break-words [overflow-wrap:anywhere]">
-                                    {col.column_name}
-                                  </div>
-                                </div>
-                                <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                                  <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs font-mono text-blue-600">
-                                    {col.column_type}
-                                  </span>
-                                  {col.null === "YES" && (
-                                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500">
-                                      null
-                                    </span>
-                                  )}
+                     <div className="border-t border-slate-200 bg-white px-3 pb-3 pt-2 dark:border-slate-800 dark:bg-slate-950">
+                       <div className="rounded-lg bg-slate-50/80 p-3 ring-1 ring-slate-200/70 dark:bg-slate-900/80 dark:ring-slate-800">
+                         {isLoadingThisSchema ? (
+                           <div className="flex items-center gap-2 py-2 text-xs text-slate-500 dark:text-slate-400">
+                             <div className="h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-blue-500 dark:border-slate-600"></div>
+                             Loading schema...
+                           </div>
+                         ) : schema ? (
+                           <div className="space-y-1 py-1">
+                             <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                               Columns ({schema.length})
+                             </div>
+                             {schema.map((col) => (
+                               <div
+                                 key={col.column_name}
+                                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-2 dark:border-slate-800 dark:bg-slate-950"
+                               >
+                                 <div className="min-w-0">
+                                   <div className="text-xs font-medium text-slate-700 whitespace-normal break-words [overflow-wrap:anywhere] dark:text-slate-200">
+                                     {col.column_name}
+                                   </div>
+                                 </div>
+                                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                                   <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs font-mono text-blue-600 dark:bg-blue-950/40 dark:text-blue-300">
+                                     {col.column_type}
+                                   </span>
+                                   {col.null === "YES" && (
+                                     <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                                       null
+                                     </span>
+                                   )}
                                 </div>
                               </div>
                             ))}

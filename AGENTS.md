@@ -62,6 +62,39 @@ src/
   utils/            # Pure utility functions (CSV, SQL quoting, DuckDB helpers, table naming)
 ```
 
+## Agent Skills
+
+- Store repository skills in `.agents/skills/<skill-name>/SKILL.md`
+- Treat `.agents/skills` as the canonical in-repo location for project-specific skills
+- Keep skills focused on one repeatable workflow, not broad repository policy
+- Prefer the portable Agent Skills frontmatter subset:
+  - `name`
+  - `description`
+- Add tool-specific metadata only when explicitly needed; keep the main skill instructions portable
+- When adding a new widely useful repo skill, also document the decision briefly in this `AGENTS.md`
+
+### Skill Naming
+
+- Skill directory name must match the `name` in frontmatter
+- Use lowercase kebab-case names such as `new-page` and `create-skill`
+
+### Current Repository Skills
+
+- `new-page`: create route-level pages in `src/pages` that match existing layout, styling, SEO, and routing conventions
+- `create-skill`: create additional skills for this repo using the `.agents/skills` convention and portable skill format
+
+### Page Implementation Guidance
+
+When adding a new route-level page:
+
+- Prefer the `new-page` skill
+- Place the file in `src/pages/` using a PascalCase filename and `export default function`
+- Add SEO metadata with `src/components/SEO/SEO`
+- Register the route in `src/App.tsx`
+- Match the existing visual language from `About.tsx`, `Docs.tsx`, `Privacy.tsx`, and `Legal.tsx`
+- Prefer existing container, spacing, card, and typography patterns over inventing new page shells
+- Use Tailwind utilities only; avoid inline styles except for truly dynamic values
+
 ## Current Product Surface
 
 - Import CSV, JSON, and Parquet files into DuckDB-WASM tables in the browser
@@ -248,4 +281,5 @@ Charts must support high-quality export for embedding in PowerPoint, Excel, etc.
 ## Gitignore Notes
 
 The `.gitignore` excludes most `*.md` files except `README.md` and `AGENTS.md`.
+Repository skills are an intentional exception via `!.agents/skills/**/SKILL.md`.
 Local planning docs (implementation_plan.md, etc.) are intentionally untracked.

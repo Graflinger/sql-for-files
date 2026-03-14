@@ -21,7 +21,7 @@ export default function About() {
     alternateName: "SQL Query Tool for Data Files",
     url: "https://sqlforfiles.app/",
     description:
-      "Query CSV, JSON, and Parquet files with SQL in your browser. All processing happens locally for privacy.",
+      "Query, join, and analyze CSV, JSON, and Parquet files with SQL in your browser. Visualize results, inspect column stats, and keep processing local.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web Browser",
     offers: {
@@ -34,11 +34,15 @@ export default function About() {
       "Query CSV files with SQL",
       "Query JSON files with SQL",
       "Query Parquet files with SQL",
-      "100% client-side processing",
+      "Local browser-side processing for files, queries, and results",
       "Private and secure data handling",
       "SQL syntax highlighting and autocomplete",
       "Support for joins, aggregations, and window functions",
+      "Visualize query results",
+      "Inspect per-column statistics",
+      "Query history and multi-tab editor",
       "Export query results to CSV",
+      "Export and import full database backups",
       "Zero installation required",
     ],
     screenshot: "https://sqlforfiles.app/og-image.png",
@@ -60,18 +64,18 @@ export default function About() {
     <>
       <SEO
         title="SQL for Files - Query CSV, JSON & Parquet in Your Browser"
-        description="Query CSV, JSON, and Parquet files with SQL in your browser. 100% private, client-side processing powered by DuckDB WASM."
+        description="Query, join, and analyze CSV, JSON, and Parquet files with SQL in your browser. Visualize results, inspect column stats, and keep data local with DuckDB WASM."
         canonicalPath="/"
         ogType="website"
         imageAlt="SQL for Files - browser SQL query tool"
         structuredData={webApplicationSchema}
       />
-      <div className="bg-white">
+      <div className="theme-page">
         {/* Hero Section */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-4">
-              Query your{" "}
+              Query, join, and analyze your{" "}
               <span className="relative inline-block">
                 <span className="invisible">Parquet</span>
                 <span className="absolute inset-0 text-blue-600 transition-opacity duration-500">
@@ -81,9 +85,9 @@ export default function About() {
               files <span className="text-slate-400">with SQL</span>
             </h1>
             <p className="text-lg text-slate-500 mb-6 max-w-2xl mx-auto leading-relaxed">
-              Drop your data files into a full SQL engine running entirely in
-              your browser. Powered by DuckDB &mdash; your data never leaves
-              your device.
+              Load CSV, JSON, and Parquet into a local DuckDB engine running in
+              your browser. Visualise results, inspect column stats, and export
+              what you need &mdash; without uploading data.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5">
@@ -107,6 +111,12 @@ export default function About() {
                     d="M13 7l5 5m0 0l-5 5m5-5H6"
                   />
                 </svg>
+              </Link>
+              <Link
+                to="/docs"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-6 py-2.5 text-sm font-medium text-slate-700 transition-colors duration-150 hover:border-slate-300 hover:bg-slate-50"
+              >
+                View Docs
               </Link>
               <span className="inline-flex items-center gap-1.5 text-sm text-slate-400">
                 <svg
@@ -158,7 +168,7 @@ export default function About() {
                     d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                   />
                 </svg>
-                100% private
+                Local-only processing
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <svg
@@ -174,9 +184,12 @@ export default function About() {
                     d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                Works offline
+                Works offline after first load
               </span>
             </div>
+            <p className="mt-4 text-xs text-slate-400">
+              Powered by DuckDB-WASM, Monaco, and Apache Arrow.
+            </p>
           </div>
 
           {/* IDE Mockup */}
@@ -526,8 +539,8 @@ export default function About() {
                   100% Private
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Everything runs in your browser. Your files are never uploaded
-                  to any server &mdash; complete privacy by design.
+                  Everything runs in your browser. Your files stay on your
+                  device, and query data is never uploaded to a server.
                 </p>
               </div>
 
@@ -552,12 +565,12 @@ export default function About() {
                   Full SQL Engine
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Powered by DuckDB. Joins, aggregations, window functions, CTEs
-                  &mdash; query CSV, JSON, and Parquet with real SQL.
+                  Powered by DuckDB. Use joins, aggregations, window functions,
+                  and CTEs across CSV, JSON, and Parquet files.
                 </p>
               </div>
 
-              {/* Feature 3: Zero Setup */}
+              {/* Feature 3: Advanced File Import */}
               <div>
                 <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center mb-3">
                   <svg
@@ -575,15 +588,15 @@ export default function About() {
                   </svg>
                 </div>
                 <h3 className="text-base font-semibold text-slate-900 mb-1.5">
-                  Zero Setup
+                  Advanced File Import
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  No installation, no accounts, no configuration. Open your
-                  browser and start querying data in seconds.
+                  Preview files before creating tables, tune CSV parsing
+                  options, and load multiple formats side by side.
                 </p>
               </div>
 
-              {/* Feature 4: Smart Editor */}
+              {/* Feature 4: Visualisation */}
               <div>
                 <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center mb-3">
                   <svg
@@ -601,15 +614,15 @@ export default function About() {
                   </svg>
                 </div>
                 <h3 className="text-base font-semibold text-slate-900 mb-1.5">
-                  Smart Editor
+                  Visualisation
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Monaco-powered editor with syntax highlighting, autocomplete,
-                  and multi-tab support. The same engine behind VS Code.
+                  Turn query results into bar, line, and pie charts, then
+                  export them as SVG or PNG.
                 </p>
               </div>
 
-              {/* Feature 5: Multiple Formats */}
+              {/* Feature 5: Column Classification */}
               <div>
                 <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center mb-3">
                   <svg
@@ -627,15 +640,15 @@ export default function About() {
                   </svg>
                 </div>
                 <h3 className="text-base font-semibold text-slate-900 mb-1.5">
-                  Multiple Formats
+                  Column Classification
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Drag and drop CSV, JSON, or Parquet files. Load multiple files
-                  and join across them with standard SQL.
+                  Inspect numeric, date, string, and boolean statistics on full
+                  result sets without leaving the browser.
                 </p>
               </div>
 
-              {/* Feature 6: Export Results */}
+              {/* Feature 6: Backup & Restore */}
               <div>
                 <div className="w-9 h-9 rounded-lg bg-indigo-50 flex items-center justify-center mb-3">
                   <svg
@@ -653,11 +666,11 @@ export default function About() {
                   </svg>
                 </div>
                 <h3 className="text-base font-semibold text-slate-900 mb-1.5">
-                  Export Results
+                  Backup &amp; Restore
                 </h3>
                 <p className="text-sm text-slate-500 leading-relaxed">
-                  Export query results to CSV with one click. Sort columns,
-                  explore data, and save your work.
+                  Export your full in-browser database as a Parquet ZIP backup,
+                  then import it later in one step.
                 </p>
               </div>
             </div>
@@ -681,8 +694,8 @@ export default function About() {
                   Drop your files
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Drag and drop CSV, JSON, or Parquet files into the editor.
-                  They load instantly in-memory.
+                  Add CSV, JSON, or Parquet files and preview CSV import
+                  settings when you need more control.
                 </p>
               </div>
 
@@ -692,11 +705,11 @@ export default function About() {
                   2
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-1.5">
-                  Write SQL
+                  Write or paste SQL
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Use the Monaco-powered editor with syntax highlighting and
-                  autocomplete. Or paste AI-generated queries.
+                  Use Monaco autocomplete, query history, and multiple tabs to
+                  iterate quickly. Or paste AI-generated queries.
                 </p>
               </div>
 
@@ -706,11 +719,11 @@ export default function About() {
                   3
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900 mb-1.5">
-                  Get results
+                  Inspect and export
                 </h3>
                 <p className="text-sm text-slate-500">
-                  See results instantly, sort columns, and export to CSV. All
-                  processing happens locally at full speed.
+                  Review tables, build charts, check column stats, and export
+                  full results or database backups locally.
                 </p>
               </div>
             </div>
@@ -739,13 +752,13 @@ export default function About() {
                 </div>
                 <div>
                   <h3 className="text-base font-semibold text-slate-900 mb-2">
-                    Use AI-generated SQL &mdash; stay compliant
+                    Use AI to draft SQL &mdash; keep the data local
                   </h3>
                   <p className="text-sm text-slate-500 leading-relaxed">
-                    Ask ChatGPT, Gemini, or Claude to write your SQL queries,
-                    then run them here. Your data stays on your device &mdash;
-                    you get the power of AI without sending sensitive data to
-                    third-party services.
+                    Generate queries with ChatGPT, Gemini, or Claude, then run
+                    them here against sensitive files locally. You get faster
+                    query drafting without sending the underlying data to an AI
+                    provider.
                   </p>
                 </div>
               </div>
@@ -757,32 +770,41 @@ export default function About() {
         <div className="border-t border-slate-100 bg-slate-50">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 text-center">
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mb-3">
-              Ready to query your data?
+              Ready to explore your data locally?
             </h2>
             <p className="text-sm text-slate-500 mb-6">
-              No sign-up required. Just open the editor and drop your files.
+              Open the editor to start, or read the docs for import tips, SQL
+              examples, and troubleshooting.
             </p>
-            <Link
-              to="/editor"
-              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-colors duration-150"
-              onMouseEnter={preloadSqlEditor}
-              onFocus={preloadSqlEditor}
-            >
-              Open Editor
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                to="/editor"
+                className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-colors duration-150"
+                onMouseEnter={preloadSqlEditor}
+                onFocus={preloadSqlEditor}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </Link>
+                Open Editor
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </Link>
+              <Link
+                to="/docs"
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+              >
+                View Docs
+              </Link>
+            </div>
           </div>
         </div>
       </div>
