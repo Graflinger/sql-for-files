@@ -29,21 +29,6 @@ export default function Navbar() {
     }
   `;
 
-  const feedbackMailto = `mailto:info@sqlforfiles.app?subject=${encodeURIComponent(
-    "SQL for Files - Feedback"
-  )}&body=${encodeURIComponent(
-    `Hi,
-
-I'd like to share feedback about SQL for Files:
-
-[Please describe your feedback, suggestions, or issues here]
-
----
-Browser: ${navigator.userAgent}
-Page: ${window.location.href}
-`
-  )}`;
-
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/80">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -86,12 +71,6 @@ Page: ${window.location.href}
               About
             </Link>
 
-            <a
-              href={feedbackMailto}
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-            >
-              Feedback
-            </a>
           </div>
 
           <div className="flex items-center gap-1 lg:hidden">
@@ -142,15 +121,6 @@ Page: ${window.location.href}
             <Link to="/" onClick={closeMobileMenu} className={`${navLinkClass("/")} block`}>
               About
             </Link>
-            <div className="border-t border-slate-100 pt-2 dark:border-slate-800">
-              <a
-                href={feedbackMailto}
-                onClick={closeMobileMenu}
-                className="block rounded-md px-3 py-2.5 text-sm font-medium text-slate-500 transition-colors duration-150 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
-              >
-                Feedback
-              </a>
-            </div>
           </div>
         )}
       </div>

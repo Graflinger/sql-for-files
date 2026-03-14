@@ -243,8 +243,10 @@ export default function Privacy() {
             <p className="text-slate-700 mt-4">
               <strong>Important:</strong> This data stays in browser storage on
               your device and is not uploaded by the app. You can delete it at
-              any time by clearing your browser storage or using your browser's
-              developer tools.
+              any time through your browser's site-data settings for
+              sqlforfiles.app. This clears imported file copies, persisted
+              tables, query history, and UI preferences stored in IndexedDB and
+              localStorage.
             </p>
           </section>
 

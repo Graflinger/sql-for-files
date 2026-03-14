@@ -44,4 +44,13 @@ describe("Layout", () => {
     expect(document.documentElement.dataset.themeMode).toBe("dark");
     expect(document.documentElement.classList.contains("dark")).toBe(true);
   });
+
+  it("renders feedback link in the footer", () => {
+    renderLayout();
+
+    const feedbackLink = screen.getByRole("link", { name: "Feedback" });
+    expect(feedbackLink).toBeInTheDocument();
+    expect(feedbackLink).toHaveAttribute("href");
+    expect(feedbackLink.getAttribute("href")).toContain("mailto:info@sqlforfiles.app");
+  });
 });
