@@ -29,15 +29,6 @@ describe("Navbar", () => {
     expect(screen.getAllByText("About").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders feedback link", () => {
-    renderNavbar();
-    const feedbackLinks = screen.getAllByText("Feedback");
-    expect(feedbackLinks.length).toBeGreaterThanOrEqual(1);
-    // Check that it's a mailto link
-    const feedbackLink = feedbackLinks[0].closest("a");
-    expect(feedbackLink?.href).toContain("mailto:");
-  });
-
   it("highlights the active route", () => {
     renderNavbar("/editor");
     // The desktop Editor link should have the active class

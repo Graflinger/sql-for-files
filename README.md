@@ -17,10 +17,10 @@ Perfect for data analysts, developers, and anyone who needs to quickly query dat
 ## ✨ Key Features
 
 ### 🔒 100% Private & Secure
-- **No server uploads of your work** - Files, SQL queries, query results, and saved tables stay in your browser
-- Core data processing happens in your browser
-- No invasive tracking; only privacy-friendly aggregate website analytics
-- Tables and query history are stored locally in IndexedDB; UI preferences use local browser storage
+- **No server uploads of your work** - Files, SQL queries, and query results are processed in your browser and are not uploaded by the app
+- Imported files, persisted tables, and query history are stored locally in your browser using IndexedDB
+- Theme, layout, and editor preferences are stored locally in your browser using localStorage
+- No third-party tracking cookies are used by the app; the website uses privacy-friendly aggregate analytics via Cloudflare Web Analytics
 
 ### 📊 Multiple File Formats
 - **CSV** - Automatic delimiter detection and type inference
@@ -136,9 +136,9 @@ FROM employees;
 
 ## 🔐 Privacy & Security
 
-- **Local browser processing** - Files, SQL queries, query results, and saved tables stay in your browser
-- **Local browser storage** - Tables and query history use IndexedDB; theme and editor state use localStorage
-- **Privacy-friendly analytics only** - No cookies, no fingerprinting, no query-data tracking
+- **Local browser processing** - Files, SQL queries, and query results are processed in your browser and are not uploaded by the app
+- **Local browser storage** - Imported files, persisted tables, and query history use IndexedDB; theme, layout, and editor state use localStorage
+- **Privacy-friendly analytics only** - No third-party tracking cookies, no fingerprinting, and no query-data tracking; limited aggregate usage metrics are collected via Cloudflare Web Analytics
 - **Open source** - Audit the entire codebase on GitHub
 
 ## 🤝 Contributing

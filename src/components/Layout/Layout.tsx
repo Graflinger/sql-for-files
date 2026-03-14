@@ -14,6 +14,21 @@ interface LayoutProps {
  * Wraps all pages with consistent navigation and footer
  */
 export default function Layout({ children }: LayoutProps) {
+  const feedbackMailto = `mailto:info@sqlforfiles.app?subject=${encodeURIComponent(
+    "SQL for Files - Feedback"
+  )}&body=${encodeURIComponent(
+    `Hi,
+
+I'd like to share feedback about SQL for Files:
+
+[Please describe your feedback, suggestions, or issues here]
+
+---
+Browser: ${navigator.userAgent}
+Page: ${window.location.href}
+`
+  )}`;
+
   return (
     <div className="min-h-screen flex flex-col text-slate-900 dark:text-slate-100">
       <Navbar />
@@ -41,6 +56,13 @@ export default function Layout({ children }: LayoutProps) {
               className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
             >
               Contact
+            </a>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <a
+              href={feedbackMailto}
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              Feedback
             </a>
             <span className="text-slate-300 dark:text-slate-700">·</span>
             <a
