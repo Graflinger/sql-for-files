@@ -26,6 +26,72 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
   const sampleDataHref = `${import.meta.env.BASE_URL}sample_data.csv`;
 
   /**
+   * Handle Sample Data Handling
+   */
+
+  const onSampleClick = useCallback(async () => {
+    const notificationId = addNotification({
+      type: "adding",
+      title: "sample_data.csv",
+      message: "Adding sample table...",
+    });
+
+    try {
+      const response = await fetch(sampleDataHref);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch sample data: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      const file = new File([blob], "sample_data.csv", { type: "text/csv" });
+
+      updateNotification(notificationId, {
+        type: "processing",
+        message: "Creating sample table...",
+      });
+
+      const tableName = await addFile(file);
+
+      updateNotification(notificationId, {
+        type: "success",
+        title: "sample_data.csv",
+        message: `Table "${tableName}" created successfully`,
+        autoClose: true,
+      });
+
+      await refreshTables();
+
+      if (db) {
+        try {
+          const { warning } = await saveTableToIndexedDB(db, tableName);
+          if (warning) {
+            addNotification({ type: "info", title: warning });
+          }
+        } catch (persistErr) {
+          console.error("Failed to persist table to IndexedDB:", persistErr);
+        }
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+
+      updateNotification(notificationId, {
+        type: "error",
+        title: "Failed to add sample data",
+        message: 'Click "Show details" to see the error',
+        error: errorMessage,
+        autoClose: false,
+      });
+    }
+  }, [
+    addFile,
+    addNotification,
+    db,
+    refreshTables,
+    sampleDataHref,
+    updateNotification,
+  ]);
+
+  /**
    * Handle dropped files
    * Called by react-dropzone when user drops or selects files
    */
@@ -35,23 +101,23 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
       for (const file of acceptedFiles) {
         // Show adding notification
         const notificationId = addNotification({
-          type: 'adding',
+          type: "adding",
           title: file.name,
-          message: 'Adding file...',
+          message: "Adding file...",
         });
 
         try {
           // Update to processing
           updateNotification(notificationId, {
-            type: 'processing',
-            message: 'Creating table...',
+            type: "processing",
+            message: "Creating table...",
           });
 
           const tableName = await addFile(file);
 
           // Update to success
           updateNotification(notificationId, {
-            type: 'success',
+            type: "success",
             title: file.name,
             message: `Table "${tableName}" created successfully`,
             autoClose: true,
@@ -68,15 +134,19 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
                 addNotification({ type: "info", title: warning });
               }
             } catch (persistErr) {
-              console.error("Failed to persist table to IndexedDB:", persistErr);
+              console.error(
+                "Failed to persist table to IndexedDB:",
+                persistErr
+              );
             }
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error occurred";
 
           // Update to error
           updateNotification(notificationId, {
-            type: 'error',
+            type: "error",
             title: `Failed to add ${file.name}`,
             message: 'Click "Show details" to see the error',
             error: errorMessage,
@@ -195,8 +265,10 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
         <div className="flex items-center justify-center gap-2">
           <svg
             className={`h-4 w-4 transition-colors ${
-               isDragActive ? "text-blue-600" : "text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300"
-             }`}
+              isDragActive
+                ? "text-blue-600"
+                : "text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300"
+            }`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -208,17 +280,29 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
             />
           </svg>
-          <span className={`text-sm font-medium ${isDragActive ? "text-blue-600" : "text-slate-600 dark:text-slate-300"}`}>
+          <span
+            className={`text-sm font-medium ${
+              isDragActive
+                ? "text-blue-600"
+                : "text-slate-600 dark:text-slate-300"
+            }`}
+          >
             {isDragActive ? "Drop files here" : "Drop or click to add"}
           </span>
         </div>
 
         <div className="flex items-center justify-center gap-1.5 mt-1.5">
-          <span className="text-xs text-slate-400 dark:text-slate-500">CSV</span>
+          <span className="text-xs text-slate-400 dark:text-slate-500">
+            CSV
+          </span>
           <span className="text-slate-200 dark:text-slate-700">·</span>
-          <span className="text-xs text-slate-400 dark:text-slate-500">JSON</span>
+          <span className="text-xs text-slate-400 dark:text-slate-500">
+            JSON
+          </span>
           <span className="text-slate-200 dark:text-slate-700">·</span>
-          <span className="text-xs text-slate-400 dark:text-slate-500">Parquet</span>
+          <span className="text-xs text-slate-400 dark:text-slate-500">
+            Parquet
+          </span>
         </div>
       </div>
 
@@ -231,12 +315,17 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
       </button>
 
       {/* Sample Data Link */}
-      <a
-        href={sampleDataHref}
-        download="sample_data.csv"
-        className="flex items-center justify-center gap-1.5 text-xs text-slate-400 transition-colors hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300"
+      <button
+        type="button"
+        onClick={() => onSampleClick()}
+        className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:border-slate-300 hover:text-slate-700 dark:border-slate-800 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-200"
       >
-        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className="w-3 h-3"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -245,7 +334,7 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
           />
         </svg>
         Try sample data
-      </a>
+      </button>
     </div>
   ) : (
     <div className="space-y-4">
@@ -314,18 +403,18 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
 
         {/* Icon */}
         <div
-            className={`mx-auto w-12 h-12 mb-3 rounded-xl flex items-center justify-center transition-colors duration-150 ${
-              isDragActive
-                ? "bg-blue-100 dark:bg-blue-900/50"
-                : "bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800 dark:group-hover:bg-slate-700"
-            }`}
+          className={`mx-auto w-12 h-12 mb-3 rounded-xl flex items-center justify-center transition-colors duration-150 ${
+            isDragActive
+              ? "bg-blue-100 dark:bg-blue-900/50"
+              : "bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800 dark:group-hover:bg-slate-700"
+          }`}
         >
           <svg
-              className={`h-6 w-6 transition-colors duration-150 ${
-                isDragActive
-                  ? "text-blue-600"
-                  : "text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300"
-              }`}
+            className={`h-6 w-6 transition-colors duration-150 ${
+              isDragActive
+                ? "text-blue-600"
+                : "text-slate-400 group-hover:text-slate-500 dark:text-slate-500 dark:group-hover:text-slate-300"
+            }`}
             width="24"
             height="24"
             stroke="currentColor"

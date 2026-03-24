@@ -1,15 +1,18 @@
-import { useState } from 'react';
-import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
-import { set as idbSet } from 'idb-keyval';
-import { defaultTableNameFromFile, sanitizeTableName } from '../utils/tableName';
-import { withDuckDBConnection } from '../utils/duckdb';
-import { quoteIdentifier, quoteStringLiteral } from '../utils/sql';
+import { useState } from "react";
+import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+import { set as idbSet } from "idb-keyval";
+import {
+  defaultTableNameFromFile,
+  sanitizeTableName,
+} from "../utils/tableName";
+import { withDuckDBConnection } from "../utils/duckdb";
+import { quoteIdentifier, quoteStringLiteral } from "../utils/sql";
 
 // Track progress for each file being added
 interface AddProgress {
   fileName: string;
   progress: number; // 0-100
-  status: 'adding' | 'processing' | 'done' | 'error';
+  status: "adding" | "processing" | "done" | "error";
   error?: string;
 }
 
@@ -51,7 +54,7 @@ export function useFileAdd(db: AsyncDuckDB | null) {
    * 3. Create table using appropriate read_*_auto function
    */
   async function addFile(file: File, options?: AddOptions): Promise<string> {
-    if (!db) throw new Error('Database not initialized');
+    if (!db) throw new Error("Database not initialized");
 
     const fileName = file.name;
     const defaultTableName = defaultTableNameFromFile(fileName);
@@ -60,11 +63,14 @@ export function useFileAdd(db: AsyncDuckDB | null) {
       : defaultTableName;
 
     // Initialize progress tracking
-    setProgress(prev => [...prev, {
-      fileName,
-      progress: 0,
-      status: 'adding'
-    }]);
+    setProgress((prev) => [
+      ...prev,
+      {
+        fileName,
+        progress: 0,
+        status: "adding",
+      },
+    ]);
 
     try {
       setAdding(true);
@@ -82,24 +88,28 @@ export function useFileAdd(db: AsyncDuckDB | null) {
       await db.registerFileBuffer(fileName, uint8Array);
 
       // Update progress: file registered
-      setProgress(prev => prev.map(p =>
-        p.fileName === fileName
-          ? { ...p, progress: 50, status: 'processing' }
-          : p
-      ));
+      setProgress((prev) =>
+        prev.map((p) =>
+          p.fileName === fileName
+            ? { ...p, progress: 50, status: "processing" }
+            : p
+        )
+      );
 
       // Step 4: Create table based on file type
-      if (fileName.endsWith('.csv')) {
+      if (fileName.endsWith(".csv")) {
         const csvOptions = options?.csvOptions;
         const csvOptionsSql = buildCsvOptionsSql(csvOptions);
         // read_csv_auto automatically detects delimiters, headers, types
         await withDuckDBConnection(db, async (conn) => {
           await conn.query(`
             CREATE TABLE ${quoteIdentifier(tableName)} AS
-            SELECT * FROM read_csv_auto(${quoteStringLiteral(fileName)}${csvOptionsSql})
+            SELECT * FROM read_csv_auto(${quoteStringLiteral(
+              fileName
+            )}${csvOptionsSql})
           `);
         });
-      } else if (fileName.endsWith('.json')) {
+      } else if (fileName.endsWith(".json")) {
         // read_json_auto handles both JSON arrays and newline-delimited JSON
         await withDuckDBConnection(db, async (conn) => {
           await conn.query(`
@@ -107,7 +117,7 @@ export function useFileAdd(db: AsyncDuckDB | null) {
             SELECT * FROM read_json_auto(${quoteStringLiteral(fileName)})
           `);
         });
-      } else if (fileName.endsWith('.parquet')) {
+      } else if (fileName.endsWith(".parquet")) {
         // Parquet is a columnar format (like CSV but binary and compressed)
         await withDuckDBConnection(db, async (conn) => {
           await conn.query(`
@@ -120,21 +130,22 @@ export function useFileAdd(db: AsyncDuckDB | null) {
       }
 
       // Update progress: table created successfully
-      setProgress(prev => prev.map(p =>
-        p.fileName === fileName
-          ? { ...p, progress: 100, status: 'done' }
-          : p
-      ));
+      setProgress((prev) =>
+        prev.map((p) =>
+          p.fileName === fileName ? { ...p, progress: 100, status: "done" } : p
+        )
+      );
 
       return tableName;
-
     } catch (error) {
       // Update progress with error
-      setProgress(prev => prev.map(p =>
-        p.fileName === fileName
-          ? { ...p, status: 'error', error: (error as Error).message }
-          : p
-      ));
+      setProgress((prev) =>
+        prev.map((p) =>
+          p.fileName === fileName
+            ? { ...p, status: "error", error: (error as Error).message }
+            : p
+        )
+      );
       throw error;
     } finally {
       try {
@@ -158,15 +169,15 @@ export function useFileAdd(db: AsyncDuckDB | null) {
 }
 
 function buildCsvOptionsSql(options?: CsvAddOptions): string {
-  if (!options) return '';
+  if (!options) return "";
 
   const parts: string[] = [];
 
-  if (typeof options.skip === 'number') {
+  if (typeof options.skip === "number") {
     parts.push(`skip=${options.skip}`);
   }
 
-  if (typeof options.header === 'boolean') {
+  if (typeof options.header === "boolean") {
     parts.push(`header=${options.header}`);
   }
 
@@ -191,9 +202,11 @@ function buildCsvOptionsSql(options?: CsvAddOptions): string {
   }
 
   if (options.decimal_separator) {
-    parts.push(`decimal_separator=${quoteStringLiteral(options.decimal_separator)}`);
+    parts.push(
+      `decimal_separator=${quoteStringLiteral(options.decimal_separator)}`
+    );
   }
 
-  if (parts.length === 0) return '';
-  return `, ${parts.join(', ')}`;
+  if (parts.length === 0) return "";
+  return `, ${parts.join(", ")}`;
 }
