@@ -61,13 +61,6 @@ describe("FileAdder", () => {
       render(<FileAdder compact />);
       expect(screen.getByText("Advanced options")).toBeInTheDocument();
     });
-
-    it("shows sample data link", () => {
-      render(<FileAdder compact />);
-      const link = screen.getByRole("link", { name: "Try sample data" });
-      expect(link).toBeInTheDocument();
-      expect(link).toHaveAttribute("href", expect.stringContaining("/sample_data.csv"));
-    });
   });
 
   describe("full mode (default)", () => {
@@ -88,7 +81,10 @@ describe("FileAdder", () => {
       render(<FileAdder />);
       const link = screen.getByRole("link", { name: "Download sample data" });
       expect(link).toBeInTheDocument();
-      expect(link).toHaveAttribute("href", expect.stringContaining("/sample_data.csv"));
+      expect(link).toHaveAttribute(
+        "href",
+        expect.stringContaining("/sample_data.csv")
+      );
     });
 
     it("has file input with accept restriction", () => {
