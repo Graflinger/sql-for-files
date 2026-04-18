@@ -32,6 +32,8 @@ interface IDELayoutProps {
     onCloseTab: (id: string) => void;
     onRenameTab: (id: string, name: string) => void;
   };
+  /** Optional right-side panel (e.g. Learn SQL). Rendered only when provided. */
+  rightPanel?: ReactNode;
 }
 
 // localStorage keys
@@ -65,6 +67,7 @@ export default function IDELayout({
   result,
   resultStats,
   editorTabs,
+  rightPanel,
 }: IDELayoutProps) {
   // Layout state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -85,8 +88,8 @@ export default function IDELayout({
   // Mobile drawer state
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
-  // Mobile tab state: 'editor' or 'results'
-  const [mobileActiveTab, setMobileActiveTab] = useState<"editor" | "results">(
+  // Mobile tab state: 'editor', 'results', or 'learn'
+  const [mobileActiveTab, setMobileActiveTab] = useState<"editor" | "results" | "learn">(
     "editor"
   );
 
@@ -262,6 +265,13 @@ export default function IDELayout({
             </ResultsPanel>
           </div>
         </div>
+
+        {/* Right Panel (e.g. Learn SQL) — renders only when provided */}
+        {rightPanel && (
+          <div className="flex-shrink-0 w-80 lg:w-96">
+            {rightPanel}
+          </div>
+        )}
       </div>
 
       {/* Mobile Layout */}
@@ -361,6 +371,36 @@ export default function IDELayout({
                 <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400" />
               )}
             </button>
+
+            {/* Learn tab — only when right panel is provided */}
+            {rightPanel && (
+              <button
+                onClick={() => setMobileActiveTab("learn")}
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-semibold transition-colors relative ${
+                  mobileActiveTab === "learn"
+                    ? "text-blue-600 dark:text-blue-300"
+                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+                Learn
+                {mobileActiveTab === "learn" && (
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                )}
+              </button>
+            )}
           </div>
         </div>
 
@@ -479,6 +519,13 @@ export default function IDELayout({
           {mobileActiveTab === "results" && (
             <div className="flex-1 min-h-0 overflow-auto bg-white dark:bg-slate-950">
               {resultsContent}
+            </div>
+          )}
+
+          {/* Learn Tab */}
+          {mobileActiveTab === "learn" && rightPanel && (
+            <div className="flex-1 min-h-0 overflow-auto bg-white dark:bg-slate-950">
+              {rightPanel}
             </div>
           )}
         </div>

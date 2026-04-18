@@ -5,13 +5,16 @@ import { MemoryRouter } from "react-router-dom";
 
 import Navbar from "./Navbar";
 import { ThemeProvider } from "../../contexts/ThemeContext";
+import { LearnSQLProvider } from "../../contexts/LearnSQLContext";
 
 function renderNavbar(initialRoute = "/") {
   return render(
     <ThemeProvider>
-      <MemoryRouter initialEntries={[initialRoute]}>
-        <Navbar />
-      </MemoryRouter>
+      <LearnSQLProvider>
+        <MemoryRouter initialEntries={[initialRoute]}>
+          <Navbar />
+        </MemoryRouter>
+      </LearnSQLProvider>
     </ThemeProvider>
   );
 }

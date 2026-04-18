@@ -2,11 +2,13 @@ import { useCallback, useEffect, useRef } from "react";
 import { useDuckDBContext } from "../contexts/DuckDBContext";
 import { useEditorTabsContext } from "../contexts/EditorTabsContext";
 import { useNotifications } from "../contexts/NotificationContext";
+import { useLearnSQL } from "../contexts/LearnSQLContext";
 import FileAdder from "../components/FileAdder/FileAdder";
 import SQLEditor from "../components/SQLEditor/SQLEditor";
 import TableList from "../components/DatabaseManager/TableList";
 import QueryResults from "../components/QueryResults/QueryResults";
 import QueryHistorySidebar from "../components/QueryHistory/QueryHistorySidebar";
+import LearnSQLPanel from "../components/LearnSQL/LearnSQLPanel";
 import { IDELayout } from "../components/IDE";
 import { useQueryExecution } from "../hooks/useQueryExecution";
 import { useQueryHistory } from "../hooks/useQueryHistory";
@@ -28,6 +30,7 @@ function SQLEditorContent() {
   const { db, tables, refreshTables, restoredMessage, clearRestoredMessage } = useDuckDBContext();
   const { addQuery, history, loading, deleteQuery, clearHistory, getRelativeTime } = useQueryHistory();
   const { addNotification } = useNotifications();
+  const { panelOpen } = useLearnSQL();
 
   // Show restore notification once, then clear so it won't re-show on navigation
   useEffect(() => {
@@ -164,6 +167,9 @@ function SQLEditorContent() {
         onCloseTab: closeTab,
         onRenameTab: renameTab,
       }}
+      rightPanel={
+        panelOpen ? <LearnSQLPanel lastResult={activeTab.result} /> : undefined
+      }
     />
   );
 }
