@@ -41,6 +41,7 @@ function App() {
                 >
                   <Routes>
                     <Route path="/editor" element={<SqlEditor />} />
+                    <Route path="/editor/:chapterSlug/:lessonSlug" element={<SqlEditor />} />
                     <Route path="/" element={<About />} />
                     <Route path="/docs" element={<Docs />} />
                     <Route path="/privacy" element={<Privacy />} />

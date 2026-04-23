@@ -41,6 +41,7 @@ const STORAGE_KEYS = {
   SIDEBAR_COLLAPSED: "ide-sidebar-collapsed",
   RESULTS_HEIGHT: "ide-results-height",
   RESULTS_COLLAPSED: "ide-results-collapsed",
+  RIGHT_PANEL_WIDTH: "ide-right-panel-width",
 };
 
 // Default values
@@ -48,7 +49,17 @@ const DEFAULTS = {
   RESULTS_HEIGHT: 300,
   MIN_RESULTS_HEIGHT: 100,
   MAX_RESULTS_HEIGHT: 600,
+  RIGHT_PANEL_WIDTH: 384,
+  MIN_RIGHT_PANEL_WIDTH: 280,
+  MAX_RIGHT_PANEL_WIDTH: 640,
 };
+
+function clampRightPanelWidth(width: number): number {
+  return Math.max(
+    DEFAULTS.MIN_RIGHT_PANEL_WIDTH,
+    Math.min(DEFAULTS.MAX_RIGHT_PANEL_WIDTH, width)
+  );
+}
 
 /**
  * IDELayout Component
@@ -83,6 +94,11 @@ export default function IDELayout({
   const [resultsCollapsed, setResultsCollapsed] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.RESULTS_COLLAPSED);
     return saved ? JSON.parse(saved) : false;
+  });
+
+  const [rightPanelWidth, setRightPanelWidth] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.RIGHT_PANEL_WIDTH);
+    return saved ? clampRightPanelWidth(parseInt(saved, 10)) : DEFAULTS.RIGHT_PANEL_WIDTH;
   });
 
   // Mobile drawer state
@@ -126,6 +142,10 @@ export default function IDELayout({
     );
   }, [resultsCollapsed]);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.RIGHT_PANEL_WIDTH, String(rightPanelWidth));
+  }, [rightPanelWidth]);
+
   // Handle resize of results panel
   const handleResultsResize = useCallback((delta: number) => {
     setResultsHeight((prev) => {
@@ -135,6 +155,10 @@ export default function IDELayout({
         Math.min(DEFAULTS.MAX_RESULTS_HEIGHT, newHeight)
       );
     });
+  }, []);
+
+  const handleRightPanelResize = useCallback((delta: number) => {
+    setRightPanelWidth((prev) => clampRightPanelWidth(prev - delta));
   }, []);
 
   // Keyboard shortcuts
@@ -243,6 +267,7 @@ export default function IDELayout({
             <ResizeHandle
               orientation="horizontal"
               onResize={handleResultsResize}
+              ariaLabel="Resize results panel"
             />
           )}
 
@@ -268,8 +293,19 @@ export default function IDELayout({
 
         {/* Right Panel (e.g. Learn SQL) — renders only when provided */}
         {rightPanel && (
-          <div className="flex-shrink-0 w-80 lg:w-96">
-            {rightPanel}
+          <div className="flex min-w-0 flex-shrink-0">
+            <ResizeHandle
+              orientation="vertical"
+              onResize={handleRightPanelResize}
+              ariaLabel="Resize Learn SQL panel"
+            />
+            <div
+              data-testid="ide-right-panel"
+              style={{ width: `${rightPanelWidth}px` }}
+              className="h-full flex-shrink-0"
+            >
+              {rightPanel}
+            </div>
           </div>
         )}
       </div>

@@ -12,6 +12,8 @@ interface ChallengeBlockProps {
   onLoadData: (setupSql: string[]) => Promise<void>;
   /** Callback to pre-fill the editor with SQL. */
   onSetEditorSql: (sql: string) => void;
+  /** Callback to open the solution SQL in a new editor tab. */
+  onShowSolution: (lessonTitle: string, sql: string) => void;
   /** Callback when the challenge is passed. */
   onChallengePassed: () => void;
 }
@@ -27,6 +29,7 @@ export default function ChallengeBlock({
   lastResult,
   onLoadData,
   onSetEditorSql,
+  onShowSolution,
   onChallengePassed,
 }: ChallengeBlockProps) {
   const [loadingData, setLoadingData] = useState(false);
@@ -51,6 +54,12 @@ export default function ChallengeBlock({
     if (challenge?.initialSql) {
       onSetEditorSql(challenge.initialSql);
     }
+    setValidation(null);
+  };
+
+  const handleShowSolution = () => {
+    if (!challenge?.solutionSql) return;
+    onShowSolution(lesson.title, challenge.solutionSql);
     setValidation(null);
   };
 
@@ -159,6 +168,14 @@ export default function ChallengeBlock({
                 className="rounded-md border border-amber-300 bg-white px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-50 dark:border-amber-600 dark:bg-slate-800 dark:text-amber-300 dark:hover:bg-slate-700"
               >
                 Start in Editor
+              </button>
+            )}
+            {challenge.solutionSql && (
+              <button
+                onClick={handleShowSolution}
+                className="rounded-md border border-amber-300 bg-white px-3 py-1 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-50 dark:border-amber-600 dark:bg-slate-800 dark:text-amber-300 dark:hover:bg-slate-700"
+              >
+                Show Solution
               </button>
             )}
             <button

@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
 import { useDuckDBContext } from "../contexts/DuckDBContext";
 import { useEditorTabsContext } from "../contexts/EditorTabsContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import { useLearnSQL } from "../contexts/LearnSQLContext";
+import { lessonByRoute } from "../data/lessons";
 import FileAdder from "../components/FileAdder/FileAdder";
 import SQLEditor from "../components/SQLEditor/SQLEditor";
 import TableList from "../components/DatabaseManager/TableList";
@@ -27,10 +30,15 @@ import { quoteIdentifier } from "../utils/sql";
  * so state survives navigation between pages.
  */
 function SQLEditorContent() {
+  const navigate = useNavigate();
+  const { chapterSlug, lessonSlug } = useParams();
   const { db, tables, refreshTables, restoredMessage, clearRestoredMessage } = useDuckDBContext();
   const { addQuery, history, loading, deleteQuery, clearHistory, getRelativeTime } = useQueryHistory();
   const { addNotification } = useNotifications();
-  const { panelOpen } = useLearnSQL();
+  const { panelOpen, openLesson, showOverview } = useLearnSQL();
+  const routeLesson =
+    chapterSlug && lessonSlug ? lessonByRoute(chapterSlug, lessonSlug) : null;
+  const hasLessonRoute = Boolean(chapterSlug && lessonSlug);
 
   // Show restore notification once, then clear so it won't re-show on navigation
   useEffect(() => {
@@ -74,6 +82,20 @@ function SQLEditorContent() {
       updateTabResult(executingTabIdRef.current, null, error);
     }
   }, [error, updateTabResult]);
+
+  useEffect(() => {
+    if (!hasLessonRoute) {
+      showOverview();
+      return;
+    }
+
+    if (!routeLesson) {
+      navigate("/editor", { replace: true });
+      return;
+    }
+
+    openLesson(routeLesson.id);
+  }, [hasLessonRoute, navigate, openLesson, routeLesson, showOverview]);
 
   const handleExecute = useCallback(
     async (sql: string) => {
@@ -181,12 +203,26 @@ function SQLEditorContent() {
  * so this component is just SEO + content.
  */
 export default function SqlEditorPage() {
+  const { chapterSlug, lessonSlug } = useParams();
+  const routeLesson =
+    chapterSlug && lessonSlug ? lessonByRoute(chapterSlug, lessonSlug) : null;
+  const canonicalPath =
+    chapterSlug && lessonSlug && routeLesson
+      ? `/editor/${chapterSlug}/${lessonSlug}`
+      : "/editor";
+  const pageTitle = routeLesson
+    ? `${routeLesson.title} | Learn SQL | SQL for Files`
+    : "SQL Editor for CSV, JSON & Parquet | SQL for Files";
+  const pageDescription = routeLesson
+    ? `Open the ${routeLesson.title} Learn SQL lesson directly in the SQL for Files editor.`
+    : "Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Files, SQL queries, and results stay local in your browser.";
+
   return (
     <>
       <SEO
-        title="SQL Editor for CSV, JSON & Parquet | SQL for Files"
-        description="Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Files, SQL queries, and results stay local in your browser."
-        canonicalPath="/editor"
+        title={pageTitle}
+        description={pageDescription}
+        canonicalPath={canonicalPath}
         ogType="website"
         imageAlt="SQL for Files SQL editor"
       />

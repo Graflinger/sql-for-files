@@ -40,6 +40,13 @@ describe("Navbar", () => {
     expect(desktopLink.className).toContain("bg-slate-900");
   });
 
+  it("highlights the editor link for lesson routes", () => {
+    renderNavbar("/editor/chapter1/03");
+    const editorLinks = screen.getAllByText("Editor");
+    const desktopLink = editorLinks[0];
+    expect(desktopLink.className).toContain("bg-slate-900");
+  });
+
   it("renders mobile menu toggle button", () => {
     renderNavbar();
     expect(screen.getByLabelText("Toggle menu")).toBeInTheDocument();

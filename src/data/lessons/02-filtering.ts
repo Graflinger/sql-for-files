@@ -50,6 +50,7 @@ For text values, remember to wrap them in single quotes: 'Engineering'.`,
         prompt: "Find all employees with a salary greater than 80,000.",
         hint: "Use WHERE salary > 80000",
         initialSql: "-- Find high earners\n",
+        solutionSql: "SELECT *\nFROM employees\nWHERE salary > 80000;",
         validate: (result) => {
           if (result.rowCount !== 3) {
             return { passed: false, message: `Expected 3 employees with salary > 80,000 but got ${result.rowCount}.` };
@@ -89,6 +90,7 @@ Use parentheses to control the order of evaluation when mixing AND and OR:
         prompt: "Find employees who are in Marketing AND have a salary greater than 70,000.",
         hint: "Use WHERE department = 'Marketing' AND salary > 70000",
         initialSql: "-- Marketing employees earning over 70k\n",
+        solutionSql: "SELECT *\nFROM employees\nWHERE department = 'Marketing'\n  AND salary > 70000;",
         validate: (result) => {
           if (result.rowCount !== 2) {
             return { passed: false, message: `Expected 2 rows but got ${result.rowCount}. Look for Marketing employees with salary > 70,000.` };
@@ -127,6 +129,7 @@ LIKE is case-sensitive in most databases. DuckDB also supports ILIKE for case-in
         prompt: "Find all employees whose name starts with a letter between A and D (inclusive). Hint: you can use multiple LIKE conditions with OR, or think about other comparison approaches.",
         hint: "One approach: WHERE name LIKE 'A%' OR name LIKE 'B%' OR name LIKE 'C%' OR name LIKE 'D%'",
         initialSql: "-- Names starting with A through D\n",
+        solutionSql: "SELECT *\nFROM employees\nWHERE name LIKE 'A%'\n   OR name LIKE 'B%'\n   OR name LIKE 'C%'\n   OR name LIKE 'D%';",
         validate: (result) => {
           if (result.rowCount !== 4) {
             return { passed: false, message: `Expected 4 employees (Alice, Bob, Charlie, Diana) but got ${result.rowCount}.` };

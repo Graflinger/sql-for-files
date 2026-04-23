@@ -14,6 +14,8 @@ export interface Challenge {
   hint?: string;
   /** SQL pre-filled into the editor when the user clicks "Start Challenge". */
   initialSql?: string;
+  /** Correct SQL solution shown on request in a new editor tab. */
+  solutionSql?: string;
   /** Validates the query result and returns pass/fail with feedback. */
   validate: (result: QueryResult) => ValidationResult;
 }

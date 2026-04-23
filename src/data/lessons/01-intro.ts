@@ -43,8 +43,15 @@ Click "Load Data" below to create a sample employees table, then try running the
       challenge: {
         prompt: "Select all rows and columns from the employees table.",
         initialSql: "-- Write your query here\n",
+        solutionSql: "SELECT *\nFROM employees;",
         validate: (result) => {
-          if (result.columns.length < 8) {
+          const columns = result.columns.map((column) => column.toLowerCase());
+          const expectedColumns = ["id", "name", "department", "salary", "hire_date"];
+
+          if (
+            result.columns.length !== expectedColumns.length ||
+            expectedColumns.some((column) => !columns.includes(column))
+          ) {
             return {
               passed: false,
               message: "Make sure you select all columns. Try using SELECT *.",
@@ -87,6 +94,7 @@ You can list columns in any order — the result will follow the order you speci
           "Select only the name and salary columns from the employees table.",
         hint: "Use SELECT name, salary FROM ...",
         initialSql: "-- Select name and salary\n",
+        solutionSql: "SELECT name, salary\nFROM employees;",
         validate: (result) => {
           const cols = result.columns.map((c) => c.toLowerCase());
           if (!cols.includes("name") || !cols.includes("salary")) {
@@ -141,6 +149,7 @@ This sorts by department first, then by name within each department.`,
           "Select the name and salary of all employees, sorted by salary from highest to lowest.",
         hint: "Use ORDER BY salary DESC",
         initialSql: "-- Sort employees by salary descending\n",
+        solutionSql: "SELECT name, salary\nFROM employees\nORDER BY salary DESC;",
         validate: (result) => {
           const cols = result.columns.map((c) => c.toLowerCase());
           if (!cols.includes("name") || !cols.includes("salary")) {

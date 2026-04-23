@@ -4,14 +4,18 @@ import ChallengeBlock from "./ChallengeBlock";
 
 interface LessonContentProps {
   lesson: Lesson;
+  /** Display lesson number, e.g. 01.02. */
+  lessonNumber: string | null;
   /** Latest query result from the editor (may be null). */
   lastResult: QueryResult | null;
   /** Callback to load sample data into DuckDB. */
   onLoadData: (setupSql: string[]) => Promise<void>;
   /** Callback to pre-fill the editor with SQL. */
   onSetEditorSql: (sql: string) => void;
-  /** Called when the challenge is passed. */
-  onChallengePassed: () => void;
+  /** Callback to open the solution SQL in a new editor tab. */
+  onShowSolution: (lessonTitle: string, sql: string) => void;
+  /** Called when the lesson is completed. */
+  onCompleteLesson: () => void;
   /** Navigate to the next lesson. */
   onNext: () => void;
   /** Navigate to the previous lesson. */
@@ -34,10 +38,12 @@ interface LessonContentProps {
  */
 export default function LessonContent({
   lesson,
+  lessonNumber,
   lastResult,
   onLoadData,
   onSetEditorSql,
-  onChallengePassed,
+  onShowSolution,
+  onCompleteLesson,
   onNext,
   onPrevious,
   hasNext,
@@ -71,7 +77,7 @@ export default function LessonContent({
       {/* Title + completion badge */}
       <div className="flex items-start gap-2">
         <h3 className="flex-1 text-sm font-bold text-slate-800 dark:text-slate-100">
-          {lesson.title}
+          {lessonNumber ? `${lessonNumber} ${lesson.title}` : lesson.title}
         </h3>
         {isCompleted && (
           <span className="flex-shrink-0 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700 dark:bg-green-500/15 dark:text-green-300">
@@ -113,8 +119,31 @@ export default function LessonContent({
           lastResult={lastResult}
           onLoadData={onLoadData}
           onSetEditorSql={onSetEditorSql}
-          onChallengePassed={onChallengePassed}
+          onShowSolution={onShowSolution}
+          onChallengePassed={onCompleteLesson}
         />
+      )}
+
+      {!lesson.challenge && (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              This lesson is theory-focused. Mark it complete when you're ready to continue.
+            </p>
+            {isCompleted ? (
+              <span className="flex-shrink-0 rounded-full bg-green-100 px-2 py-1 text-[10px] font-medium text-green-700 dark:bg-green-500/15 dark:text-green-300">
+                Completed
+              </span>
+            ) : (
+              <button
+                onClick={onCompleteLesson}
+                className="flex-shrink-0 rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+              >
+                Mark complete
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Prev / Next navigation */}

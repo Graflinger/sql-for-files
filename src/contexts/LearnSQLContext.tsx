@@ -1,8 +1,8 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useMemo } from "react";
 import type { ReactNode } from "react";
 
 import type { Lesson } from "../types/learn";
-import { chapters, allLessons, totalLessonCount } from "../data/lessons";
+import { chapters, allLessons, totalLessonCount, validLessonIds, lessonPath } from "../data/lessons";
 
 const STORAGE_KEY = "learn-sql-progress";
 const PANEL_STORAGE_KEY = "learn-sql-panel-open";
@@ -21,6 +21,8 @@ interface LearnSQLContextValue {
   currentLesson: Lesson | null;
   /** Navigate to a specific lesson by ID. */
   selectLesson: (lessonId: string) => void;
+  /** Navigate to a specific lesson by ID and open the panel. */
+  openLesson: (lessonId: string) => void;
   /** Go back to the chapter/lesson overview. */
   showOverview: () => void;
   /** Navigate to the next lesson (if any). */
@@ -45,6 +47,8 @@ interface LearnSQLContextValue {
 
   /** All chapters (for rendering navigation). */
   chapters: typeof chapters;
+  /** Shareable route for the current lesson. */
+  currentLessonPath: string | null;
 }
 
 const LearnSQLContext = createContext<LearnSQLContextValue | null>(null);
@@ -85,10 +89,17 @@ export function LearnSQLProvider({ children }: { children: ReactNode }) {
   const [panelOpen, setPanelOpen] = useState(loadPanelState);
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(loadProgress);
+  const validCompletedLessons = new Set(
+    [...completedLessons].filter((lessonId) => validLessonIds.has(lessonId))
+  );
 
   const currentLesson = currentLessonId
     ? allLessons.find((l) => l.id === currentLessonId) ?? null
     : null;
+  const currentLessonPath = useMemo(
+    () => (currentLesson ? lessonPath(currentLesson.id) : null),
+    [currentLesson]
+  );
 
   // Compute next/previous availability
   const currentIndex = currentLessonId
@@ -117,6 +128,12 @@ export function LearnSQLProvider({ children }: { children: ReactNode }) {
 
   const selectLesson = useCallback((lessonId: string) => {
     setCurrentLessonId(lessonId);
+  }, []);
+
+  const openLesson = useCallback((lessonId: string) => {
+    setCurrentLessonId(lessonId);
+    setPanelOpen(true);
+    localStorage.setItem(PANEL_STORAGE_KEY, "true");
   }, []);
 
   const showOverview = useCallback(() => {
@@ -158,17 +175,19 @@ export function LearnSQLProvider({ children }: { children: ReactNode }) {
         closePanel,
         currentLesson,
         selectLesson,
+        openLesson,
         showOverview,
         nextLesson,
         previousLesson,
         hasNext,
         hasPrevious,
-        completedLessons,
+        completedLessons: validCompletedLessons,
         completeLesson,
         resetProgress,
         totalLessons: totalLessonCount,
-        completedCount: completedLessons.size,
+        completedCount: validCompletedLessons.size,
         chapters,
+        currentLessonPath,
       }}
     >
       {children}

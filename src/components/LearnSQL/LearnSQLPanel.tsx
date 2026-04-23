@@ -1,8 +1,11 @@
 import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useLearnSQL } from "../../contexts/LearnSQLContext";
+import { allLessons, lessonNumbering, lessonPath } from "../../data/lessons";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useEditorTabsContext } from "../../contexts/EditorTabsContext";
+import { useNotifications } from "../../contexts/NotificationContext";
 import { withDuckDBConnection } from "../../utils/duckdb";
 import type { QueryResult } from "../../types/query";
 import LessonNav from "./LessonNav";
@@ -21,14 +24,13 @@ interface LearnSQLPanelProps {
  * active lesson content with challenge and data loading.
  */
 export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
+  const navigate = useNavigate();
   const {
     panelOpen,
     closePanel,
     currentLesson,
-    selectLesson,
+    openLesson,
     showOverview,
-    nextLesson,
-    previousLesson,
     hasNext,
     hasPrevious,
     completedLessons,
@@ -38,7 +40,17 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
   } = useLearnSQL();
 
   const { db, refreshTables } = useDuckDBContext();
-  const { activeTabId, updateTabSql } = useEditorTabsContext();
+  const { activeTabId, addTab, updateTabSql } = useEditorTabsContext();
+  const { addNotification } = useNotifications();
+  const currentLessonNumbering = currentLesson ? lessonNumbering(currentLesson.id) : null;
+  const currentLessonIndex = currentLesson
+    ? allLessons.findIndex((lesson) => lesson.id === currentLesson.id)
+    : -1;
+  const nextLesson =
+    currentLessonIndex >= 0 && currentLessonIndex < allLessons.length - 1
+      ? allLessons[currentLessonIndex + 1]
+      : null;
+  const previousLesson = currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : null;
 
   /** Execute setup SQL to load sample data for a lesson. */
   const handleLoadData = useCallback(
@@ -62,12 +74,54 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
     [activeTabId, updateTabSql]
   );
 
+  /** Open the lesson solution in a new query tab. */
+  const handleShowSolution = useCallback(
+    (lessonTitle: string, sql: string) => {
+      addTab({ name: `Solution: ${lessonTitle}`, sql });
+      addNotification({
+        type: "info",
+        title: `Opened solution for ${lessonTitle}`,
+      });
+    },
+    [addNotification, addTab]
+  );
+
   /** Mark the current lesson as completed. */
-  const handleChallengePassed = useCallback(() => {
+  const handleLessonCompleted = useCallback(() => {
     if (currentLesson) {
       completeLesson(currentLesson.id);
     }
   }, [currentLesson, completeLesson]);
+
+  const navigateToLesson = useCallback(
+    (lessonId: string) => {
+      openLesson(lessonId);
+      navigate(lessonPath(lessonId) ?? "/editor");
+    },
+    [navigate, openLesson]
+  );
+
+  const handleClosePanel = useCallback(() => {
+    closePanel();
+    navigate("/editor");
+  }, [closePanel, navigate]);
+
+  const handleShowOverview = useCallback(() => {
+    showOverview();
+    navigate("/editor");
+  }, [navigate, showOverview]);
+
+  const handleNextLesson = useCallback(() => {
+    if (nextLesson) {
+      navigateToLesson(nextLesson.id);
+    }
+  }, [navigateToLesson, nextLesson]);
+
+  const handlePreviousLesson = useCallback(() => {
+    if (previousLesson) {
+      navigateToLesson(previousLesson.id);
+    }
+  }, [navigateToLesson, previousLesson]);
 
   if (!panelOpen) return null;
 
@@ -93,11 +147,11 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
             Learn SQL
           </span>
           <span className="text-[10px] text-slate-400 dark:text-slate-500">
-            {completedCount}/{totalLessons}
+            {completedCount}/{totalLessons} completed
           </span>
         </div>
         <button
-          onClick={closePanel}
+          onClick={handleClosePanel}
           className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
           aria-label="Close Learn SQL panel"
         >
@@ -125,16 +179,18 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
             lastResult={lastResult}
             onLoadData={handleLoadData}
             onSetEditorSql={handleSetEditorSql}
-            onChallengePassed={handleChallengePassed}
-            onNext={nextLesson}
-            onPrevious={previousLesson}
+            onShowSolution={handleShowSolution}
+            onCompleteLesson={handleLessonCompleted}
+            onNext={handleNextLesson}
+            onPrevious={handlePreviousLesson}
             hasNext={hasNext}
             hasPrevious={hasPrevious}
             isCompleted={completedLessons.has(currentLesson.id)}
-            onBack={showOverview}
+            lessonNumber={currentLessonNumbering?.display ?? null}
+            onBack={handleShowOverview}
           />
         ) : (
-          <LessonNav onLessonSelect={selectLesson} />
+          <LessonNav onLessonSelect={navigateToLesson} />
         )}
       </div>
     </aside>
