@@ -32,6 +32,8 @@ interface IDELayoutProps {
     onCloseTab: (id: string) => void;
     onRenameTab: (id: string, name: string) => void;
   };
+  /** Optional right-side panel (e.g. Learn SQL). Rendered only when provided. */
+  rightPanel?: ReactNode;
 }
 
 // localStorage keys
@@ -39,6 +41,7 @@ const STORAGE_KEYS = {
   SIDEBAR_COLLAPSED: "ide-sidebar-collapsed",
   RESULTS_HEIGHT: "ide-results-height",
   RESULTS_COLLAPSED: "ide-results-collapsed",
+  RIGHT_PANEL_WIDTH: "ide-right-panel-width",
 };
 
 // Default values
@@ -46,7 +49,17 @@ const DEFAULTS = {
   RESULTS_HEIGHT: 300,
   MIN_RESULTS_HEIGHT: 100,
   MAX_RESULTS_HEIGHT: 600,
+  RIGHT_PANEL_WIDTH: 384,
+  MIN_RIGHT_PANEL_WIDTH: 280,
+  MAX_RIGHT_PANEL_WIDTH: 640,
 };
+
+function clampRightPanelWidth(width: number): number {
+  return Math.max(
+    DEFAULTS.MIN_RIGHT_PANEL_WIDTH,
+    Math.min(DEFAULTS.MAX_RIGHT_PANEL_WIDTH, width)
+  );
+}
 
 /**
  * IDELayout Component
@@ -65,6 +78,7 @@ export default function IDELayout({
   result,
   resultStats,
   editorTabs,
+  rightPanel,
 }: IDELayoutProps) {
   // Layout state
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -82,11 +96,16 @@ export default function IDELayout({
     return saved ? JSON.parse(saved) : false;
   });
 
+  const [rightPanelWidth, setRightPanelWidth] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.RIGHT_PANEL_WIDTH);
+    return saved ? clampRightPanelWidth(parseInt(saved, 10)) : DEFAULTS.RIGHT_PANEL_WIDTH;
+  });
+
   // Mobile drawer state
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
-  // Mobile tab state: 'editor' or 'results'
-  const [mobileActiveTab, setMobileActiveTab] = useState<"editor" | "results">(
+  // Mobile tab state: 'editor', 'results', or 'learn'
+  const [mobileActiveTab, setMobileActiveTab] = useState<"editor" | "results" | "learn">(
     "editor"
   );
 
@@ -123,6 +142,10 @@ export default function IDELayout({
     );
   }, [resultsCollapsed]);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.RIGHT_PANEL_WIDTH, String(rightPanelWidth));
+  }, [rightPanelWidth]);
+
   // Handle resize of results panel
   const handleResultsResize = useCallback((delta: number) => {
     setResultsHeight((prev) => {
@@ -132,6 +155,10 @@ export default function IDELayout({
         Math.min(DEFAULTS.MAX_RESULTS_HEIGHT, newHeight)
       );
     });
+  }, []);
+
+  const handleRightPanelResize = useCallback((delta: number) => {
+    setRightPanelWidth((prev) => clampRightPanelWidth(prev - delta));
   }, []);
 
   // Keyboard shortcuts
@@ -240,6 +267,7 @@ export default function IDELayout({
             <ResizeHandle
               orientation="horizontal"
               onResize={handleResultsResize}
+              ariaLabel="Resize results panel"
             />
           )}
 
@@ -262,6 +290,24 @@ export default function IDELayout({
             </ResultsPanel>
           </div>
         </div>
+
+        {/* Right Panel (e.g. Learn SQL) — renders only when provided */}
+        {rightPanel && (
+          <div className="flex min-w-0 flex-shrink-0">
+            <ResizeHandle
+              orientation="vertical"
+              onResize={handleRightPanelResize}
+              ariaLabel="Resize Learn SQL panel"
+            />
+            <div
+              data-testid="ide-right-panel"
+              style={{ width: `${rightPanelWidth}px` }}
+              className="h-full flex-shrink-0"
+            >
+              {rightPanel}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mobile Layout */}
@@ -361,6 +407,36 @@ export default function IDELayout({
                 <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400" />
               )}
             </button>
+
+            {/* Learn tab — only when right panel is provided */}
+            {rightPanel && (
+              <button
+                onClick={() => setMobileActiveTab("learn")}
+                className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-semibold transition-colors relative ${
+                  mobileActiveTab === "learn"
+                    ? "text-blue-600 dark:text-blue-300"
+                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  />
+                </svg>
+                Learn
+                {mobileActiveTab === "learn" && (
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                )}
+              </button>
+            )}
           </div>
         </div>
 
@@ -479,6 +555,13 @@ export default function IDELayout({
           {mobileActiveTab === "results" && (
             <div className="flex-1 min-h-0 overflow-auto bg-white dark:bg-slate-950">
               {resultsContent}
+            </div>
+          )}
+
+          {/* Learn Tab */}
+          {mobileActiveTab === "learn" && rightPanel && (
+            <div className="flex-1 min-h-0 overflow-auto bg-white dark:bg-slate-950">
+              {rightPanel}
             </div>
           )}
         </div>

@@ -4,6 +4,7 @@ interface ResizeHandleProps {
   orientation: "horizontal" | "vertical";
   onResize: (delta: number) => void;
   onResizeEnd?: () => void;
+  ariaLabel?: string;
 }
 
 /**
@@ -16,6 +17,7 @@ export default function ResizeHandle({
   orientation,
   onResize,
   onResizeEnd,
+  ariaLabel,
 }: ResizeHandleProps) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -68,6 +70,7 @@ export default function ResizeHandle({
         transition-colors
       `}
       role="separator"
+      aria-label={ariaLabel}
       aria-orientation={isHorizontal ? "horizontal" : "vertical"}
       tabIndex={0}
     >

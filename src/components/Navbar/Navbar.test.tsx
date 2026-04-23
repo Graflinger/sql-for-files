@@ -5,13 +5,16 @@ import { MemoryRouter } from "react-router-dom";
 
 import Navbar from "./Navbar";
 import { ThemeProvider } from "../../contexts/ThemeContext";
+import { LearnSQLProvider } from "../../contexts/LearnSQLContext";
 
 function renderNavbar(initialRoute = "/") {
   return render(
     <ThemeProvider>
-      <MemoryRouter initialEntries={[initialRoute]}>
-        <Navbar />
-      </MemoryRouter>
+      <LearnSQLProvider>
+        <MemoryRouter initialEntries={[initialRoute]}>
+          <Navbar />
+        </MemoryRouter>
+      </LearnSQLProvider>
     </ThemeProvider>
   );
 }
@@ -34,6 +37,13 @@ describe("Navbar", () => {
     // The desktop Editor link should have the active class
     const editorLinks = screen.getAllByText("Editor");
     const desktopLink = editorLinks[0]; // desktop link
+    expect(desktopLink.className).toContain("bg-slate-900");
+  });
+
+  it("highlights the editor link for lesson routes", () => {
+    renderNavbar("/editor/chapter1/03");
+    const editorLinks = screen.getAllByText("Editor");
+    const desktopLink = editorLinks[0];
     expect(desktopLink.className).toContain("bg-slate-900");
   });
 

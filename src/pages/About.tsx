@@ -512,6 +512,7 @@ export default function About() {
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Features Section — 6 cards */}
@@ -725,6 +726,104 @@ export default function About() {
                   Review tables, build charts, check column stats, and export
                   full results or database backups locally.
                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Learn SQL */}
+        <div className="border-t border-slate-100">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+            <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+              {/* Decorative background pattern */}
+              <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-blue-100/40 blur-3xl" />
+              <div className="pointer-events-none absolute -left-12 -bottom-12 h-48 w-48 rounded-full bg-indigo-100/40 blur-3xl" />
+
+              <div className="relative p-6 sm:p-10">
+                <div className="text-center max-w-2xl mx-auto mb-8">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-medium text-blue-700 mb-4 shadow-sm">
+                    <svg
+                      className="h-3.5 w-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.8}
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                      />
+                    </svg>
+                    Built-in learning track
+                  </div>
+                  <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                    Learn SQL while exploring your own files
+                  </h2>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-600 sm:text-base max-w-xl mx-auto">
+                    Launch the Learn SQL panel for guided lessons, sample data, and
+                    hands-on challenges &mdash; all inside the real editor.
+                  </p>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-3 mb-8">
+                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-900 mb-1">Guided lessons</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">Step-by-step SQL lessons from basics to advanced queries</p>
+                  </div>
+
+                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-900 mb-1">One-click sample data</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">Load practice datasets instantly so you can start querying right away</p>
+                  </div>
+
+                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                    </div>
+                    <h3 className="text-sm font-semibold text-slate-900 mb-1">Practice in the real editor</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed">Write and run queries with full autocomplete and results</p>
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <Link
+                    to="/editor"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-150 hover:bg-blue-700 hover:shadow-md"
+                    onMouseEnter={preloadSqlEditor}
+                    onFocus={preloadSqlEditor}
+                  >
+                    Start Learning
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 7l5 5m0 0l-5 5m5-5H6"
+                      />
+                    </svg>
+                  </Link>
+                  <p className="mt-3 text-xs text-slate-500">
+                    Once inside the editor, click <span className="font-semibold text-slate-700">Learn SQL</span> in the top navigation.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
