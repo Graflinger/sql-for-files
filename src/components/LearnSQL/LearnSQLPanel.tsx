@@ -2,10 +2,9 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useLearnSQL } from "../../contexts/LearnSQLContext";
-import { allLessons, lessonNumbering, lessonPath } from "../../data/lessons";
+import { allLessons, chapterForLesson, lessonNumbering, lessonPath } from "../../data/lessons";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useEditorTabsContext } from "../../contexts/EditorTabsContext";
-import { useNotifications } from "../../contexts/NotificationContext";
 import { withDuckDBConnection } from "../../utils/duckdb";
 import type { QueryResult } from "../../types/query";
 import LessonNav from "./LessonNav";
@@ -39,10 +38,10 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
     totalLessons,
   } = useLearnSQL();
 
-  const { db, refreshTables } = useDuckDBContext();
-  const { activeTabId, addTab, updateTabSql } = useEditorTabsContext();
-  const { addNotification } = useNotifications();
+  const { db, loading: dbLoading, error: dbError, refreshTables } = useDuckDBContext();
+  const { addTab } = useEditorTabsContext();
   const currentLessonNumbering = currentLesson ? lessonNumbering(currentLesson.id) : null;
+  const currentChapter = currentLesson ? chapterForLesson(currentLesson.id) : null;
   const currentLessonIndex = currentLesson
     ? allLessons.findIndex((lesson) => lesson.id === currentLesson.id)
     : -1;
@@ -51,11 +50,18 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
       ? allLessons[currentLessonIndex + 1]
       : null;
   const previousLesson = currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : null;
+  const canLoadData = Boolean(db && !dbLoading && !dbError);
+  const dataLoadUnavailableMessage = dbLoading
+    ? "DuckDB is still initializing. Try loading the lesson data again in a moment."
+    : "DuckDB is not available, so the lesson data could not be loaded.";
 
   /** Execute setup SQL to load sample data for a lesson. */
   const handleLoadData = useCallback(
     async (setupSql: string[]) => {
-      if (!db) return;
+      if (!db || dbLoading || dbError) {
+        throw new Error(dataLoadUnavailableMessage);
+      }
+
       await withDuckDBConnection(db, async (conn) => {
         for (const sql of setupSql) {
           await conn.query(sql);
@@ -63,27 +69,15 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
       });
       await refreshTables();
     },
-    [db, refreshTables]
+    [dataLoadUnavailableMessage, db, dbError, dbLoading, refreshTables]
   );
 
-  /** Pre-fill the active editor tab with SQL. */
-  const handleSetEditorSql = useCallback(
-    (sql: string) => {
-      updateTabSql(activeTabId, sql);
+  /** Open SQL in a new editor tab. */
+  const handleOpenInEditor = useCallback(
+    (name: string, sql: string) => {
+      addTab({ name, sql });
     },
-    [activeTabId, updateTabSql]
-  );
-
-  /** Open the lesson solution in a new query tab. */
-  const handleShowSolution = useCallback(
-    (lessonTitle: string, sql: string) => {
-      addTab({ name: `Solution: ${lessonTitle}`, sql });
-      addNotification({
-        type: "info",
-        title: `Opened solution for ${lessonTitle}`,
-      });
-    },
-    [addNotification, addTab]
+    [addTab]
   );
 
   /** Mark the current lesson as completed. */
@@ -178,8 +172,9 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
             lesson={currentLesson}
             lastResult={lastResult}
             onLoadData={handleLoadData}
-            onSetEditorSql={handleSetEditorSql}
-            onShowSolution={handleShowSolution}
+            canLoadData={canLoadData}
+            dataLoadUnavailableMessage={dataLoadUnavailableMessage}
+            onOpenInEditor={handleOpenInEditor}
             onCompleteLesson={handleLessonCompleted}
             onNext={handleNextLesson}
             onPrevious={handlePreviousLesson}
@@ -187,6 +182,7 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
             hasPrevious={hasPrevious}
             isCompleted={completedLessons.has(currentLesson.id)}
             lessonNumber={currentLessonNumbering?.display ?? null}
+            chapterLabel={currentChapter?.title ?? null}
             onBack={handleShowOverview}
           />
         ) : (

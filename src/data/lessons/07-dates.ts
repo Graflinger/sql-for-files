@@ -34,12 +34,14 @@ const dates: Chapter = {
 
 To find February orders, you can write:
 
-  SELECT order_id, order_date
-  FROM orders
-  WHERE order_date >= DATE '2024-02-01'
-    AND order_date < DATE '2024-03-01'
+\`\`\`sql
+SELECT order_id, order_date
+FROM orders
+WHERE order_date >= DATE '2024-02-01'
+  AND order_date < DATE '2024-03-01'
+\`\`\`
 
-This pattern is often safer than BETWEEN for month ranges, because the upper bound stays exclusive.
+This pattern is often safer than \`BETWEEN\` for month ranges, because the upper bound stays exclusive.
 
 You can use the same idea for weeks, quarters, or any other date window.`,
       sampleData: {
@@ -86,17 +88,21 @@ You can use the same idea for weeks, quarters, or any other date window.`,
     {
       id: "dates-extract",
       title: "Extracting Parts of a Date",
-      content: `You can pull specific parts out of a date with EXTRACT.
+      content: `You can pull specific parts out of a date with \`EXTRACT\`.
 
-For example, to get the month number from order_date:
+For example, to get the month number from \`order_date\`:
 
-  SELECT EXTRACT(MONTH FROM order_date) AS order_month
-  FROM orders
+\`\`\`sql
+SELECT EXTRACT(MONTH FROM order_date) AS order_month
+FROM orders
+\`\`\`
 
-This is useful when you want to group by year, month, quarter, weekday, and more. Another common option is DATE_TRUNC, which rounds a date down to a unit such as the start of the month.
+This is useful when you want to group by year, month, quarter, weekday, and more. Another common option is \`DATE_TRUNC\`, which rounds a date down to a unit such as the start of the month.
 
-  SELECT DATE_TRUNC('month', order_date) AS month_start
-  FROM orders`,
+\`\`\`sql
+SELECT DATE_TRUNC('month', order_date) AS month_start
+FROM orders
+\`\`\``,
       sampleData: {
         label: "orders table (7 rows)",
         setupSql: ORDERS_SETUP,
@@ -149,10 +155,12 @@ This is useful when you want to group by year, month, quarter, weekday, and more
     {
       id: "dates-date-diff",
       title: "Date Arithmetic with DATE_DIFF",
-      content: `SQL can calculate the distance between two dates. In DuckDB, DATE_DIFF is a convenient way to do that.
+      content: `SQL can calculate the distance between two dates. In DuckDB, \`DATE_DIFF\` is a convenient way to do that.
 
-  SELECT order_id, DATE_DIFF('day', order_date, ship_date) AS days_to_ship
-  FROM orders
+\`\`\`sql
+SELECT order_id, DATE_DIFF('day', order_date, ship_date) AS days_to_ship
+FROM orders
+\`\`\`
 
 This tells you how many days passed between each order and shipment.
 

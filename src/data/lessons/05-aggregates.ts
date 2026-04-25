@@ -21,7 +21,9 @@ const SALES_SETUP = [
 ];
 
 function getValue(row: Record<string, unknown>, column: string): unknown {
-  const matchingKey = Object.keys(row).find((key) => key.toLowerCase() === column.toLowerCase());
+  const matchingKey = Object.keys(row).find(
+    (key) => key.toLowerCase() === column.toLowerCase()
+  );
   return matchingKey ? row[matchingKey] : undefined;
 }
 
@@ -32,20 +34,24 @@ const aggregates: Chapter = {
     {
       id: "aggregates-count",
       title: "COUNT Rows",
-      content: `COUNT tells you how many rows match a condition. It is one of the fastest ways to answer questions like “How many sales did we make?” or “How many orders came from the West region?”
+      content: `\`COUNT\` tells you how many rows match a condition. It is one of the fastest ways to answer questions like “How many sales did we make?” or “How many orders came from the West region?”
 
-The most common form is COUNT(*):
+The most common form is \`COUNT(*)\`:
 
-  SELECT COUNT(*) AS sale_count
-  FROM sales
+\`\`\`sql
+SELECT COUNT(*) AS sale_count
+FROM sales
+\`\`\`
 
-You can also add a WHERE clause to count only part of a table.
+You can also add a \`WHERE\` clause to count only part of a table.
 
-  SELECT COUNT(*) AS sale_count
-  FROM sales
-  WHERE region = 'East'
+\`\`\`sql
+SELECT COUNT(*) AS sale_count
+FROM sales
+WHERE region = 'West'
+\`\`\`
 
-COUNT is often the first aggregate people learn because it turns many rows into one simple summary value.`,
+\`COUNT\` is often the first aggregate people learn because it turns many rows into one simple summary value.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
@@ -55,7 +61,8 @@ COUNT is often the first aggregate people learn because it turns many rows into 
         prompt: "Return the number of East region sales as sale_count.",
         hint: "Use COUNT(*) with WHERE region = 'East'.",
         initialSql: "-- Count East region sales\n",
-        solutionSql: "SELECT COUNT(*) AS sale_count\nFROM sales\nWHERE region = 'East';",
+        solutionSql:
+          "SELECT COUNT(*) AS sale_count\nFROM sales\nWHERE region = 'East';",
         validate: (result) => {
           if (result.rowCount !== 1) {
             return {
@@ -82,7 +89,8 @@ COUNT is often the first aggregate people learn because it turns many rows into 
 
           return {
             passed: true,
-            message: "Correct! COUNT(*) summarized the East rows into one number.",
+            message:
+              "Correct! COUNT(*) summarized the East rows into one number.",
           };
         },
       },
@@ -90,30 +98,28 @@ COUNT is often the first aggregate people learn because it turns many rows into 
     {
       id: "aggregates-sum",
       title: "SUM Values",
-      content: `SUM adds the values in a numeric column. It is useful for totals like revenue, quantity, or cost.
+      content: `\`SUM\` adds the values in a numeric column. It is useful for totals like revenue, quantity, or cost.
 
 For example:
 
-  SELECT SUM(amount) AS total_amount
-  FROM sales
+\`\`\`sql
+SELECT SUM(amount) AS total_amount
+FROM sales
+\`\`\`
 
-You can combine SUM with WHERE to total only the rows you care about:
-
-  SELECT SUM(amount) AS total_amount
-  FROM sales
-  WHERE region = 'West'
-
-SUM answers questions like “What was our total revenue?” or “How much did the West region sell?”`,
+\`SUM\` answers questions like “What was our total revenue?” or “How much did the West region sell?”`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
         tableNames: ["sales"],
       },
       challenge: {
-        prompt: "Return the total sales amount for the West region as total_amount.",
+        prompt:
+          "Return the total sales amount for the West region as total_amount.",
         hint: "Use SUM(amount) with WHERE region = 'West'.",
         initialSql: "-- Sum West region sales\n",
-        solutionSql: "SELECT SUM(amount) AS total_amount\nFROM sales\nWHERE region = 'West';",
+        solutionSql:
+          "SELECT SUM(amount) AS total_amount\nFROM sales\nWHERE region = 'West';",
         validate: (result) => {
           if (result.rowCount !== 1) {
             return {
@@ -152,9 +158,11 @@ SUM answers questions like “What was our total revenue?” or “How much did 
 
 For example:
 
-  SELECT COUNT(*) AS order_count, SUM(amount) AS total_amount
-  FROM sales
-  WHERE region = 'West'
+\`\`\`sql
+SELECT COUNT(*) AS order_count, SUM(amount) AS total_amount
+FROM sales
+WHERE region = 'West'
+\`\`\`
 
 This is very common in reporting and dashboards because one query can return multiple useful summary values at once.`,
       sampleData: {
@@ -165,8 +173,7 @@ This is very common in reporting and dashboards because one query can return mul
       challenge: {
         prompt:
           "For the West region, return the number of sales as order_count and the total amount as total_amount.",
-        hint:
-          "Use COUNT(*) AS order_count and SUM(amount) AS total_amount with WHERE region = 'West'.",
+        hint: "Use COUNT(*) AS order_count and SUM(amount) AS total_amount with WHERE region = 'West'.",
         initialSql: "-- Count and sum West region sales\n",
         solutionSql:
           "SELECT COUNT(*) AS order_count, SUM(amount) AS total_amount\nFROM sales\nWHERE region = 'West';",
@@ -174,7 +181,8 @@ This is very common in reporting and dashboards because one query can return mul
           if (result.rowCount !== 1) {
             return {
               passed: false,
-              message: "Aggregate queries like this should return one summary row.",
+              message:
+                "Aggregate queries like this should return one summary row.",
             };
           }
 
@@ -185,7 +193,8 @@ This is very common in reporting and dashboards because one query can return mul
           if (Number.isNaN(orderCount) || Number.isNaN(totalAmount)) {
             return {
               passed: false,
-              message: "Return your results with the aliases order_count and total_amount.",
+              message:
+                "Return your results with the aliases order_count and total_amount.",
             };
           }
 
@@ -198,7 +207,8 @@ This is very common in reporting and dashboards because one query can return mul
 
           return {
             passed: true,
-            message: "Correct! COUNT and SUM condensed three West sales into one summary row.",
+            message:
+              "Correct! COUNT and SUM condensed three West sales into one summary row.",
           };
         },
       },
@@ -206,10 +216,12 @@ This is very common in reporting and dashboards because one query can return mul
     {
       id: "aggregates-min",
       title: "MIN Finds the Smallest Value",
-      content: `MIN returns the smallest value in a column.
+      content: `\`MIN\` returns the smallest value in a column.
 
-  SELECT MIN(amount) AS smallest_sale
-  FROM sales
+\`\`\`sql
+SELECT MIN(amount) AS smallest_sale
+FROM sales
+\`\`\`
 
 This is useful when you want to know the lowest price, earliest date, or smallest score in a dataset.`,
       sampleData: {
@@ -230,7 +242,9 @@ This is useful when you want to know the lowest price, earliest date, or smalles
             };
           }
 
-          const smallestSale = Number(getValue(result.data[0], "smallest_sale"));
+          const smallestSale = Number(
+            getValue(result.data[0], "smallest_sale")
+          );
 
           if (Number.isNaN(smallestSale)) {
             return {
@@ -256,10 +270,12 @@ This is useful when you want to know the lowest price, earliest date, or smalles
     {
       id: "aggregates-max",
       title: "MAX Finds the Largest Value",
-      content: `MAX returns the largest value in a column.
+      content: `\`MAX\` returns the largest value in a column.
 
-  SELECT MAX(amount) AS largest_sale
-  FROM sales
+\`\`\`sql
+SELECT MAX(amount) AS largest_sale
+FROM sales
+\`\`\`
 
 This is helpful for questions like “What was the biggest order?” or “What is the latest date in the dataset?”`,
       sampleData: {
@@ -306,12 +322,14 @@ This is helpful for questions like “What was the biggest order?” or “What 
     {
       id: "aggregates-avg",
       title: "AVG Computes the Mean",
-      content: `AVG calculates the average value of a numeric column.
+      content: `\`AVG\` calculates the average value of a numeric column.
 
-  SELECT AVG(amount) AS average_sale
-  FROM sales
+\`\`\`sql
+SELECT AVG(amount) AS average_sale
+FROM sales
+\`\`\`
 
-AVG is useful when you want a typical value instead of a total or an extreme. For example, it can tell you the average order size or average score.`,
+\`AVG\` is useful when you want a typical value instead of a total or an extreme. For example, it can tell you the average order size or average score.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
@@ -358,11 +376,13 @@ AVG is useful when you want a typical value instead of a total or an extreme. Fo
       title: "MIN, MAX, and AVG Together",
       content: `After learning each aggregate separately, you can combine them to get a compact summary of the spread of your data.
 
-  SELECT
-    MIN(amount) AS smallest_sale,
-    MAX(amount) AS largest_sale,
-    AVG(amount) AS average_sale
-  FROM sales
+\`\`\`sql
+SELECT
+  MIN(amount) AS smallest_sale,
+  MAX(amount) AS largest_sale,
+  AVG(amount) AS average_sale
+FROM sales
+\`\`\`
 
 This gives you the lowest value, highest value, and mean in one query. That makes it a useful “quick profile” of a numeric column.`,
       sampleData: {
@@ -373,8 +393,7 @@ This gives you the lowest value, highest value, and mean in one query. That make
       challenge: {
         prompt:
           "Return the smallest sale as smallest_sale, the largest sale as largest_sale, and the average sale amount as average_sale.",
-        hint:
-          "Use MIN(amount), MAX(amount), and AVG(amount) with the requested aliases.",
+        hint: "Use MIN(amount), MAX(amount), and AVG(amount) with the requested aliases.",
         initialSql: "-- Find the min, max, and average sale\n",
         solutionSql:
           "SELECT\n  MIN(amount) AS smallest_sale,\n  MAX(amount) AS largest_sale,\n  AVG(amount) AS average_sale\nFROM sales;",
@@ -391,17 +410,22 @@ This gives you the lowest value, highest value, and mean in one query. That make
           const largestSale = Number(getValue(row, "largest_sale"));
           const averageSale = Number(getValue(row, "average_sale"));
 
-          if ([smallestSale, largestSale, averageSale].some((value) => Number.isNaN(value))) {
+          if (
+            [smallestSale, largestSale, averageSale].some((value) =>
+              Number.isNaN(value)
+            )
+          ) {
             return {
               passed: false,
-              message: "Return the three summary columns with the aliases smallest_sale, largest_sale, and average_sale.",
+              message:
+                "Return the three summary columns with the aliases smallest_sale, largest_sale, and average_sale.",
             };
           }
 
           if (
-            Math.abs(smallestSale - 430) > 0.01
-            || Math.abs(largestSale - 1500) > 0.01
-            || Math.abs(averageSale - 925) > 0.01
+            Math.abs(smallestSale - 430) > 0.01 ||
+            Math.abs(largestSale - 1500) > 0.01 ||
+            Math.abs(averageSale - 925) > 0.01
           ) {
             return {
               passed: false,
@@ -411,7 +435,8 @@ This gives you the lowest value, highest value, and mean in one query. That make
 
           return {
             passed: true,
-            message: "Nice! MIN, MAX, and AVG together give a quick snapshot of the sales distribution.",
+            message:
+              "Nice! MIN, MAX, and AVG together give a quick snapshot of the sales distribution.",
           };
         },
       },

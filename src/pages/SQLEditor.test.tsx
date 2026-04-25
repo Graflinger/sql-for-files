@@ -110,7 +110,7 @@ describe("SqlEditorPage lesson routes", () => {
     renderEditor("/editor/chapter1/03");
 
     await waitFor(() => {
-      expect(screen.getByText("01.03 Sorting Results")).toBeInTheDocument();
+      expect(screen.getByText("03 Sorting Results")).toBeInTheDocument();
     });
   });
 

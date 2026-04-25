@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { Lesson } from "../../types/learn";
 import type { QueryResult } from "../../types/query";
@@ -10,10 +10,12 @@ interface ChallengeBlockProps {
   lastResult: QueryResult | null;
   /** Callback to load sample data into DuckDB. */
   onLoadData: (setupSql: string[]) => Promise<void>;
-  /** Callback to pre-fill the editor with SQL. */
-  onSetEditorSql: (sql: string) => void;
-  /** Callback to open the solution SQL in a new editor tab. */
-  onShowSolution: (lessonTitle: string, sql: string) => void;
+  /** Whether DuckDB is ready to accept lesson sample-data setup SQL. */
+  canLoadData: boolean;
+  /** Message shown when sample data cannot be loaded yet. */
+  dataLoadUnavailableMessage: string;
+  /** Callback to open SQL in a new editor tab. */
+  onOpenInEditor: (name: string, sql: string) => void;
   /** Callback when the challenge is passed. */
   onChallengePassed: () => void;
 }
@@ -28,23 +30,44 @@ export default function ChallengeBlock({
   lesson,
   lastResult,
   onLoadData,
-  onSetEditorSql,
-  onShowSolution,
+  canLoadData,
+  dataLoadUnavailableMessage,
+  onOpenInEditor,
   onChallengePassed,
 }: ChallengeBlockProps) {
   const [loadingData, setLoadingData] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
 
   const { sampleData, challenge } = lesson;
 
+  useEffect(() => {
+    setLoadingData(false);
+    setDataLoaded(false);
+    setLoadError(null);
+    setShowHint(false);
+    setValidation(null);
+  }, [lesson.id]);
+
   const handleLoadData = async () => {
     if (!sampleData) return;
+    if (!canLoadData) {
+      setDataLoaded(false);
+      setLoadError(dataLoadUnavailableMessage);
+      return;
+    }
+
     setLoadingData(true);
+    setLoadError(null);
     try {
       await onLoadData(sampleData.setupSql);
       setDataLoaded(true);
+    } catch (err) {
+      const errorObj = err as Error;
+      setDataLoaded(false);
+      setLoadError(errorObj.message || "Failed to load lesson data.");
     } finally {
       setLoadingData(false);
     }
@@ -52,14 +75,14 @@ export default function ChallengeBlock({
 
   const handleStartChallenge = () => {
     if (challenge?.initialSql) {
-      onSetEditorSql(challenge.initialSql);
+      onOpenInEditor(`Challenge: ${lesson.title}`, challenge.initialSql);
     }
     setValidation(null);
   };
 
   const handleShowSolution = () => {
     if (!challenge?.solutionSql) return;
-    onShowSolution(lesson.title, challenge.solutionSql);
+    onOpenInEditor(`Solution: ${lesson.title}`, challenge.solutionSql);
     setValidation(null);
   };
 
@@ -102,16 +125,28 @@ export default function ChallengeBlock({
             </div>
             <button
               onClick={handleLoadData}
-              disabled={loadingData}
+              disabled={loadingData || !canLoadData}
+              title={!canLoadData ? dataLoadUnavailableMessage : undefined}
               className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
                 dataLoaded
                   ? "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-300"
                   : "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
               } disabled:opacity-50`}
             >
-              {loadingData ? "Loading..." : dataLoaded ? "Loaded" : "Load Data"}
+              {loadingData
+                ? "Loading..."
+                : dataLoaded
+                  ? "Loaded"
+                  : canLoadData
+                    ? "Load Data"
+                    : "Preparing DB"}
             </button>
           </div>
+          {loadError && (
+            <p className="mt-2 text-[11px] text-red-600 dark:text-red-400">
+              {loadError}
+            </p>
+          )}
         </div>
       )}
 

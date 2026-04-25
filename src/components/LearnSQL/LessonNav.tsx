@@ -129,7 +129,7 @@ export default function LessonNav({ onLessonSelect }: LessonNavProps) {
                 />
               </svg>
               <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800">
-                {String(chapterIdx + 1).padStart(2, "0")}
+                {String(chapterIdx).padStart(2, "0")}
               </span>
               <span className="flex-1 text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
                 {chapter.title}

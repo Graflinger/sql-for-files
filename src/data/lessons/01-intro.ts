@@ -26,13 +26,15 @@ const intro: Chapter = {
     {
       id: "intro-first-query",
       title: "Your First Query",
-      content: `SQL (Structured Query Language) is the standard language for working with data in databases. The most fundamental SQL statement is SELECT, which retrieves data from a table.
+      content: `SQL (Structured Query Language) is the standard language for working with data in databases. The most fundamental SQL statement is \`SELECT\`, which retrieves data from a table.
 
 The simplest query looks like this:
 
-  SELECT * FROM table_name
+\`\`\`sql
+SELECT * FROM table_name
+\`\`\`
 
-The asterisk (*) means "all columns". This query returns every row and every column from the specified table.
+The asterisk (\`*\`) means "all columns". This query returns every row and every column from the specified table.
 
 Click "Load Data" below to create a sample employees table, then try running the query yourself!`,
       sampleData: {
@@ -46,7 +48,13 @@ Click "Load Data" below to create a sample employees table, then try running the
         solutionSql: "SELECT *\nFROM employees;",
         validate: (result) => {
           const columns = result.columns.map((column) => column.toLowerCase());
-          const expectedColumns = ["id", "name", "department", "salary", "hire_date"];
+          const expectedColumns = [
+            "id",
+            "name",
+            "department",
+            "salary",
+            "hire_date",
+          ];
 
           if (
             result.columns.length !== expectedColumns.length ||
@@ -73,11 +81,13 @@ Click "Load Data" below to create a sample employees table, then try running the
     {
       id: "intro-select-columns",
       title: "Selecting Columns",
-      content: `Instead of selecting all columns with *, you can pick specific columns by listing their names separated by commas:
+      content: `Instead of selecting all columns with \`*\`, you can pick specific columns by listing their names separated by commas:
 
-  SELECT name, department FROM employees
+\`\`\`sql
+SELECT name, department FROM employees
+\`\`\`
 
-This returns only the name and department columns. Selecting specific columns is good practice because:
+This returns only the \`name\` and \`department\` columns. Selecting specific columns is good practice because:
 
 • It makes your query's intent clear
 • It can be faster when tables have many columns
@@ -126,17 +136,29 @@ You can list columns in any order — the result will follow the order you speci
     {
       id: "intro-order-by",
       title: "Sorting Results",
-      content: `By default, SQL doesn't guarantee a particular row order. To sort your results, use ORDER BY:
+      content: `By default, SQL doesn't guarantee a particular row order. To sort your results, use \`ORDER BY\`:
 
-  SELECT * FROM employees ORDER BY salary
+\`\`\`sql
+SELECT * FROM employees ORDER BY salary
+\`\`\`
 
-This sorts rows by salary in ascending order (lowest first). To sort in descending order (highest first), add DESC:
+This sorts rows by salary in ascending order (lowest first). You can also expressly specify \`ASC\` for ascending:
 
-  SELECT * FROM employees ORDER BY salary DESC
+\`\`\`sql
+SELECT * FROM employees ORDER BY salary ASC
+\`\`\`
+
+To sort in descending order (highest first), add \`DESC\`:
+
+\`\`\`sql
+SELECT * FROM employees ORDER BY salary DESC
+\`\`\`
 
 You can sort by multiple columns too:
 
-  SELECT * FROM employees ORDER BY department, name
+\`\`\`sql
+SELECT * FROM employees ORDER BY department, name
+\`\`\`
 
 This sorts by department first, then by name within each department.`,
       sampleData: {
@@ -149,7 +171,8 @@ This sorts by department first, then by name within each department.`,
           "Select the name and salary of all employees, sorted by salary from highest to lowest.",
         hint: "Use ORDER BY salary DESC",
         initialSql: "-- Sort employees by salary descending\n",
-        solutionSql: "SELECT name, salary\nFROM employees\nORDER BY salary DESC;",
+        solutionSql:
+          "SELECT name, salary\nFROM employees\nORDER BY salary DESC;",
         validate: (result) => {
           const cols = result.columns.map((c) => c.toLowerCase());
           if (!cols.includes("name") || !cols.includes("salary")) {

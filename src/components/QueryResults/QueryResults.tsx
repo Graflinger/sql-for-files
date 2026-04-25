@@ -1,5 +1,7 @@
 import { useState } from "react";
+
 import type { QueryResult } from "../../types/query";
+import { formatArrowValueForDisplay } from "../../utils/arrowDisplay";
 import { escapeCSVValue } from "../../utils/databasePersistence";
 
 interface QueryResultsProps {
@@ -26,6 +28,13 @@ function convertArrowToCSV(arrowTable: any, columns: string[]): string {
     return '';
   }
 
+  const fieldsByName = new Map<string, { type?: unknown }>(
+    (arrowTable.schema?.fields ?? []).map((field: { name: string; type?: unknown }) => [
+      field.name,
+      field,
+    ])
+  );
+
   // Create header row
   const headers = columns.map((column) => escapeCSVValue(column)).join(",");
 
@@ -34,7 +43,10 @@ function convertArrowToCSV(arrowTable: any, columns: string[]): string {
   for (let i = 0; i < arrowTable.numRows; i++) {
     const rowValues = columns.map(col => {
       const columnVector = arrowTable.getChild(col);
-      const value = columnVector?.get(i);
+      const value = formatArrowValueForDisplay(
+        columnVector?.get(i),
+        fieldsByName.get(col)?.type
+      );
       return escapeCSVValue(value);
     });
     rows.push(rowValues.join(','));

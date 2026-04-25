@@ -40,9 +40,12 @@ function SQLEditorContent() {
     chapterSlug && lessonSlug ? lessonByRoute(chapterSlug, lessonSlug) : null;
   const hasLessonRoute = Boolean(chapterSlug && lessonSlug);
 
-  // Show restore notification once, then clear so it won't re-show on navigation
+  // Show restore notification once, then clear so it won't re-show on navigation.
+  // A ref guard prevents Strict Mode double-invocation from firing the toast twice.
+  const restoredShownRef = useRef<string | null>(null);
   useEffect(() => {
-    if (restoredMessage) {
+    if (restoredMessage && restoredMessage !== restoredShownRef.current) {
+      restoredShownRef.current = restoredMessage;
       addNotification({ type: "info", title: restoredMessage });
       clearRestoredMessage();
     }

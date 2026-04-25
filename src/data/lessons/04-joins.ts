@@ -67,31 +67,35 @@ const joins: Chapter = {
       title: "Why JOINs Exist",
       content: `When a database is normalized, related facts live in different tables. That keeps the data clean, but it also means you need a way to bring those facts back together when you query.
 
-That is what JOIN does. It combines rows from two tables based on a matching key.
+That is what \`JOIN\` does. It combines rows from two tables based on a matching key.
 
-For example, employees.department_id points to departments.id. The employees table knows which department an employee belongs to, and the departments table knows the department name. A JOIN lets you combine both facts into one result.
+For example, \`employees.department_id\` points to \`departments.id\`. The \`employees\` table knows which department an employee belongs to, and the \`departments\` table knows the department name. A \`JOIN\` lets you combine both facts into one result.
 
-The most important thing in a JOIN is the matching condition:
+The most important thing in a \`JOIN\` is the matching condition:
 
-  ON employees.department_id = departments.id
+\`\`\`sql
+ON employees.department_id = departments.id
+\`\`\`
 
-If you understand which columns connect the tables, the rest of the JOIN becomes much easier to reason about.`,
+If you understand which columns connect the tables, the rest of the \`JOIN\` becomes much easier to reason about.`,
     },
     {
       id: "joins-inner",
       title: "INNER JOIN Basics",
-      content: `An INNER JOIN keeps only rows that match on both sides.
+      content: `An \`INNER JOIN\` keeps only rows that match on both sides.
 
-For example, employees.department_id points to departments.id. To show each employee with their department name, you can write:
+For example, \`employees.department_id\` points to \`departments.id\`. To show each employee with their department name, you can write:
 
-  SELECT e.name AS employee_name, d.name AS department_name
-  FROM employees AS e
-  INNER JOIN departments AS d
-    ON e.department_id = d.id
+\`\`\`sql
+SELECT e.name AS employee_name, d.name AS department_name
+FROM employees AS e
+INNER JOIN departments AS d
+  ON e.department_id = d.id
+\`\`\`
 
-The ON clause defines how the rows relate. With INNER JOIN, employees that do not have a matching department are excluded.
+The \`ON\` clause defines how the rows relate. With \`INNER JOIN\`, employees that do not have a matching department are excluded.
 
-Use INNER JOIN when you only want records that exist in both tables.`,
+Use \`INNER JOIN\` when you only want records that exist in both tables.`,
       sampleData: {
         label: "employees + departments tables",
         setupSql: COMPANY_SETUP,
@@ -152,12 +156,14 @@ Use INNER JOIN when you only want records that exist in both tables.`,
     {
       id: "joins-left",
       title: "LEFT JOIN Keeps the Left Side",
-      content: `A LEFT JOIN keeps every row from the left table and fills missing right-side values with NULL.
+      content: `A \`LEFT JOIN\` keeps every row from the left table and fills missing right-side values with \`NULL\`.
 
-  SELECT d.name AS department_name, e.name AS employee_name
-  FROM departments AS d
-  LEFT JOIN employees AS e
-    ON d.id = e.department_id
+\`\`\`sql
+SELECT d.name AS department_name, e.name AS employee_name
+FROM departments AS d
+LEFT JOIN employees AS e
+  ON d.id = e.department_id
+\`\`\`
 
 This is useful when you want to keep all rows from one table, even if some of them do not have a match in the other table.
 
@@ -223,17 +229,19 @@ In this example, Support still appears even though nobody works there.`,
     {
       id: "joins-find-missing",
       title: "Finding Missing Matches",
-      content: `One common use of LEFT JOIN is to find rows that do not have a match.
+      content: `One common use of \`LEFT JOIN\` is to find rows that do not have a match.
 
-Start with the table you want to keep, LEFT JOIN the related table, then filter to rows where the right side is NULL.
+Start with the table you want to keep, \`LEFT JOIN\` the related table, then filter to rows where the right side is \`NULL\`.
 
 For example, to find departments without employees:
 
-  SELECT d.name AS department_name
-  FROM departments AS d
-  LEFT JOIN employees AS e
-    ON d.id = e.department_id
-  WHERE e.id IS NULL
+\`\`\`sql
+SELECT d.name AS department_name
+FROM departments AS d
+LEFT JOIN employees AS e
+  ON d.id = e.department_id
+WHERE e.id IS NULL
+\`\`\`
 
 This pattern is very useful for spotting missing data and gaps in relationships.`,
       sampleData: {
@@ -283,17 +291,17 @@ This pattern is very useful for spotting missing data and gaps in relationships.
     {
       id: "joins-full-outer",
       title: "RIGHT JOIN and FULL OUTER JOIN",
-      content: `RIGHT JOIN is the mirror image of LEFT JOIN: it keeps every row from the right table.
+      content: `\`RIGHT JOIN\` is the mirror image of \`LEFT JOIN\`: it keeps every row from the right table.
 
-FULL OUTER JOIN goes one step further and keeps unmatched rows from both sides.
+\`FULL OUTER JOIN\` goes one step further and keeps unmatched rows from both sides.
 
-That means a FULL OUTER JOIN can show:
+That means a \`FULL OUTER JOIN\` can show:
 
 • matched rows
 • rows that only exist on the left
 • rows that only exist on the right
 
-This is useful when you want a complete picture of how two tables overlap. In the sample data, Support has no employees, and Eve has no department. FULL OUTER JOIN can show both situations in one result.`,
+This is useful when you want a complete picture of how two tables overlap. In the sample data, Support has no employees, and Eve has no department. \`FULL OUTER JOIN\` can show both situations in one result.`,
       sampleData: {
         label: "employees + departments tables",
         setupSql: COMPANY_SETUP,
@@ -356,14 +364,16 @@ This is useful when you want a complete picture of how two tables overlap. In th
     {
       id: "joins-self",
       title: "SELF JOIN for Hierarchies",
-      content: `A SELF JOIN joins a table to itself. This is common when rows relate to other rows in the same table, such as employees and managers.
+      content: `A self join joins a table to itself. This is common when rows relate to other rows in the same table, such as employees and managers.
 
-  SELECT e.name AS employee_name, m.name AS manager_name
-  FROM employees AS e
-  LEFT JOIN employees AS m
-    ON e.manager_id = m.id
+\`\`\`sql
+SELECT e.name AS employee_name, m.name AS manager_name
+FROM employees AS e
+LEFT JOIN employees AS m
+  ON e.manager_id = m.id
+\`\`\`
 
-The employees table appears twice with different aliases. One copy represents the employee, and the other represents the manager.
+The \`employees\` table appears twice with different aliases. One copy represents the employee, and the other represents the manager.
 
 This pattern is useful for org charts, parent-child relationships, and tree-like data.`,
       sampleData: {
@@ -427,15 +437,17 @@ This pattern is useful for org charts, parent-child relationships, and tree-like
     {
       id: "joins-cross",
       title: "CROSS JOIN for All Combinations",
-      content: `CROSS JOIN returns every possible combination of rows from both tables.
+      content: `\`CROSS JOIN\` returns every possible combination of rows from both tables.
 
 If one table has 4 rows and the other has 2, the result has 8 rows.
 
-  SELECT d.name AS department_name, m.day_name
-  FROM departments AS d
-  CROSS JOIN meeting_days AS m
+\`\`\`sql
+SELECT d.name AS department_name, m.day_name
+FROM departments AS d
+CROSS JOIN meeting_days AS m
+\`\`\`
 
-CROSS JOIN is useful for generating schedules, calendars, test cases, and other complete combinations. Be careful though: the result size grows very quickly.`,
+\`CROSS JOIN\` is useful for generating schedules, calendars, test cases, and other complete combinations. Be careful though: the result size grows very quickly.`,
       sampleData: {
         label: "departments + meeting_days tables",
         setupSql: CROSS_JOIN_SETUP,

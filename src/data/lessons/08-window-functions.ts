@@ -40,15 +40,17 @@ const windowFunctions: Chapter = {
       title: "OVER Keeps the Detail Rows",
       content: `A window function calculates across a set of related rows without collapsing the result into one row per group.
 
-That is the big difference from GROUP BY. GROUP BY shrinks many rows into fewer summary rows. A window function keeps every original row visible and adds extra information beside it.
+That is the big difference from \`GROUP BY\`. \`GROUP BY\` shrinks many rows into fewer summary rows. A window function keeps every original row visible and adds extra information beside it.
 
 For example, this query shows every sale and the grand total repeated next to each row:
 
-  SELECT id, salesperson, amount,
-         SUM(amount) OVER () AS grand_total
-  FROM sales
+\`\`\`sql
+SELECT id, salesperson, amount,
+       SUM(amount) OVER () AS grand_total
+FROM sales
+\`\`\`
 
-OVER () means “use the whole result set as the window.” This is a great first example because it shows the basic idea clearly: same rows, extra context.`,
+\`OVER ()\` means “use the whole result set as the window.” This is a great first example because it shows the basic idea clearly: same rows, extra context.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
@@ -103,13 +105,15 @@ OVER () means “use the whole result set as the window.” This is a great firs
     {
       id: "window-functions-partition",
       title: "PARTITION BY Creates Mini Windows",
-      content: `PARTITION BY splits the result set into smaller windows before the function runs.
+      content: `\`PARTITION BY\` splits the result set into smaller windows before the function runs.
 
 If you want each sale to carry its region total, you do not want one giant company-wide window anymore. You want one window per region:
 
-  SELECT id, region, amount,
-         SUM(amount) OVER (PARTITION BY region) AS region_total
-  FROM sales
+\`\`\`sql
+SELECT id, region, amount,
+       SUM(amount) OVER (PARTITION BY region) AS region_total
+FROM sales
+\`\`\`
 
 Now every East row gets the East total, every West row gets the West total, and so on.
 
@@ -178,19 +182,21 @@ This is one of the most useful patterns in SQL because it lets you compare a row
     {
       id: "window-functions-running-total",
       title: "Running Totals with ORDER BY",
-      content: `Adding ORDER BY inside the window makes the function care about row sequence.
+      content: `Adding \`ORDER BY\` inside the window makes the function care about row sequence.
 
 That is how you build running totals:
 
-  SELECT salesperson, sale_date, amount,
-         SUM(amount) OVER (
-           PARTITION BY salesperson
-           ORDER BY sale_date
-           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
-         ) AS running_amount
-  FROM sales
+\`\`\`sql
+SELECT salesperson, sale_date, amount,
+       SUM(amount) OVER (
+         PARTITION BY salesperson
+         ORDER BY sale_date
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS running_amount
+FROM sales
+\`\`\`
 
-The frame clause says: start at the first row in this salesperson's partition and keep summing up to the current row.
+The frame clause \`ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\` says: start at the first row in this salesperson's partition and keep summing up to the current row.
 
 This pattern is common in finance, analytics, and product dashboards whenever you want a cumulative view over time.`,
       sampleData: {
@@ -265,14 +271,16 @@ This pattern is common in finance, analytics, and product dashboards whenever yo
       title: "Ranking Rows with ROW_NUMBER",
       content: `Window functions are also great for ranking.
 
-ROW_NUMBER gives each row a position inside its partition:
+\`ROW_NUMBER\` gives each row a position inside its partition:
 
-  SELECT region, salesperson, amount,
-         ROW_NUMBER() OVER (
-           PARTITION BY region
-           ORDER BY amount DESC
-         ) AS region_row_number
-  FROM sales
+\`\`\`sql
+SELECT region, salesperson, amount,
+       ROW_NUMBER() OVER (
+         PARTITION BY region
+         ORDER BY amount DESC
+       ) AS region_row_number
+FROM sales
+\`\`\`
 
 This lets you answer questions like:
 
@@ -280,7 +288,7 @@ This lets you answer questions like:
 • What are the top 3 orders per customer?
 • Which event happened first for each user?
 
-RANK and DENSE_RANK are close relatives that handle ties differently, but ROW_NUMBER is the easiest place to start.`,
+\`RANK\` and \`DENSE_RANK\` are close relatives that handle ties differently, but \`ROW_NUMBER\` is the easiest place to start.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
@@ -351,18 +359,20 @@ RANK and DENSE_RANK are close relatives that handle ties differently, but ROW_NU
     {
       id: "window-functions-lag",
       title: "Looking Back with LAG",
-      content: `LAG lets you reach into an earlier row in the same partition.
+      content: `\`LAG\` lets you reach into an earlier row in the same partition.
 
 For example, you can show each salesperson's previous sale amount beside the current one:
 
-  SELECT salesperson, sale_date, amount,
-         LAG(amount) OVER (
-           PARTITION BY salesperson
-           ORDER BY sale_date
-         ) AS previous_amount
-  FROM sales
+\`\`\`sql
+SELECT salesperson, sale_date, amount,
+       LAG(amount) OVER (
+         PARTITION BY salesperson
+         ORDER BY sale_date
+       ) AS previous_amount
+FROM sales
+\`\`\`
 
-The first row in each salesperson's partition has no earlier row, so LAG returns NULL there.
+The first row in each salesperson's partition has no earlier row, so \`LAG\` returns \`NULL\` there.
 
 This is useful for change-over-time questions like month-over-month growth, previous status, or the gap from the last event.`,
       sampleData: {

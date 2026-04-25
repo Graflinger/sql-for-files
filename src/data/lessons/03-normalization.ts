@@ -116,7 +116,7 @@ Alice's email and city are repeated on every order row. The Keyboard price is al
 • Insert anomaly: you may not be able to add a new product until somebody orders it
 • Delete anomaly: deleting the last order for a product can accidentally remove the product information itself
 
-Normalization solves this by separating customers, products, orders, and order items into their own tables. Each table has a clear purpose, and relationships are connected with keys.`,
+Normalization solves this by separating \`customers\`, \`products\`, \`orders\`, and \`order_items\` into their own tables. Each table has a clear purpose, and relationships are connected with keys.`,
     },
     {
       id: "normalization-update-anomaly",
@@ -125,7 +125,7 @@ Normalization solves this by separating customers, products, orders, and order i
 
 If Alice moves from Berlin to Munich, you do not update one customer record. You must find every row where Alice appears and change all of them. Missing just one row leaves the database in an inconsistent state.
 
-Load the sample data and query the rows that would need to be changed. You should notice that one real-world fact — Alice's city — is duplicated across multiple order rows.`,
+Load the sample data and query the rows that would need to be changed. You should notice that one real-world fact — Alice's \`customer_city\` — is duplicated across multiple order rows.`,
       sampleData: {
         label: "orders_flat table (denormalized order lines)",
         setupSql: BAD_ORDER_LINES_SETUP,
@@ -180,9 +180,9 @@ Load the sample data and query the rows that would need to be changed. You shoul
     {
       id: "normalization-update-solved",
       title: "One Row to Update in a Good Schema",
-      content: `Now compare that with a normalized design. Customer facts live in the customers table, while orders only store customer_id.
+      content: `Now compare that with a normalized design. Customer facts live in the \`customers\` table, while \`orders\` only stores \`customer_id\`.
 
-If Alice moves, you update her row once in customers. Her orders do not need their own copies of city and email.
+If Alice moves, you update her row once in \`customers\`. Her orders do not need their own copies of city and email.
 
 This is one of the main reasons normalized tables are easier to maintain correctly.`,
       sampleData: {
@@ -239,7 +239,7 @@ This is one of the main reasons normalized tables are easier to maintain correct
 
 In the bad table below, each order stores multiple product names in a single text column. That means the database cannot reason about products cleanly. You end up searching inside strings instead of working with individual rows.
 
-Try the challenge and notice how awkward it feels compared with a proper order_items table.`,
+Try the challenge and notice how awkward it feels compared with a proper \`order_items\` table.`,
       sampleData: {
         label: "orders_packed table (products stored as text lists)",
         setupSql: PACKED_ORDERS_SETUP,
@@ -297,9 +297,9 @@ Try the challenge and notice how awkward it feels compared with a proper order_i
     {
       id: "normalization-good-1nf",
       title: "Order Items Feel Better",
-      content: `In a normalized schema, each ordered product gets its own row in order_items. That means products are queryable with normal joins and filters.
+      content: `In a normalized schema, each ordered product gets its own row in \`order_items\`. That means products are queryable with normal joins and filters.
 
-Instead of asking, “Does this big text blob contain Keyboard?”, you can say, “Which order_items rows point to the Keyboard product?” That is much cleaner and much more reliable.
+Instead of asking, "Does this big text blob contain Keyboard?", you can say, "Which \`order_items\` rows point to the Keyboard product?" That is much cleaner and much more reliable.
 
 Load the normalized tables and try the same business question again.`,
       sampleData: {
@@ -427,7 +427,7 @@ Try finding the products that are hanging by a single row.`,
 
 That means a product can exist before the first order is placed, and it can still exist after the last order is deleted. Product facts are no longer tied to the survival of order rows.
 
-In the sample below, Monitor Stand exists in the product catalog but has not been ordered yet. See if you can find it.`,
+In the sample below, Monitor Stand exists in the \`products\` catalog but has not been ordered yet. See if you can find it.`,
       sampleData: {
         label: "customers, products, orders, and order_items tables",
         setupSql: GOOD_SHOP_SETUP,
@@ -479,18 +479,20 @@ In the sample below, Monitor Stand exists in the product catalog but has not bee
       title: "1NF, 2NF, and 3NF",
       content: `Most application databases aim for first, second, and third normal form. These are practical rules for organizing data well.
 
-First normal form (1NF) means each column contains a single atomic value, and each row can be identified uniquely. For example, a column like products = 'Keyboard, Mouse' breaks 1NF because it stores multiple values in one field.
+First normal form (1NF) means each column contains a single atomic value, and each row can be identified uniquely. For example, a column like \`products = 'Keyboard, Mouse'\` breaks 1NF because it stores multiple values in one field.
 
-Second normal form (2NF) builds on 1NF. It means every non-key column must depend on the whole key, not only part of it. This matters most when a table uses a composite key. If an order_items table is keyed by (order_id, product_id), then quantity depends on the whole key, but customer_name depends only on order_id and belongs somewhere else.
+Second normal form (2NF) builds on 1NF. It means every non-key column must depend on the whole key, not only part of it. This matters most when a table uses a composite key. If an \`order_items\` table is keyed by \`(order_id, product_id)\`, then \`quantity\` depends on the whole key, but \`customer_name\` depends only on \`order_id\` and belongs somewhere else.
 
-Third normal form (3NF) builds on 2NF. It means non-key columns should depend only on the key, not on other non-key columns. For example, if a customers table stores zip_code and city, and city is always determined by zip_code, then city depends indirectly on the customer key. That is a sign the design may need another table.
+Third normal form (3NF) builds on 2NF. It means non-key columns should depend only on the key, not on other non-key columns. For example, if a \`customers\` table stores \`zip_code\` and \`city\`, and \`city\` is always determined by \`zip_code\`, then \`city\` depends indirectly on the customer key. That is a sign the design may need another table.
 
 In practice, 3NF gives you a strong default structure:
 
-  customers(id, name, email)
-  products(id, name, price)
-  orders(id, customer_id, order_date)
-  order_items(order_id, product_id, quantity)
+\`\`\`sql
+customers(id, name, email)
+products(id, name, price)
+orders(id, customer_id, order_date)
+order_items(order_id, product_id, quantity)
+\`\`\`
 
 Each fact lives where it logically belongs, and the keys describe how the tables connect.`,
     },
@@ -504,14 +506,14 @@ Why teams prefer normalized schemas:
 • Cleaner updates: change a customer's email in one place
 • Better data quality: fewer contradictory copies of the same fact
 • Smaller storage footprint: repeated text and attributes are removed
-• Clearer ownership: customer data belongs in customers, not in every order row
+• Clearer ownership: customer data belongs in \`customers\`, not in every order row
 • Safer application logic: inserts, updates, and deletes become more predictable
 
-The trade-off is that normalized databases often need JOINs to bring related data back together. That is usually a good trade in transactional systems, because correctness matters more than squeezing everything into one giant table.
+The trade-off is that normalized databases often need \`JOIN\`s to bring related data back together. That is usually a good trade in transactional systems, because correctness matters more than squeezing everything into one giant table.
 
 There are exceptions. Analytics systems sometimes denormalize on purpose to make reporting faster or simpler. The key idea is this: start with a well-normalized model so your data stays correct, then denormalize selectively when you have a proven performance or reporting reason.
 
-For most beginner-to-intermediate SQL work, think of normalization as the reason your data is split into sensible tables — and JOINs as the tool that lets you combine them again when you query.`,
+For most beginner-to-intermediate SQL work, think of normalization as the reason your data is split into sensible tables — and \`JOIN\`s as the tool that lets you combine them again when you query.`,
     },
   ],
 };

@@ -32,21 +32,25 @@ const grouping: Chapter = {
     {
       id: "grouping-distinct",
       title: "Removing Duplicates with DISTINCT",
-      content: `DISTINCT removes duplicate rows from a result set.
+      content: `\`DISTINCT\` removes duplicate rows from a result set.
 
-If you only want the unique regions in the sales table, you can write:
+If you only want the unique regions in the \`sales\` table, you can write:
 
-  SELECT DISTINCT region
-  FROM sales
+\`\`\`sql
+SELECT DISTINCT region
+FROM sales
+\`\`\`
 
-DISTINCT works on the full combination of selected columns. That means:
+\`DISTINCT\` works on the full combination of selected columns. That means:
 
-  SELECT DISTINCT salesperson, region
-  FROM sales
+\`\`\`sql
+SELECT DISTINCT salesperson, region
+FROM sales
+\`\`\`
 
 returns unique salesperson-region pairs, not just unique salespeople.
 
-Use DISTINCT when you want a clean list of unique values.`,
+Use \`DISTINCT\` when you want a clean list of unique values.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
@@ -88,17 +92,19 @@ Use DISTINCT when you want a clean list of unique values.`,
     {
       id: "grouping-group-by",
       title: "Summarizing with GROUP BY",
-      content: `GROUP BY collects rows into groups before applying aggregate functions.
+      content: `\`GROUP BY\` collects rows into groups before applying aggregate functions.
 
 For example, to total sales by region:
 
-  SELECT region, SUM(amount) AS total_amount
-  FROM sales
-  GROUP BY region
+\`\`\`sql
+SELECT region, SUM(amount) AS total_amount
+FROM sales
+GROUP BY region
+\`\`\`
 
-Now SUM(amount) runs once per region instead of once for the whole table.
+Now \`SUM(amount)\` runs once per region instead of once for the whole table.
 
-Remember this rule: when you use GROUP BY, every selected column must either be grouped or aggregated.`,
+Remember this rule: when you use \`GROUP BY\`, every selected column must either be grouped or aggregated.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
@@ -151,14 +157,16 @@ Remember this rule: when you use GROUP BY, every selected column must either be 
     {
       id: "grouping-having",
       title: "Filtering Groups with HAVING",
-      content: `WHERE filters individual rows before grouping. HAVING filters the groups after aggregation.
+      content: `\`WHERE\` filters individual rows before grouping. \`HAVING\` filters the groups after aggregation.
 
 For example, to find salespeople with more than one sale:
 
-  SELECT salesperson, COUNT(*) AS sale_count
-  FROM sales
-  GROUP BY salesperson
-  HAVING COUNT(*) > 1
+\`\`\`sql
+SELECT salesperson, COUNT(*) AS sale_count
+FROM sales
+GROUP BY salesperson
+HAVING COUNT(*) > 1
+\`\`\`
 
 This is useful when you want to keep only groups that meet an aggregate condition.`,
       sampleData: {
