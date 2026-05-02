@@ -59,6 +59,65 @@ describe("useQueryExecution", () => {
     expect(mockDb._mockConnection.close).toHaveBeenCalled();
   });
 
+  it("formats Arrow date and timestamp values for display", async () => {
+    const mockArrow = createMockArrowResult(
+      [
+        {
+          order_date: 1593561600000,
+          created_at: 1593561600123,
+        },
+      ],
+      ["order_date", "created_at"],
+      {
+        order_date: "DateDay",
+        created_at: "TimestampMillisecond",
+      }
+    );
+
+    mockDb._mockConnection.query.mockResolvedValue(mockArrow);
+
+    const { result } = renderHook(() =>
+      useQueryExecution(mockDb as unknown as AsyncDuckDB)
+    );
+
+    await act(async () => {
+      await result.current.executeQuery("SELECT order_date, created_at FROM orders");
+    });
+
+    expect(result.current.result!.data[0]).toMatchObject({
+      order_date: "2020-07-01",
+      created_at: "2020-07-01 00:00:00.123",
+    });
+  });
+
+  it("formats Arrow decimal values with their declared scale", async () => {
+    const mockArrow = createMockArrowResult(
+      [
+        {
+          amount: 120000,
+        },
+      ],
+      ["amount"],
+      {
+        amount: "Decimal[10e+2]",
+      }
+    );
+
+    mockDb._mockConnection.query.mockResolvedValue(mockArrow);
+
+    const { result } = renderHook(() =>
+      useQueryExecution(mockDb as unknown as AsyncDuckDB)
+    );
+
+    await act(async () => {
+      await result.current.executeQuery("SELECT amount FROM sales");
+    });
+
+    expect(result.current.result!.data[0]).toMatchObject({
+      amount: "1200.00",
+    });
+  });
+
   it("sets error on query failure", async () => {
     mockDb._mockConnection.query.mockRejectedValue(
       new Error("Syntax error")
