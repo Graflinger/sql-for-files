@@ -3,7 +3,9 @@ import fs from "node:fs/promises";
 import { createServer } from "node:http";
 import puppeteer from "puppeteer";
 
-const routes = ["/", "/docs", "/privacy", "/legal"];
+import { publicRoutes } from "./public-routes.mjs";
+
+const routes = publicRoutes.map((route) => route.path);
 const staticDir = path.resolve(process.cwd(), "dist");
 const port = 4173;
 
@@ -94,6 +96,7 @@ const run = async () => {
       await fs.writeFile(outputPath, html, "utf8");
 
       await page.close();
+      console.log(`[prerender] Wrote ${route}`);
     }
   } finally {
     await browser.close();

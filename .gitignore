@@ -27,6 +27,8 @@ playwright-report/index.html
 *.sw?
 
 *.md
+# Local SEO and AI discoverability operations checklist
+SEO_AI_DISCOVERABILITY_NON_CODE_TASKS.md
 !README.md
 !AGENTS.md
 !.agents/skills/**/SKILL.md
