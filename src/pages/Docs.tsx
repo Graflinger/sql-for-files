@@ -18,6 +18,7 @@ const pageSections = [
   { id: "quickstart", label: "Quickstart" },
   { id: "add-data", label: "Add Data" },
   { id: "ide-tour", label: "IDE Tour" },
+  { id: "learn-sql", label: "Learn SQL" },
   { id: "querying-in-tabs", label: "Querying in Tabs" },
   { id: "explore-results", label: "Explore Results" },
   { id: "visualisation", label: "Visualisation" },
@@ -294,6 +295,90 @@ export default function Docs() {
                       Visualisation, and Classification views.
                     </p>
                   </div>
+                </div>
+              </section>
+
+              <section id="learn-sql" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Learning</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Learn SQL
+                  </h2>
+                </div>
+                <div className={`${sectionGridClass} md:grid-cols-2`}>
+                  <div className={surfaceCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Open the learning panel
+                    </h3>
+                    <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>
+                        Click <strong>Learn SQL</strong> in the top navigation to
+                        open the guided lesson panel from anywhere in the app.
+                      </li>
+                      <li>
+                        On desktop, the lessons open in the right-side panel next
+                        to the editor and results.
+                      </li>
+                      <li>
+                        On mobile, open the editor and switch to the
+                        <strong> Learn</strong> tab in the bottom tab bar.
+                      </li>
+                      <li>
+                        Closing and reopening the panel keeps your lesson
+                        progress saved locally in your browser.
+                      </li>
+                    </ul>
+                  </div>
+                  <div className={surfaceCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Work through a lesson
+                    </h3>
+                    <ol className="mb-0 list-decimal space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                      <li>Pick a lesson from the chapter list.</li>
+                      <li>Read the explanation and example SQL.</li>
+                      <li>
+                        If the lesson includes sample data, click
+                        <strong> Load Data</strong> to create the lesson tables.
+                      </li>
+                      <li>
+                        Click <strong>Start in Editor</strong> to prefill the
+                        active SQL tab when a challenge provides starter SQL.
+                      </li>
+                      <li>
+                        Run your query, then click <strong>Check Answer</strong>
+                        to validate the latest result.
+                      </li>
+                      <li>
+                        Use <strong>Previous</strong> and <strong>Next</strong>
+                        to move through the track, or go back to
+                        <strong> All lessons</strong> at any time.
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+                <div className={plainCardClass}>
+                  <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Progress and tips
+                  </h3>
+                  <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
+                    <li>
+                      Completed lessons are marked in the navigation and counted
+                      in the progress bar at the top of the panel.
+                    </li>
+                    <li>
+                      Lesson completion is based on passing the built-in
+                      challenge check for that lesson.
+                    </li>
+                    <li>
+                      If you want to start over, use <strong>Reset progress</strong>
+                      from the lesson overview.
+                    </li>
+                    <li>
+                      The checker uses the latest query result from the active
+                      editor tab, so rerun your SQL after making changes before
+                      checking again.
+                    </li>
+                  </ul>
                 </div>
               </section>
 

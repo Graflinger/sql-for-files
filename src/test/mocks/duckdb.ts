@@ -38,9 +38,15 @@ export function createMockDuckDB(connectionOverride?: ReturnType<typeof createMo
  */
 export function createMockArrowResult(
   data: Record<string, unknown>[],
-  columns: string[]
+  columns: string[],
+  columnTypes: Record<string, string> = {}
 ) {
-  const fields = columns.map((name) => ({ name }));
+  const fields = columns.map((name) => ({
+    name,
+    type: columnTypes[name]
+      ? { toString: () => columnTypes[name] }
+      : undefined,
+  }));
 
   return {
     numRows: data.length,

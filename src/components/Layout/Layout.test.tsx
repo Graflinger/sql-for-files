@@ -5,15 +5,18 @@ import { MemoryRouter } from "react-router-dom";
 
 import Layout from "./Layout";
 import { ThemeProvider } from "../../contexts/ThemeContext";
+import { LearnSQLProvider } from "../../contexts/LearnSQLContext";
 
 function renderLayout() {
   return render(
     <ThemeProvider>
-      <MemoryRouter>
-        <Layout>
-          <div>Page content</div>
-        </Layout>
-      </MemoryRouter>
+      <LearnSQLProvider>
+        <MemoryRouter>
+          <Layout>
+            <div>Page content</div>
+          </Layout>
+        </MemoryRouter>
+      </LearnSQLProvider>
     </ThemeProvider>
   );
 }

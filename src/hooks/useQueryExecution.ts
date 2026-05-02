@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+
 import type { QueryResult } from "../types/query";
+import { formatArrowValueForDisplay } from "../utils/arrowDisplay";
 import { withDuckDBConnection } from "../utils/duckdb";
 
 const DISPLAY_LIMIT = 1000; // Max rows to convert to JS for UI display
@@ -77,17 +79,23 @@ export function useQueryExecution(db: AsyncDuckDB | null, options?: UseQueryExec
       const rowsToDisplay = Math.min(DISPLAY_LIMIT, actualRowCount);
       const displaySlice = arrowResult.slice(0, rowsToDisplay);
 
+      const fields: Array<{ name: string; type?: unknown }> =
+        arrowResult.schema.fields;
+
       const data = displaySlice.toArray().map((row) => {
         const obj: Record<string, unknown> = {};
         // Iterate through each column and extract the value
-        arrowResult.schema.fields.forEach((field: { name: string }) => {
-          obj[field.name] = row[field.name];
+        fields.forEach((field) => {
+          obj[field.name] = formatArrowValueForDisplay(
+            row[field.name],
+            field.type
+          );
         });
         return obj;
       });
 
       // Extract column names from Arrow schema
-      const columns = arrowResult.schema.fields.map((f: { name: string }) => f.name);
+      const columns = fields.map((f) => f.name);
 
       // Calculate execution time
       const executionTime = performance.now() - startTime;
