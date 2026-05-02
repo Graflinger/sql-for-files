@@ -38,6 +38,29 @@ Consider a table with these columns:
 
 In the next chapter you will learn your first steps with SQL — the language used to ask questions about data stored in tables like this.`,
     },
+    {
+      id: "data-basics-null",
+      title: "Missing Values with NULL",
+      content: `Real data often has missing or unknown values. SQL represents those values with \`NULL\`.
+
+\`NULL\` is not the same as an empty string, zero, or the word "unknown". It means the value is absent.
+
+This matters because normal comparisons do not work the way beginners often expect:
+
+\`\`\`sql
+WHERE department = NULL
+\`\`\`
+
+That does not find missing departments. To test for missing values, use \`IS NULL\`:
+
+\`\`\`sql
+WHERE department IS NULL
+\`\`\`
+
+To find rows where a value is present, use \`IS NOT NULL\`.
+
+You will see \`NULL\` again in later lessons. A \`LEFT JOIN\` uses \`NULL\` when there is no matching row. Aggregates like \`SUM\` and \`AVG\` usually ignore \`NULL\` values. Advanced subtotal queries can also use \`NULL\` to mark totals.`,
+    },
   ],
 };
 

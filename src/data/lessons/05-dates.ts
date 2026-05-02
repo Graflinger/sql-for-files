@@ -43,6 +43,8 @@ WHERE order_date >= DATE '2024-02-01'
 
 This pattern is often safer than \`BETWEEN\` for month ranges, because the upper bound stays exclusive.
 
+The difference matters most with timestamp values. If an order happened at \`2024-02-29 18:30:00\`, an inclusive upper bound like \`BETWEEN DATE '2024-02-01' AND DATE '2024-02-29'\` can miss it depending on how the database casts the date.
+
 You can use the same idea for weeks, quarters, or any other date window.`,
       sampleData: {
         label: "orders table (7 rows)",
@@ -97,7 +99,9 @@ SELECT EXTRACT(MONTH FROM order_date) AS order_month
 FROM orders
 \`\`\`
 
-This is useful when you want to group by year, month, quarter, weekday, and more. Another common option is \`DATE_TRUNC\`, which rounds a date down to a unit such as the start of the month.
+This is useful when you want to group by year, month, quarter, weekday, and more. Be careful when grouping by month number alone: January 2024 and January 2025 would both become month \`1\`.
+
+For real month-based reports, \`DATE_TRUNC\` is often safer because it keeps the year and month together by rounding the date down to the start of the month.
 
 \`\`\`sql
 SELECT DATE_TRUNC('month', order_date) AS month_start

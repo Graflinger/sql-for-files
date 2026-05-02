@@ -401,5 +401,59 @@ describe("QueryResults", () => {
       createObjectUrlSpy.mockRestore();
       revokeSpy.mockRestore();
     });
+
+    it("formats Arrow decimal values in exported query results", async () => {
+      const user = userEvent.setup();
+      let exportedBlob: Blob | null = null;
+      const createObjectUrlSpy = vi
+        .spyOn(URL, "createObjectURL")
+        .mockImplementation((blob: Blob | MediaSource) => {
+          exportedBlob = blob as Blob;
+          return "blob:download";
+        });
+      const revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+
+      const result = createResult({
+        columns: ["amount"],
+        data: [{ amount: "1200.00" }],
+        arrowTable: {
+          numRows: 1,
+          schema: {
+            fields: [
+              { name: "amount", type: { scale: 2, toString: () => "Decimal[10e+2]" } },
+            ],
+          },
+          getChild: () => ({
+            get: () => 120000,
+          }),
+        },
+      });
+
+      render(<QueryResults result={result} error={null} />);
+
+      const mockClick = vi.fn();
+      const origCreateElement = document.createElement.bind(document);
+      vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
+        if (tag === "a") {
+          return {
+            setAttribute: vi.fn(),
+            click: mockClick,
+            style: {} as CSSStyleDeclaration,
+          } as unknown as HTMLAnchorElement;
+        }
+        return origCreateElement(tag);
+      });
+      vi.spyOn(document.body, "appendChild").mockImplementation((node) => node);
+      vi.spyOn(document.body, "removeChild").mockImplementation((node) => node);
+
+      await user.click(screen.getByText(/Export CSV/));
+
+      expect(mockClick).toHaveBeenCalled();
+      expect(exportedBlob).not.toBeNull();
+      await expect(exportedBlob!.text()).resolves.toContain("1200.00");
+
+      createObjectUrlSpy.mockRestore();
+      revokeSpy.mockRestore();
+    });
   });
 });

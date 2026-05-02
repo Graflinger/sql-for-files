@@ -97,7 +97,9 @@ ORDER BY
 LIMIT
 \`\`\`
 
-This matters because each step can only use what earlier steps have already produced. For example, \`WHERE\` usually cannot use a \`SELECT\` alias because \`SELECT\` has not happened yet.
+This is a teaching model for how to reason about queries. Real database engines optimize internally, and some dialects allow convenience shortcuts, but the logical order explains most SQL behavior.
+
+This matters because each step can only use what earlier steps have already produced. For example, in standard SQL \`WHERE\` cannot use a \`SELECT\` alias because \`SELECT\` has not happened yet.
 
 When a query feels confusing, try reading it in logical order instead of written order. That often explains why a clause works — or why it does not.`,
     },
@@ -323,6 +325,8 @@ FROM → WHERE → GROUP BY → HAVING → WINDOW FUNCTIONS → SELECT → ORDER
 
 That means window functions run after filtering and grouping, but before the final ordering and limiting.
 
+You still write window functions in the \`SELECT\` list or sometimes in \`ORDER BY\`. The logical order is about when their input rows exist, not where the expression is typed.
+
 This is why window functions can do things like rank grouped results, but usually cannot be used directly in \`WHERE\` or \`GROUP BY\`.
 
 For example, this query first groups sales by region, then ranks those regional totals:
@@ -428,7 +432,9 @@ FROM ranked_sales
 WHERE region_rank = 1
 \`\`\`
 
-That works because the outer query's \`WHERE\` sees \`region_rank\` as a normal column from the inner query result.`,
+That works because the outer query's \`WHERE\` sees \`region_rank\` as a normal column from the inner query result.
+
+DuckDB also supports \`QUALIFY\`, which filters after window functions. A \`QUALIFY region_rank = 1\` clause can be a concise alternative to the subquery pattern.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
@@ -499,7 +505,7 @@ That works because the outer query's \`WHERE\` sees \`region_rank\` as a normal 
 
 That has an important consequence:
 
-• \`WHERE\` usually cannot use a \`SELECT\` alias
+• In standard SQL, \`WHERE\` cannot use a \`SELECT\` alias
 • \`ORDER BY\` can use a \`SELECT\` alias
 
 Example:
@@ -510,7 +516,9 @@ FROM employees
 ORDER BY annual_bonus DESC
 \`\`\`
 
-By the time \`ORDER BY\` runs, \`annual_bonus\` already exists in the result shape, so sorting by it is allowed.`,
+By the time \`ORDER BY\` runs, \`annual_bonus\` already exists in the result shape, so sorting by it is allowed.
+
+DuckDB is permissive with some aliases in earlier clauses, but this standard logical-order rule is the most portable habit to learn.`,
       sampleData: {
         label: "employees table (8 rows)",
         setupSql: EMPLOYEES_SETUP,

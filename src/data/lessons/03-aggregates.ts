@@ -34,7 +34,7 @@ const aggregates: Chapter = {
     {
       id: "aggregates-count",
       title: "COUNT Rows",
-      content: `\`COUNT\` tells you how many rows match a condition. It is one of the fastest ways to answer questions like “How many sales did we make?” or “How many orders came from the West region?”
+      content: `\`COUNT\` tells you how many rows match a condition. It is one of the fastest ways to answer questions like “How many sales did we make?” or “How many sales came from the West region?”
 
 The most common form is \`COUNT(*)\`:
 
@@ -42,6 +42,8 @@ The most common form is \`COUNT(*)\`:
 SELECT COUNT(*) AS sale_count
 FROM sales
 \`\`\`
+
+\`COUNT(*)\` counts rows. \`COUNT(column_name)\` counts only rows where that column is not \`NULL\`.
 
 You can also add a \`WHERE\` clause to count only part of a table.
 
@@ -107,7 +109,9 @@ SELECT SUM(amount) AS total_amount
 FROM sales
 \`\`\`
 
-\`SUM\` answers questions like “What was our total revenue?” or “How much did the West region sell?”`,
+\`SUM\` answers questions like “What was our total revenue?” or “How much did the West region sell?”
+
+Like most aggregates, \`SUM\` ignores \`NULL\` values. If no rows match at all, \`SUM\` returns \`NULL\` rather than zero.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,
@@ -159,7 +163,7 @@ FROM sales
 For example:
 
 \`\`\`sql
-SELECT COUNT(*) AS order_count, SUM(amount) AS total_amount
+SELECT COUNT(*) AS sale_count, SUM(amount) AS total_amount
 FROM sales
 WHERE region = 'West'
 \`\`\`
@@ -172,11 +176,11 @@ This is very common in reporting and dashboards because one query can return mul
       },
       challenge: {
         prompt:
-          "For the West region, return the number of sales as order_count and the total amount as total_amount.",
-        hint: "Use COUNT(*) AS order_count and SUM(amount) AS total_amount with WHERE region = 'West'.",
+          "For the West region, return the number of sales as sale_count and the total amount as total_amount.",
+        hint: "Use COUNT(*) AS sale_count and SUM(amount) AS total_amount with WHERE region = 'West'.",
         initialSql: "-- Count and sum West region sales\n",
         solutionSql:
-          "SELECT COUNT(*) AS order_count, SUM(amount) AS total_amount\nFROM sales\nWHERE region = 'West';",
+          "SELECT COUNT(*) AS sale_count, SUM(amount) AS total_amount\nFROM sales\nWHERE region = 'West';",
         validate: (result) => {
           if (result.rowCount !== 1) {
             return {
@@ -187,18 +191,18 @@ This is very common in reporting and dashboards because one query can return mul
           }
 
           const row = result.data[0];
-          const orderCount = Number(getValue(row, "order_count"));
+          const saleCount = Number(getValue(row, "sale_count"));
           const totalAmount = Number(getValue(row, "total_amount"));
 
-          if (Number.isNaN(orderCount) || Number.isNaN(totalAmount)) {
+          if (Number.isNaN(saleCount) || Number.isNaN(totalAmount)) {
             return {
               passed: false,
               message:
-                "Return your results with the aliases order_count and total_amount.",
+                "Return your results with the aliases sale_count and total_amount.",
             };
           }
 
-          if (orderCount !== 3 || Math.abs(totalAmount - 3340) > 0.01) {
+          if (saleCount !== 3 || Math.abs(totalAmount - 3340) > 0.01) {
             return {
               passed: false,
               message: "West should have 3 sales totaling 3340.",
@@ -329,7 +333,9 @@ SELECT AVG(amount) AS average_sale
 FROM sales
 \`\`\`
 
-\`AVG\` is useful when you want a typical value instead of a total or an extreme. For example, it can tell you the average order size or average score.`,
+\`AVG\` is useful when you want a typical value instead of a total or an extreme. For example, it can tell you the average sale size or average score.
+
+\`AVG\` ignores \`NULL\` values, just like \`SUM\`.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,

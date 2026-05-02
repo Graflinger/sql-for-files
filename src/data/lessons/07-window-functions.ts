@@ -174,7 +174,7 @@ This is one of the most useful patterns in SQL because it lets you compare a row
 
           return {
             passed: true,
-            message: "Nice! PARTITION BY region created a separate running context for each region.",
+            message: "Nice! PARTITION BY region created a separate calculation context for each region.",
           };
         },
       },
@@ -197,6 +197,8 @@ FROM sales
 \`\`\`
 
 The frame clause \`ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\` says: start at the first row in this salesperson's partition and keep summing up to the current row.
+
+Writing the frame explicitly avoids surprises. Some databases use a default frame when you add \`ORDER BY\`, and duplicate ordering values can make that default behave differently than a row-by-row running total.
 
 This pattern is common in finance, analytics, and product dashboards whenever you want a cumulative view over time.`,
       sampleData: {
@@ -288,7 +290,9 @@ This lets you answer questions like:
 • What are the top 3 orders per customer?
 • Which event happened first for each user?
 
-\`RANK\` and \`DENSE_RANK\` are close relatives that handle ties differently, but \`ROW_NUMBER\` is the easiest place to start.`,
+\`RANK\` and \`DENSE_RANK\` are close relatives that handle ties differently, but \`ROW_NUMBER\` is the easiest place to start.
+
+If two rows have the same sorting value, add a second column to make the order deterministic. For example, \`ORDER BY amount DESC, id\` breaks ties by \`id\`.`,
       sampleData: {
         label: "sales table (8 rows)",
         setupSql: SALES_SETUP,

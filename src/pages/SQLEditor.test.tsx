@@ -107,10 +107,10 @@ describe("SqlEditorPage lesson routes", () => {
   });
 
   it("opens the requested lesson from the URL", async () => {
-    renderEditor("/editor/chapter1/03");
+    renderEditor("/editor/chapter1/04");
 
     await waitFor(() => {
-      expect(screen.getByText("03 Sorting Results")).toBeInTheDocument();
+      expect(screen.getByText("04 Sorting Results")).toBeInTheDocument();
     });
   });
 

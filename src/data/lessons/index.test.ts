@@ -12,15 +12,15 @@ describe("lesson routes", () => {
   });
 
   it("builds a shareable lesson path", () => {
-    expect(lessonPath("intro-order-by")).toBe("/editor/chapter1/03");
+    expect(lessonPath("intro-order-by")).toBe("/editor/chapter1/04");
   });
 
   it("resolves a lesson from chapter and lesson segments", () => {
-    expect(lessonByRoute("chapter1", "03")?.id).toBe("intro-order-by");
+    expect(lessonByRoute("chapter1", "04")?.id).toBe("intro-order-by");
   });
 
   it("accepts zero-padded chapter segments", () => {
-    expect(lessonByRoute("chapter01", "3")?.id).toBe("intro-order-by");
+    expect(lessonByRoute("chapter01", "4")?.id).toBe("intro-order-by");
   });
 
   it("returns null for invalid lesson routes", () => {

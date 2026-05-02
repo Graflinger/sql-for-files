@@ -10,6 +10,59 @@ function getArrowTypeName(typeName: unknown): string {
   return "";
 }
 
+function getDecimalScale(typeName: unknown, arrowTypeName: string): number | null {
+  if (
+    typeName &&
+    typeof typeName === "object" &&
+    "scale" in typeName &&
+    typeof typeName.scale === "number"
+  ) {
+    return typeName.scale;
+  }
+
+  const scaleMatch = arrowTypeName.match(/^decimal\[\d+e\+?(\d+)\]$/);
+  if (!scaleMatch) return null;
+
+  return Number(scaleMatch[1]);
+}
+
+function getUnscaledDecimalString(value: unknown): string | null {
+  if (typeof value === "bigint") {
+    return value.toString();
+  }
+
+  if (typeof value === "number") {
+    return Number.isFinite(value) && Number.isInteger(value)
+      ? value.toString()
+      : null;
+  }
+
+  if (typeof value === "string") {
+    return /^-?\d+$/.test(value) ? value : null;
+  }
+
+  if (value && typeof value === "object" && "toString" in value) {
+    const stringValue = String(value);
+    return /^-?\d+$/.test(stringValue) ? stringValue : null;
+  }
+
+  return null;
+}
+
+function formatDecimalValue(value: unknown, scale: number): string | unknown {
+  const unscaled = getUnscaledDecimalString(value);
+  if (unscaled === null || scale < 0) return value;
+  if (scale === 0) return unscaled;
+
+  const sign = unscaled.startsWith("-") ? "-" : "";
+  const digits = sign ? unscaled.slice(1) : unscaled;
+  const padded = digits.padStart(scale + 1, "0");
+  const integerPart = padded.slice(0, -scale);
+  const fractionalPart = padded.slice(-scale);
+
+  return `${sign}${integerPart}.${fractionalPart}`;
+}
+
 function toEpochMilliseconds(value: unknown): number | null {
   if (value instanceof Date) {
     const time = value.getTime();
@@ -62,6 +115,11 @@ export function formatArrowValueForDisplay(
 
   if (arrowTypeName.startsWith("timestamp")) {
     return formatTimestampValue(value);
+  }
+
+  if (arrowTypeName.startsWith("decimal")) {
+    const scale = getDecimalScale(typeName, arrowTypeName);
+    return scale === null ? value : formatDecimalValue(value, scale);
   }
 
   return value;

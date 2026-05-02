@@ -90,6 +90,34 @@ describe("useQueryExecution", () => {
     });
   });
 
+  it("formats Arrow decimal values with their declared scale", async () => {
+    const mockArrow = createMockArrowResult(
+      [
+        {
+          amount: 120000,
+        },
+      ],
+      ["amount"],
+      {
+        amount: "Decimal[10e+2]",
+      }
+    );
+
+    mockDb._mockConnection.query.mockResolvedValue(mockArrow);
+
+    const { result } = renderHook(() =>
+      useQueryExecution(mockDb as unknown as AsyncDuckDB)
+    );
+
+    await act(async () => {
+      await result.current.executeQuery("SELECT amount FROM sales");
+    });
+
+    expect(result.current.result!.data[0]).toMatchObject({
+      amount: "1200.00",
+    });
+  });
+
   it("sets error on query failure", async () => {
     mockDb._mockConnection.query.mockRejectedValue(
       new Error("Syntax error")

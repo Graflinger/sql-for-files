@@ -9,7 +9,8 @@ const ORDERS_SETUP = [
   `INSERT INTO orders VALUES
     ('Alice', ['Widget', 'Gadget'], [9.99, 24.99]),
     ('Bob', ['Gizmo', 'Widget', 'Doohickey'], [14.99, 9.99, 4.99]),
-    ('Carol', ['Gadget'], [24.99])`,
+    ('Carol', ['Gadget'], [24.99]),
+    ('Dave', ['Sticker'], [4.99])`,
 ];
 
 function getValue(row: Record<string, unknown>, column: string): unknown {
@@ -42,9 +43,11 @@ SELECT customer, list_transform(prices, lambda p : round(p * 1.1, 2)) AS taxed
 FROM orders
 \`\`\`
 
-\`NULL\` elements stay \`NULL\` after transformation. The return type of the new list is determined by the lambda expression.`,
+\`NULL\` elements stay \`NULL\` after transformation. The return type of the new list is determined by the lambda expression.
+
+The sample table stores \`items\` and \`prices\` as parallel lists. That means the first item belongs with the first price, the second item belongs with the second price, and so on. This is compact, but position-dependent data can be fragile if the lists get out of sync.`,
       sampleData: {
-        label: "orders table (3 rows with item and price lists)",
+        label: "orders table (4 rows with item and price lists)",
         setupSql: ORDERS_SETUP,
         tableNames: ["orders"],
       },
@@ -57,7 +60,7 @@ FROM orders
         solutionSql:
           "SELECT customer, list_transform(prices, lambda p : p * 2) AS doubled_prices\nFROM orders\nORDER BY customer;",
         validate: (result) => {
-          if (result.rowCount !== 3) {
+          if (result.rowCount !== 4) {
             return {
               passed: false,
               message: `Expected 3 rows but got ${result.rowCount}.`,
@@ -111,7 +114,7 @@ FROM orders
 
 If no elements match, the result is an empty list \`[]\`. This is useful for narrowing down list data before further processing.`,
       sampleData: {
-        label: "orders table (3 rows with item and price lists)",
+        label: "orders table (4 rows with item and price lists)",
         setupSql: ORDERS_SETUP,
         tableNames: ["orders"],
       },
@@ -124,7 +127,7 @@ If no elements match, the result is an empty list \`[]\`. This is useful for nar
         solutionSql:
           "SELECT customer, list_filter(prices, lambda p : p > 10) AS high_prices\nFROM orders\nORDER BY customer;",
         validate: (result) => {
-          if (result.rowCount !== 3) {
+          if (result.rowCount !== 4) {
             return {
               passed: false,
               message: `Expected 3 rows but got ${result.rowCount}.`,
@@ -178,7 +181,7 @@ FROM orders
 
 \`list_reduce\` needs at least one element. For empty lists, it returns \`NULL\`. If the list has exactly one element, that element is the result without calling the lambda.`,
       sampleData: {
-        label: "orders table (3 rows with item and price lists)",
+        label: "orders table (4 rows with item and price lists)",
         setupSql: ORDERS_SETUP,
         tableNames: ["orders"],
       },
@@ -191,7 +194,7 @@ FROM orders
         solutionSql:
           "SELECT customer, list_reduce(prices, lambda a, b : a + b) AS order_total\nFROM orders\nORDER BY customer;",
         validate: (result) => {
-          if (result.rowCount !== 3) {
+          if (result.rowCount !== 4) {
             return {
               passed: false,
               message: `Expected 3 rows but got ${result.rowCount}.`,
@@ -202,6 +205,7 @@ FROM orders
             ["Alice", 34.98],
             ["Bob", 29.97],
             ["Carol", 24.99],
+            ["Dave", 4.99],
           ];
 
           for (let index = 0; index < expected.length; index += 1) {
@@ -255,7 +259,7 @@ SELECT list_filter(
 
 Nesting gives you a mini data pipeline inside a single \`SELECT\` expression.`,
       sampleData: {
-        label: "orders table (3 rows with item and price lists)",
+        label: "orders table (4 rows with item and price lists)",
         setupSql: ORDERS_SETUP,
         tableNames: ["orders"],
       },
@@ -268,7 +272,7 @@ Nesting gives you a mini data pipeline inside a single \`SELECT\` expression.`,
         solutionSql:
           "SELECT customer,\n  COALESCE(\n    list_reduce(\n      list_filter(prices, lambda p : p > 10),\n      lambda a, b : a + b\n    ),\n    0\n  ) AS expensive_total\nFROM orders\nORDER BY customer;",
         validate: (result) => {
-          if (result.rowCount !== 3) {
+          if (result.rowCount !== 4) {
             return {
               passed: false,
               message: `Expected 3 rows but got ${result.rowCount}.`,
@@ -279,6 +283,7 @@ Nesting gives you a mini data pipeline inside a single \`SELECT\` expression.`,
             ["Alice", 24.99],
             ["Bob", 14.99],
             ["Carol", 24.99],
+            ["Dave", 0],
           ];
 
           for (let index = 0; index < expected.length; index += 1) {

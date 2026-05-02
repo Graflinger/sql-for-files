@@ -160,7 +160,7 @@ WHERE name LIKE '%li%'     -- names containing "li"
 WHERE name LIKE '_o%'      -- names with "o" as the second letter
 \`\`\`
 
-\`LIKE\` is case-sensitive in most databases. DuckDB also supports \`ILIKE\` for case-insensitive matching:
+In DuckDB, \`LIKE\` is case-sensitive. DuckDB also supports \`ILIKE\` for case-insensitive matching:
 
 \`\`\`sql
 WHERE name ILIKE '%alice%' -- matches Alice, ALICE, alice, etc.
@@ -172,33 +172,40 @@ WHERE name ILIKE '%alice%' -- matches Alice, ALICE, alice, etc.
       },
       challenge: {
         prompt:
-          "Find all employees whose name starts with a letter between A and D (inclusive)",
-        hint: "You can combine multiple filters with OR, like: WHERE name LIKE 'A%' OR name LIKE 'B%' ...",
-        initialSql: "-- Names starting with A through D\n",
+          "Find all employees whose name contains the letters li. Return name, ordered by name.",
+        hint: "Use WHERE name LIKE '%li%' and ORDER BY name.",
+        initialSql: "-- Names containing li\n",
         solutionSql:
-          "SELECT *\nFROM employees\nWHERE name LIKE 'A%'\n   OR name LIKE 'B%'\n   OR name LIKE 'C%'\n   OR name LIKE 'D%';",
+          "SELECT name\nFROM employees\nWHERE name LIKE '%li%'\nORDER BY name;",
         validate: (result) => {
-          if (result.rowCount !== 4) {
+          const columns = result.columns.map((column) => column.toLowerCase());
+          if (columns.length !== 1 || !columns.includes("name")) {
             return {
               passed: false,
-              message: `Expected 4 employees (Alice, Bob, Charlie, Diana) but got ${result.rowCount}.`,
+              message: "Return exactly one column: name.",
+            };
+          }
+          if (result.rowCount !== 2) {
+            return {
+              passed: false,
+              message: `Expected 2 employees (Alice and Charlie) but got ${result.rowCount}.`,
             };
           }
           const names = result.data.map((r) =>
             String(r.name ?? r.Name).toLowerCase()
           );
-          const expected = ["alice", "bob", "charlie", "diana"];
-          const allPresent = expected.every((n) => names.includes(n));
+          const expected = ["alice", "charlie"];
+          const allPresent = expected.every((n, index) => names[index] === n);
           if (!allPresent) {
             return {
               passed: false,
               message:
-                "The result should include Alice, Bob, Charlie, and Diana.",
+                "The result should be Alice and Charlie, ordered by name.",
             };
           }
           return {
             passed: true,
-            message: "You found all four employees whose names start with A–D.",
+            message: "You used LIKE to find names containing li.",
           };
         },
       },

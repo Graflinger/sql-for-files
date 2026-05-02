@@ -8,7 +8,9 @@ const PRODUCTS_SETUP = [
   `INSERT INTO products VALUES
     ('Widget', ['electronics', 'sale']),
     ('Gadget', ['electronics', 'premium']),
-    ('Gizmo', ['accessories', 'sale', 'new'])`,
+    ('Gizmo', ['accessories', 'sale', 'new']),
+    ('Doodad', []::VARCHAR[]),
+    ('Mystery', NULL)`,
 ];
 
 const CONTACTS_SETUP = [
@@ -55,11 +57,11 @@ FROM products
 
 For a product with two tags, this produces two rows — one per tag. The other columns are repeated for each expanded element.
 
-An empty list produces zero rows for that input, so the parent row disappears from the result. \`NULL\` lists also produce zero rows.
+An empty list produces zero rows for that input, so the parent row disappears from the result. \`NULL\` lists also produce zero rows. The sample data includes both cases so you can see that they do not appear after unnesting.
 
-\`UNNEST\` works in the \`SELECT\` clause and is specific to DuckDB — most databases call this a lateral join or use \`CROSS JOIN UNNEST\`.`,
+DuckDB supports the convenient \`SELECT unnest(...)\` form. Other databases often use a lateral join or \`CROSS JOIN UNNEST\` syntax instead.`,
       sampleData: {
-        label: "products table (3 rows with tag lists)",
+        label: "products table (5 rows with tag lists)",
         setupSql: PRODUCTS_SETUP,
         tableNames: ["products"],
       },
@@ -75,7 +77,7 @@ An empty list produces zero rows for that input, so the parent row disappears fr
           if (result.rowCount !== 7) {
             return {
               passed: false,
-              message: `Expected 7 rows (2 + 2 + 3 tags) but got ${result.rowCount}.`,
+              message: `Expected 7 rows (2 + 2 + 3 + 0 + 0 tags) but got ${result.rowCount}.`,
             };
           }
 

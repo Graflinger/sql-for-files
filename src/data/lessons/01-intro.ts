@@ -134,6 +134,73 @@ You can list columns in any order — the result will follow the order you speci
       },
     },
     {
+      id: "intro-aliases",
+      title: "Naming Results with Aliases",
+      content: `Aliases let you give columns or tables a temporary name inside a query.
+
+For columns, aliases make results easier to read:
+
+\`\`\`sql
+SELECT name AS employee_name, salary AS annual_salary
+FROM employees
+\`\`\`
+
+The underlying table still has columns named \`name\` and \`salary\`. Only the query result uses \`employee_name\` and \`annual_salary\`.
+
+Aliases are especially useful when expressions would otherwise have awkward names:
+
+\`\`\`sql
+SELECT salary * 0.10 AS annual_bonus
+FROM employees
+\`\`\`
+
+Tables can have aliases too. You will see this often in joins:
+
+\`\`\`sql
+SELECT e.name
+FROM employees AS e
+\`\`\`
+
+Here \`e\` is a short temporary name for \`employees\`. It keeps longer queries readable.`,
+      sampleData: {
+        label: "employees table (8 rows)",
+        setupSql: EMPLOYEES_SETUP,
+        tableNames: ["employees"],
+      },
+      challenge: {
+        prompt:
+          "Select employee names and salaries, but alias the columns as employee_name and annual_salary.",
+        hint: "Use SELECT name AS employee_name, salary AS annual_salary FROM employees.",
+        initialSql: "-- Rename columns in the result\n",
+        solutionSql:
+          "SELECT name AS employee_name, salary AS annual_salary\nFROM employees;",
+        validate: (result) => {
+          const cols = result.columns.map((c) => c.toLowerCase());
+          if (
+            cols.length !== 2 ||
+            !cols.includes("employee_name") ||
+            !cols.includes("annual_salary")
+          ) {
+            return {
+              passed: false,
+              message:
+                "Return exactly two columns aliased as employee_name and annual_salary.",
+            };
+          }
+          if (result.rowCount !== 8) {
+            return {
+              passed: false,
+              message: `Expected 8 rows but got ${result.rowCount}.`,
+            };
+          }
+          return {
+            passed: true,
+            message: "Correct! The result columns now have clear aliases.",
+          };
+        },
+      },
+    },
+    {
       id: "intro-order-by",
       title: "Sorting Results",
       content: `By default, SQL doesn't guarantee a particular row order. To sort your results, use \`ORDER BY\`:

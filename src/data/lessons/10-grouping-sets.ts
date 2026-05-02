@@ -18,6 +18,26 @@ function getValue(row: Record<string, unknown>, column: string): unknown {
   return matchingKey ? row[matchingKey] : undefined;
 }
 
+function normalizedGroup(row: Record<string, unknown>): string {
+  const region = getValue(row, "region") ?? "__NULL__";
+  const product = getValue(row, "product") ?? "__NULL__";
+  const totalAmount = Number(getValue(row, "total_amount"));
+
+  return `${String(region)}|${String(product)}|${totalAmount}`;
+}
+
+function hasExpectedGroups(
+  resultRows: Record<string, unknown>[],
+  expectedGroups: string[]
+): boolean {
+  const actualGroups = new Set(resultRows.map(normalizedGroup));
+
+  return (
+    actualGroups.size === expectedGroups.length &&
+    expectedGroups.every((group) => actualGroups.has(group))
+  );
+}
+
 const groupingSets: Chapter = {
   id: "grouping-sets",
   title: "GROUPING SETS, ROLLUP, and CUBE",
@@ -38,6 +58,8 @@ GROUP BY GROUPING SETS ((region), (product), ())
 Each grouping set is a parenthesised list of columns. The empty set \`()\` means "aggregate everything with no grouping" — the grand total row.
 
 Columns not part of a particular grouping set appear as \`NULL\` in the result. So the \`(region)\` set shows \`NULL\` in the product column, and the \`()\` set shows \`NULL\` in both.
+
+That can be ambiguous if your original data also contains real \`NULL\` values. DuckDB supports \`GROUPING(column)\` when you need to tell whether a \`NULL\` came from a subtotal row or from the data itself.
 
 Without \`GROUPING SETS\` you would need a separate query and \`UNION ALL\` for each combination. \`GROUPING SETS\` produces the same output in a single scan of the table.`,
       sampleData: {
@@ -61,13 +83,18 @@ Without \`GROUPING SETS\` you would need a separate query and \`UNION ALL\` for 
             };
           }
 
-          const lastRow = result.data[result.rowCount - 1];
-          const grandTotal = Number(getValue(lastRow, "total_amount"));
+          const expectedGroups = [
+            "East|__NULL__|300",
+            "West|__NULL__|400",
+            "__NULL__|Gadget|450",
+            "__NULL__|Widget|250",
+            "__NULL__|__NULL__|700",
+          ];
 
-          if (Math.abs(grandTotal - 700) > 0.01) {
+          if (!hasExpectedGroups(result.data, expectedGroups)) {
             return {
               passed: false,
-              message: "The grand total row should have a total_amount of 700.",
+              message: "Check that you produced the region totals, product totals, and grand total exactly.",
             };
           }
 
@@ -95,7 +122,9 @@ GROUP BY ROLLUP (region, product)
   (region)            — subtotal per region
   ()                  — grand total
 
-In general, \`ROLLUP\` with n columns produces n+1 grouping sets, peeling one column off the right at each level. This mirrors how you build hierarchical reports: detail rows, then group subtotals, then a grand total at the bottom.`,
+In general, \`ROLLUP\` with n columns produces n+1 grouping sets, peeling one column off the right at each level. This mirrors how you build hierarchical reports: detail rows, then group subtotals, then a grand total.
+
+The display order is not guaranteed by \`ROLLUP\` itself. Use \`ORDER BY\` to put subtotal and grand total rows where you want them.`,
       sampleData: {
         label: "revenue table (4 rows)",
         setupSql: REVENUE_SETUP,
@@ -117,13 +146,20 @@ In general, \`ROLLUP\` with n columns produces n+1 grouping sets, peeling one co
             };
           }
 
-          const lastRow = result.data[result.rowCount - 1];
-          const grandTotal = Number(getValue(lastRow, "total_amount"));
+          const expectedGroups = [
+            "East|Gadget|200",
+            "East|Widget|100",
+            "East|__NULL__|300",
+            "West|Gadget|250",
+            "West|Widget|150",
+            "West|__NULL__|400",
+            "__NULL__|__NULL__|700",
+          ];
 
-          if (Math.abs(grandTotal - 700) > 0.01) {
+          if (!hasExpectedGroups(result.data, expectedGroups)) {
             return {
               passed: false,
-              message: "The last row should be the grand total of 700.",
+              message: "Check that ROLLUP produced detail rows, region subtotals, and the grand total exactly.",
             };
           }
 
@@ -188,24 +224,22 @@ With n columns, \`CUBE\` produces 2^n grouping sets. That makes it ideal for ful
             };
           }
 
-          const lastRow = result.data[result.rowCount - 1];
-          const grandTotal = Number(getValue(lastRow, "total_amount"));
+          const expectedGroups = [
+            "East|Gadget|200",
+            "East|Widget|100",
+            "East|__NULL__|300",
+            "West|Gadget|250",
+            "West|Widget|150",
+            "West|__NULL__|400",
+            "__NULL__|Gadget|450",
+            "__NULL__|Widget|250",
+            "__NULL__|__NULL__|700",
+          ];
 
-          if (Math.abs(grandTotal - 700) > 0.01) {
+          if (!hasExpectedGroups(result.data, expectedGroups)) {
             return {
               passed: false,
-              message: "The grand total should be 700.",
-            };
-          }
-
-          const productRows = result.data.filter(
-            (row) => getValue(row, "region") === null && getValue(row, "product") !== null,
-          );
-
-          if (productRows.length !== 2) {
-            return {
-              passed: false,
-              message: "CUBE should produce 2 product-only subtotal rows (Widget and Gadget).",
+              message: "Check that CUBE produced detail rows, region totals, product totals, and the grand total exactly.",
             };
           }
 
