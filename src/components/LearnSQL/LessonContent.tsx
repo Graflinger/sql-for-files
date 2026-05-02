@@ -52,13 +52,14 @@ function splitTextSection(text: string): ContentBlock[] {
  * Parse lesson content into an array of code and text blocks.
  *
  * Supports:
- * - Fenced code blocks: ```sql ... ``` (highlighted) or ``` ... ``` (plain)
+ * - Fenced code blocks: ```sql ... ``` or ~~~sql ... ~~~ (highlighted)
+ *   and ``` ... ``` or ~~~ ... ~~~ (plain)
  * - Indented code blocks: lines starting with 2+ spaces (plain, backward compat)
  * - Regular text paragraphs (separated by blank lines)
  */
 function parseContent(content: string): ContentBlock[] {
   const blocks: ContentBlock[] = [];
-  const fenceRegex = /```(\w*)\n([\s\S]*?)```/g;
+  const fenceRegex = /(```|~~~)(\w*)\n([\s\S]*?)\1/g;
   let lastIndex = 0;
   let match;
 
@@ -68,8 +69,8 @@ function parseContent(content: string): ContentBlock[] {
     }
     blocks.push({
       type: "code",
-      code: match[2].trimEnd(),
-      highlighted: match[1].toLowerCase() === "sql",
+      code: match[3].trimEnd(),
+      highlighted: match[2].toLowerCase() === "sql",
     });
     lastIndex = match.index + match[0].length;
   }
@@ -119,9 +120,9 @@ function renderSqlHighlighted(code: string) {
   });
 }
 
-/** Render a text string with inline `code` backtick support. */
-function renderInlineCode(text: string) {
-  const parts = text.split(/(`[^`]+`)/g);
+/** Render a text string with lightweight inline markdown support. */
+function renderInlineMarkdown(text: string) {
+  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
   if (parts.length === 1) return text;
   return (
     <>
@@ -134,6 +135,13 @@ function renderInlineCode(text: string) {
             >
               {part.slice(1, -1)}
             </code>
+          );
+        }
+        if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+          return (
+            <strong key={i} className="font-semibold text-slate-800 dark:text-slate-100">
+              {part.slice(2, -2)}
+            </strong>
           );
         }
         return <span key={i}>{part}</span>;
@@ -160,6 +168,8 @@ interface LessonContentProps {
   canLoadData: boolean;
   /** Message shown when sample data cannot be loaded yet. */
   dataLoadUnavailableMessage: string;
+  /** Whether all tables required by the lesson sample data already exist. */
+  isDataLoaded: boolean;
   /** Callback to open SQL in a new editor tab. */
   onOpenInEditor: (name: string, sql: string) => void;
   /** Called when the lesson is completed. */
@@ -182,7 +192,7 @@ interface LessonContentProps {
  * LessonContent Component
  *
  * Renders the full lesson view: back button, title, content paragraphs
- * (with SQL syntax highlighting and inline code), challenge block,
+ * (with SQL syntax highlighting and lightweight inline markdown), challenge block,
  * and prev/next navigation.
  */
 export default function LessonContent({
@@ -193,6 +203,7 @@ export default function LessonContent({
   onLoadData,
   canLoadData,
   dataLoadUnavailableMessage,
+  isDataLoaded,
   onOpenInEditor,
   onCompleteLesson,
   onNext,
@@ -261,7 +272,7 @@ export default function LessonContent({
           }
           return (
             <p key={i} className="whitespace-pre-wrap">
-              {renderInlineCode(block.text)}
+              {renderInlineMarkdown(block.text)}
             </p>
           );
         })}
@@ -275,6 +286,7 @@ export default function LessonContent({
           onLoadData={onLoadData}
           canLoadData={canLoadData}
           dataLoadUnavailableMessage={dataLoadUnavailableMessage}
+          isDataLoaded={isDataLoaded}
           onOpenInEditor={onOpenInEditor}
           onChallengePassed={onCompleteLesson}
         />

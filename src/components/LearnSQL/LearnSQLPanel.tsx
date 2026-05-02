@@ -38,7 +38,7 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
     totalLessons,
   } = useLearnSQL();
 
-  const { db, loading: dbLoading, error: dbError, refreshTables } = useDuckDBContext();
+  const { db, loading: dbLoading, error: dbError, tables, refreshTables } = useDuckDBContext();
   const { addTab } = useEditorTabsContext();
   const currentLessonNumbering = currentLesson ? lessonNumbering(currentLesson.id) : null;
   const currentChapter = currentLesson ? chapterForLesson(currentLesson.id) : null;
@@ -51,6 +51,12 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
       : null;
   const previousLesson = currentLessonIndex > 0 ? allLessons[currentLessonIndex - 1] : null;
   const canLoadData = Boolean(db && !dbLoading && !dbError);
+  const existingTableNames = new Set(tables.map((tableName) => tableName.toLowerCase()));
+  const isCurrentLessonDataLoaded = Boolean(
+    currentLesson?.sampleData?.tableNames.every((tableName) =>
+      existingTableNames.has(tableName.toLowerCase())
+    )
+  );
   const dataLoadUnavailableMessage = dbLoading
     ? "DuckDB is still initializing. Try loading the lesson data again in a moment."
     : "DuckDB is not available, so the lesson data could not be loaded.";
@@ -174,6 +180,7 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
             onLoadData={handleLoadData}
             canLoadData={canLoadData}
             dataLoadUnavailableMessage={dataLoadUnavailableMessage}
+            isDataLoaded={isCurrentLessonDataLoaded}
             onOpenInEditor={handleOpenInEditor}
             onCompleteLesson={handleLessonCompleted}
             onNext={handleNextLesson}

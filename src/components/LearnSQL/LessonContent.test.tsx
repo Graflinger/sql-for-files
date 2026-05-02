@@ -51,6 +51,7 @@ function renderLessonContent(lesson: Lesson) {
       onLoadData={vi.fn()}
       canLoadData={true}
       dataLoadUnavailableMessage="Database is not ready."
+      isDataLoaded={false}
       onOpenInEditor={vi.fn()}
       onCompleteLesson={vi.fn()}
       onNext={vi.fn()}

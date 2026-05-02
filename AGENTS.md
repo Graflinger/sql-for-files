@@ -82,6 +82,7 @@ src/
 
 - `new-page`: create route-level pages in `src/pages` that match existing layout, styling, SEO, and routing conventions
 - `create-skill`: create additional skills for this repo using the `.agents/skills` convention and portable skill format
+- `add-lesson`: create or update Learn SQL lessons with the expected chapter structure, sample data, challenge validation, and supported renderer markup
 
 ### Page Implementation Guidance
 

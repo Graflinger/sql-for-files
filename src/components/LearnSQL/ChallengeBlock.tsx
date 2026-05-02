@@ -14,6 +14,8 @@ interface ChallengeBlockProps {
   canLoadData: boolean;
   /** Message shown when sample data cannot be loaded yet. */
   dataLoadUnavailableMessage: string;
+  /** Whether all tables required by the lesson sample data already exist. */
+  isDataLoaded: boolean;
   /** Callback to open SQL in a new editor tab. */
   onOpenInEditor: (name: string, sql: string) => void;
   /** Callback when the challenge is passed. */
@@ -32,20 +34,22 @@ export default function ChallengeBlock({
   onLoadData,
   canLoadData,
   dataLoadUnavailableMessage,
+  isDataLoaded,
   onOpenInEditor,
   onChallengePassed,
 }: ChallengeBlockProps) {
   const [loadingData, setLoadingData] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const [loadedViaButton, setLoadedViaButton] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showHint, setShowHint] = useState(false);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
 
   const { sampleData, challenge } = lesson;
+  const dataLoaded = isDataLoaded || loadedViaButton;
 
   useEffect(() => {
     setLoadingData(false);
-    setDataLoaded(false);
+    setLoadedViaButton(false);
     setLoadError(null);
     setShowHint(false);
     setValidation(null);
@@ -54,7 +58,6 @@ export default function ChallengeBlock({
   const handleLoadData = async () => {
     if (!sampleData) return;
     if (!canLoadData) {
-      setDataLoaded(false);
       setLoadError(dataLoadUnavailableMessage);
       return;
     }
@@ -63,10 +66,10 @@ export default function ChallengeBlock({
     setLoadError(null);
     try {
       await onLoadData(sampleData.setupSql);
-      setDataLoaded(true);
+      setLoadedViaButton(true);
     } catch (err) {
       const errorObj = err as Error;
-      setDataLoaded(false);
+      setLoadedViaButton(false);
       setLoadError(errorObj.message || "Failed to load lesson data.");
     } finally {
       setLoadingData(false);

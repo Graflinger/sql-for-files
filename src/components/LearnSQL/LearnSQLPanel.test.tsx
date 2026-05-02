@@ -70,6 +70,7 @@ describe("LearnSQLPanel", () => {
       db: null,
       loading: false,
       error: null,
+      tables: [],
       refreshTables: vi.fn(),
     });
 
@@ -114,6 +115,7 @@ describe("LearnSQLPanel", () => {
       db: null,
       loading: true,
       error: null,
+      tables: [],
       refreshTables: vi.fn(),
     });
 
@@ -163,6 +165,7 @@ describe("LearnSQLPanel", () => {
       db,
       loading: false,
       error: null,
+      tables: [],
       refreshTables,
     });
 
@@ -216,6 +219,7 @@ describe("LearnSQLPanel", () => {
       db,
       loading: false,
       error: null,
+      tables: [],
       refreshTables,
     });
 
@@ -238,5 +242,52 @@ describe("LearnSQLPanel", () => {
     expect(screen.queryByRole("button", { name: "Loaded" })).not.toBeInTheDocument();
     expect(refreshTables).not.toHaveBeenCalled();
     expect(close).toHaveBeenCalled();
+  });
+
+  it("recognizes lesson sample data that is already loaded", () => {
+    const query = vi.fn().mockResolvedValue(undefined);
+    const close = vi.fn().mockResolvedValue(undefined);
+    const db = {
+      connect: vi.fn().mockResolvedValue({ query, close }),
+    };
+
+    mockUseLearnSQL.mockReturnValue({
+      panelOpen: true,
+      closePanel: vi.fn(),
+      currentLesson: lessonWithSolution,
+      openLesson: vi.fn(),
+      selectLesson: vi.fn(),
+      showOverview: vi.fn(),
+      hasNext: false,
+      hasPrevious: false,
+      completedLessons: new Set<string>(),
+      completeLesson: vi.fn(),
+      completedCount: 0,
+      totalLessons: 1,
+      currentLessonPath: "/editor/chapter1/01",
+    });
+
+    mockUseDuckDBContext.mockReturnValue({
+      db,
+      loading: false,
+      error: null,
+      tables: ["employees"],
+      refreshTables: vi.fn(),
+    });
+
+    mockUseEditorTabsContext.mockReturnValue({
+      activeTabId: "tab-1",
+      addTab: vi.fn(),
+      updateTabSql: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter>
+        <LearnSQLPanel lastResult={null} />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("button", { name: "Loaded" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Load Data" })).not.toBeInTheDocument();
   });
 });
