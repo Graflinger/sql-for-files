@@ -5,7 +5,6 @@ import { publicRoutes, SITE_URL } from "../src/data/publicRoutes";
 import type { PublicRoute } from "../src/data/publicRoutes";
 
 const outputPath = path.resolve(process.cwd(), "public", "sitemap.xml");
-const lastmod = new Date().toISOString().slice(0, 10);
 
 const escapeXml = (value: string) =>
   value
@@ -15,7 +14,7 @@ const escapeXml = (value: string) =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&apos;");
 
-const routeToUrl = ({ path: routePath, changefreq, priority }: PublicRoute) => {
+const routeToUrl = ({ path: routePath, changefreq, priority, lastmod }: PublicRoute) => {
   const loc = routePath === "/" ? `${SITE_URL}/` : `${SITE_URL}${routePath}`;
 
   return `  <url>

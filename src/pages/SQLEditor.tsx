@@ -219,7 +219,7 @@ export default function SqlEditorPage() {
     ? `${routeLesson.title} | Learn SQL | SQL for Files`
     : "SQL Editor for CSV, JSON & Parquet | SQL for Files";
   const pageDescription = routeLesson
-    ? `Open the ${routeLesson.title} Learn SQL lesson directly in the SQL for Files editor.`
+    ? `Practice ${routeLesson.title.toLowerCase()} with browser-based sample data, guided SQL examples, and hands-on validation in SQL for Files.`
     : "Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Files, SQL queries, and results stay local in your browser.";
   const routeChapter = routeLesson ? chapterForLesson(routeLesson.id) : null;
   const routeNumbering = routeLesson ? lessonNumbering(routeLesson.id) : null;

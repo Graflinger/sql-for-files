@@ -154,9 +154,6 @@ export default function Docs() {
                     straight to a specific feature.
                   </p>
                 </div>
-                <div className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900/80 dark:bg-emerald-500/15 dark:text-emerald-300">
-                  Updated for the current editor UI
-                </div>
               </div>
               <div className="mt-5 flex flex-wrap gap-2.5">
                 {pageSections.map((section) => (

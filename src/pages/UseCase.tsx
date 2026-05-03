@@ -23,7 +23,7 @@ const useCases: Record<UseCaseKind, UseCaseConfig> = {
   csv: {
     title: "Query CSV Files with SQL in Your Browser | SQL for Files",
     description:
-      "Use SQL to query CSV files locally in your browser with DuckDB-WASM. No account, no upload, and no database server required.",
+      "Query CSV files with SQL locally in your browser. Load a CSV, inspect columns, aggregate rows, and export results without uploading data.",
     canonicalPath: "/query-csv-with-sql",
     eyebrow: "CSV Analysis",
     heading: "Query CSV files with SQL in your browser",
@@ -49,7 +49,7 @@ const useCases: Record<UseCaseKind, UseCaseConfig> = {
   json: {
     title: "Query JSON Files with SQL Locally | SQL for Files",
     description:
-      "Query JSON arrays and NDJSON files with SQL in a local browser-based DuckDB editor. Keep file data on your device.",
+      "Analyze JSON arrays and NDJSON files with browser-based DuckDB SQL. Filter events, flatten nested records, and keep exports on your device.",
     canonicalPath: "/query-json-with-sql",
     eyebrow: "JSON Analysis",
     heading: "Query JSON and NDJSON files with SQL",
@@ -75,7 +75,7 @@ const useCases: Record<UseCaseKind, UseCaseConfig> = {
   parquet: {
     title: "Query Parquet Files in the Browser | SQL for Files",
     description:
-      "Inspect and query Parquet files with DuckDB-WASM directly in your browser. Run SQL locally without uploading data.",
+      "Open Parquet files in a browser-based DuckDB editor. Inspect schemas, run analytical SQL, and keep columnar data local.",
     canonicalPath: "/query-parquet-with-sql",
     eyebrow: "Parquet Analysis",
     heading: "Query Parquet files in the browser",
@@ -101,7 +101,7 @@ const useCases: Record<UseCaseKind, UseCaseConfig> = {
   duckdb: {
     title: "DuckDB-WASM SQL Editor | SQL for Files",
     description:
-      "Use a browser-based DuckDB-WASM SQL editor for CSV, JSON, and Parquet files with local processing and no account required.",
+      "Use a DuckDB-WASM SQL editor with Monaco, autocomplete, charts, column stats, and CSV export for local CSV, JSON, and Parquet analysis.",
     canonicalPath: "/duckdb-wasm-sql-editor",
     eyebrow: "DuckDB-WASM",
     heading: "A DuckDB-WASM SQL editor for local file analysis",
@@ -127,7 +127,7 @@ const useCases: Record<UseCaseKind, UseCaseConfig> = {
   private: {
     title: "Private Local Data Analysis in Your Browser | SQL for Files",
     description:
-      "Analyze sensitive CSV, JSON, and Parquet files locally in your browser. SQL for Files does not upload files, queries, or results.",
+      "Analyze sensitive CSV, JSON, and Parquet files locally. SQL for Files keeps files, queries, and results in your browser unless you export them.",
     canonicalPath: "/private-local-data-analysis",
     eyebrow: "Private Analysis",
     heading: "Analyze local files without uploading data",
@@ -153,7 +153,7 @@ const useCases: Record<UseCaseKind, UseCaseConfig> = {
   examples: {
     title: "SQL Examples for CSV, JSON, and Parquet Files | SQL for Files",
     description:
-      "Copy practical SQL examples for previewing, filtering, joining, aggregating, charting, and checking file data in SQL for Files.",
+      "Copy practical SQL examples for file analysis: preview rows, filter data, join files, aggregate totals, prepare charts, and check missing values.",
     canonicalPath: "/sql-examples-for-files",
     eyebrow: "SQL Examples",
     heading: "SQL examples for local file analysis",

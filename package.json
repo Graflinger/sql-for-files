@@ -16,6 +16,7 @@
     "preview": "vite preview",
     "prerender": "tsx scripts/prerender.ts",
     "generate:sitemap": "tsx scripts/generate-sitemap.ts",
+    "validate:seo": "tsx scripts/validate-seo.ts",
     "generate:images": "node scripts/generate-images.js",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import type { IncomingMessage, ServerResponse } from "node:http";
 
 import puppeteer from "puppeteer";
+import type { Page } from "puppeteer";
 
 import { publicRoutes } from "../src/data/publicRoutes";
 
@@ -82,6 +83,19 @@ const outputPathForRoute = (route: string) => {
   return path.join(staticDir, route, "index.html");
 };
 
+const waitForAppContent = async (page: Page, route: string) => {
+  try {
+    await page.waitForSelector("#root > *", { timeout: 10000 });
+    await page.waitForFunction(() => Boolean(document.querySelector("h1")), {
+      timeout: 10000,
+    });
+  } catch (error) {
+    throw new Error(`Route ${route} did not render expected app content`, {
+      cause: error,
+    });
+  }
+};
+
 const run = async () => {
   const server = await startServer();
   const browser = await puppeteer.launch({
@@ -91,21 +105,28 @@ const run = async () => {
   try {
     for (const route of routes) {
       const page = await browser.newPage();
-      const prerenderUrl = new URL(`http://localhost:${port}${route}`);
-      prerenderUrl.searchParams.set("prerender", "1");
 
-      await page.goto(prerenderUrl.toString(), {
-        waitUntil: "networkidle0",
-      });
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      try {
+        const prerenderUrl = new URL(`http://localhost:${port}${route}`);
+        prerenderUrl.searchParams.set("prerender", "1");
 
-      const html = await page.content();
-      const outputPath = outputPathForRoute(route);
-      await fs.mkdir(path.dirname(outputPath), { recursive: true });
-      await fs.writeFile(outputPath, html, "utf8");
+        await page.goto(prerenderUrl.toString(), {
+          waitUntil: "domcontentloaded",
+          timeout: 30000,
+        });
+        await waitForAppContent(page, route);
 
-      await page.close();
-      console.log(`[prerender] Wrote ${route}`);
+        const html = await page.content();
+        const outputPath = outputPathForRoute(route);
+        await fs.mkdir(path.dirname(outputPath), { recursive: true });
+        await fs.writeFile(outputPath, html, "utf8");
+
+        console.log(`[prerender] Wrote ${route}`);
+      } catch (error) {
+        throw new Error(`[prerender] Failed route ${route}`, { cause: error });
+      } finally {
+        await page.close();
+      }
     }
   } finally {
     await browser.close();

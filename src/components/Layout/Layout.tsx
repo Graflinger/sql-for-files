@@ -52,6 +52,20 @@ Page: ${window.location.href}
             </Link>
             <span className="text-slate-300 dark:text-slate-700">·</span>
             <Link
+              to="/guides"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              Guides
+            </Link>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <Link
+              to="/learn-sql"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              Learn SQL
+            </Link>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <Link
               to="/privacy"
               className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
             >

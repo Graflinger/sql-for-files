@@ -93,42 +93,42 @@
 
   <url>
     <loc>https://sqlforfiles.app/guides/query-csv-files-with-sql</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/guides/query-json-files-with-sql</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/guides/query-parquet-files-in-browser</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/guides/sql-examples-for-csv-json-parquet</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/guides/duckdb-wasm-browser-sql</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/guides/private-local-data-analysis</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-05-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

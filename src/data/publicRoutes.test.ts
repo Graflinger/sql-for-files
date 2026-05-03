@@ -11,6 +11,12 @@ describe("publicRoutes", () => {
     expect(new Set(routePaths).size).toBe(routePaths.length);
   });
 
+  it("has deterministic lastmod values", () => {
+    publicRoutes.forEach((route) => {
+      expect(route.lastmod).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+  });
+
   it("includes guide index and all guide articles", () => {
     expect(routePaths).toContain("/guides");
 
