@@ -52,6 +52,14 @@ export default function About() {
       name: "SQL for Files",
     },
   };
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "SQL for Files",
+    url: "https://sqlforfiles.app/",
+    email: "info@sqlforfiles.app",
+    sameAs: ["https://github.com/graflinger/sql-for-files"],
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,7 +76,7 @@ export default function About() {
         canonicalPath="/"
         ogType="website"
         imageAlt="SQL for Files - browser SQL query tool"
-        structuredData={webApplicationSchema}
+        structuredData={[webApplicationSchema, organizationSchema]}
       />
       <div className="theme-page">
         {/* Hero Section */}

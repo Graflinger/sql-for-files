@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { AsyncDuckDB } from '@duckdb/duckdb-wasm';
-import { getDuckDB, initializeDuckDb } from 'duckdb-wasm-kit';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import type { ReactNode } from "react";
+
+import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 
 import {
   restoreDatabaseFromIndexedDB,
@@ -23,23 +24,39 @@ interface DuckDBContextType {
 // Create the context (initially undefined)
 const DuckDBContext = createContext<DuckDBContextType | undefined>(undefined);
 
+interface DuckDBProviderProps {
+  children: ReactNode;
+  /** Defer DuckDB-WASM downloads until an editor route actually needs them. */
+  enabled?: boolean;
+}
+
 /**
  * DuckDBProvider Component
  *
  * Wraps your app and provides DuckDB access to all child components.
  * This initializes DuckDB when the app loads and manages its lifecycle.
  */
-export function DuckDBProvider({ children }: { children: React.ReactNode }) {
+export function DuckDBProvider({ children, enabled = true }: DuckDBProviderProps) {
   const [db, setDb] = useState<AsyncDuckDB | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<Error | null>(null);
   const [tables, setTables] = useState<string[]>([]);
   const [restoredMessage, setRestoredMessage] = useState<string | null>(null);
+  const initializationStartedRef = useRef(false);
 
-  // Initialize DuckDB when component mounts
+  // Initialize DuckDB only after the user reaches the editor.
   useEffect(() => {
+    if (!enabled || initializationStartedRef.current) {
+      return;
+    }
+
+    initializationStartedRef.current = true;
+    setLoading(true);
+
     async function init() {
       try {
+        const { getDuckDB, initializeDuckDb } = await import("duckdb-wasm-kit");
+
         // Step 1: Initialize DuckDB-WASM (downloads and loads the WASM bundle)
         await initializeDuckDb();
 
@@ -71,8 +88,8 @@ export function DuckDBProvider({ children }: { children: React.ReactNode }) {
       }
     }
     init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- init effect intentionally runs once on mount; refreshTables is called with explicit dbInstance param
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- init runs once after enabled; refreshTables is called with explicit dbInstance param
+  }, [enabled]);
 
   /**
    * refreshTables Function

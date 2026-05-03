@@ -9,6 +9,13 @@ SQL for Files is useful for data analysts, developers, students, and privacy-con
 - [Home](https://sqlforfiles.app/): Product overview, privacy positioning, supported file formats, and core features.
 - [SQL Editor](https://sqlforfiles.app/editor): Browser-based SQL editor for CSV, JSON, and Parquet files.
 - [Documentation](https://sqlforfiles.app/docs): Usage guide for importing files, running SQL, visualising results, classification, persistence, limits, and troubleshooting.
+- [Learn SQL](https://sqlforfiles.app/learn-sql): Crawlable overview of the built-in SQL lessons and challenges.
+- [Query CSV with SQL](https://sqlforfiles.app/query-csv-with-sql): Guide for analyzing CSV files locally in the browser.
+- [Query JSON with SQL](https://sqlforfiles.app/query-json-with-sql): Guide for querying JSON arrays and NDJSON files locally.
+- [Query Parquet with SQL](https://sqlforfiles.app/query-parquet-with-sql): Guide for browser-based Parquet analysis.
+- [DuckDB-WASM SQL Editor](https://sqlforfiles.app/duckdb-wasm-sql-editor): Technical overview of the browser SQL editor.
+- [Private Local Data Analysis](https://sqlforfiles.app/private-local-data-analysis): Privacy-focused local analysis use case.
+- [SQL Examples for Files](https://sqlforfiles.app/sql-examples-for-files): Starter SQL queries for imported file tables.
 - [Privacy](https://sqlforfiles.app/privacy): Privacy details for local browser processing and storage.
 - [Legal](https://sqlforfiles.app/legal): Legal notice and contact information.
 - [GitHub Repository](https://github.com/graflinger/sql-for-files): Source code for the AGPL-licensed project.
