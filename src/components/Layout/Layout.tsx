@@ -38,6 +38,34 @@ Page: ${window.location.href}
           <div className="flex flex-wrap justify-center items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
             <FooterThemeSwitcher />
             <Link
+              to="/"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              About
+            </Link>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <Link
+              to="/docs"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              Docs
+            </Link>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <Link
+              to="/guides"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              Guides
+            </Link>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <Link
+              to="/learn-sql"
+              className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
+            >
+              Learn SQL
+            </Link>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <Link
               to="/privacy"
               className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
             >

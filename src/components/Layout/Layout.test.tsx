@@ -56,4 +56,12 @@ describe("Layout", () => {
     expect(feedbackLink).toHaveAttribute("href");
     expect(feedbackLink.getAttribute("href")).toContain("mailto:info@sqlforfiles.app");
   });
+
+  it("renders the About link in the footer", () => {
+    renderLayout();
+
+    const aboutLink = screen.getByRole("link", { name: "About" });
+    expect(aboutLink).toBeInTheDocument();
+    expect(aboutLink).toHaveAttribute("href", "/");
+  });
 });

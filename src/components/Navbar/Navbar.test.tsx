@@ -29,7 +29,7 @@ describe("Navbar", () => {
     renderNavbar();
     expect(screen.getAllByText("Editor").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("Docs").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("About").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("About")).not.toBeInTheDocument();
   });
 
   it("highlights the active route", () => {
