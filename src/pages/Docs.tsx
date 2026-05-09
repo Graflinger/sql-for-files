@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import SEO from "../components/SEO/SEO";
 
 const codeBlockClass =
@@ -19,6 +21,7 @@ const pageSections = [
   { id: "add-data", label: "Add Data" },
   { id: "ide-tour", label: "IDE Tour" },
   { id: "learn-sql", label: "Learn SQL" },
+  { id: "guides", label: "Guides" },
   { id: "querying-in-tabs", label: "Querying in Tabs" },
   { id: "explore-results", label: "Explore Results" },
   { id: "visualisation", label: "Visualisation" },
@@ -150,9 +153,6 @@ export default function Docs() {
                     exporting results. Use the links below if you want to skip
                     straight to a specific feature.
                   </p>
-                </div>
-                <div className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900/80 dark:bg-emerald-500/15 dark:text-emerald-300">
-                  Updated for the current editor UI
                 </div>
               </div>
               <div className="mt-5 flex flex-wrap gap-2.5">
@@ -312,12 +312,13 @@ export default function Docs() {
                     </h3>
                     <ul className="mb-0 list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
                       <li>
-                        Click <strong>Learn SQL</strong> in the top navigation to
-                        open the guided lesson panel from anywhere in the app.
+                        Click <strong>Open Lessons</strong> in the top
+                        navigation to open the guided lesson panel from anywhere
+                        in the app.
                       </li>
                       <li>
-                        On desktop, the lessons open in the right-side panel next
-                        to the editor and results.
+                        On desktop, the lessons open in the right-side panel
+                        next to the editor and results.
                       </li>
                       <li>
                         On mobile, open the editor and switch to the
@@ -345,11 +346,11 @@ export default function Docs() {
                         active SQL tab when a challenge provides starter SQL.
                       </li>
                       <li>
-                        Run your query, then click <strong>Check Answer</strong>
+                        Run your query, then click <strong>Check Answer</strong>{" "}
                         to validate the latest result.
                       </li>
                       <li>
-                        Use <strong>Previous</strong> and <strong>Next</strong>
+                        Use <strong>Previous</strong> and <strong>Next</strong>{" "}
                         to move through the track, or go back to
                         <strong> All lessons</strong> at any time.
                       </li>
@@ -370,8 +371,8 @@ export default function Docs() {
                       challenge check for that lesson.
                     </li>
                     <li>
-                      If you want to start over, use <strong>Reset progress</strong>
-                      from the lesson overview.
+                      If you want to start over, use{" "}
+                      <strong>Reset progress</strong> from the lesson overview.
                     </li>
                     <li>
                       The checker uses the latest query result from the active
@@ -379,6 +380,48 @@ export default function Docs() {
                       checking again.
                     </li>
                   </ul>
+                </div>
+              </section>
+
+              <section id="guides" className={sectionClass}>
+                <div className={sectionHeaderClass}>
+                  <p className={sectionEyebrowClass}>Examples</p>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                    Guides and SQL Examples
+                  </h2>
+                </div>
+                <div className={`${sectionGridClass} md:grid-cols-2`}>
+                  <div className={surfaceCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      File-format guides
+                    </h3>
+                    <p className="mb-4 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      Use the guides for focused walkthroughs on querying CSV,
+                      JSON, and Parquet files locally in the browser.
+                    </p>
+                    <Link
+                      to="/guides"
+                      className="inline-flex rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:bg-blue-500 dark:text-slate-950 dark:hover:bg-blue-400"
+                    >
+                      Browse guides
+                    </Link>
+                  </div>
+                  <div className={surfaceCardClass}>
+                    <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      Copyable SQL patterns
+                    </h3>
+                    <p className="mb-4 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      Start from practical SELECT, WHERE, GROUP BY, JOIN, date,
+                      and window-function examples, then adapt table and column
+                      names to your own files.
+                    </p>
+                    <Link
+                      to="/guides/sql-examples-for-csv-json-parquet"
+                      className="inline-flex rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-300"
+                    >
+                      View SQL examples
+                    </Link>
+                  </div>
                 </div>
               </section>
 

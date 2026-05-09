@@ -11,6 +11,39 @@ import SEO from "../components/SEO/SEO";
 
 const FILE_TYPES = ["CSV", "JSON", "Parquet"];
 
+const workflowLinks = [
+  {
+    title: "Query CSV files with SQL",
+    description: "Load spreadsheets or exports as local DuckDB tables, then filter, aggregate, and export the rows you need.",
+    path: "/query-csv-with-sql",
+  },
+  {
+    title: "Analyze JSON and NDJSON",
+    description: "Turn API exports, logs, and nested JSON records into queryable browser tables without uploading them.",
+    path: "/query-json-with-sql",
+  },
+  {
+    title: "Inspect Parquet in the browser",
+    description: "Open columnar analytical files, review schemas, and run DuckDB SQL directly from your device.",
+    path: "/query-parquet-with-sql",
+  },
+  {
+    title: "Use a DuckDB-WASM editor",
+    description: "Work in a Monaco SQL editor with tabs, autocomplete, schema browsing, charts, and CSV export.",
+    path: "/duckdb-wasm-sql-editor",
+  },
+  {
+    title: "Keep sensitive data local",
+    description: "Run ad-hoc analysis where files, queries, and results stay in browser storage unless you export them.",
+    path: "/private-local-data-analysis",
+  },
+  {
+    title: "Copy starter SQL examples",
+    description: "Start from practical preview, filtering, aggregation, join, date, and chart-ready SQL patterns.",
+    path: "/sql-examples-for-files",
+  },
+];
+
 export default function About() {
   const [currentType, setCurrentType] = useState(0);
   const preloadSqlEditor = () => import("./SQLEditor");
@@ -52,6 +85,14 @@ export default function About() {
       name: "SQL for Files",
     },
   };
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "SQL for Files",
+    url: "https://sqlforfiles.app/",
+    email: "info@sqlforfiles.app",
+    sameAs: ["https://github.com/graflinger/sql-for-files"],
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,7 +109,7 @@ export default function About() {
         canonicalPath="/"
         ogType="website"
         imageAlt="SQL for Files - browser SQL query tool"
-        structuredData={webApplicationSchema}
+        structuredData={[webApplicationSchema, organizationSchema]}
       />
       <div className="theme-page">
         {/* Hero Section */}
@@ -727,6 +768,44 @@ export default function About() {
                   full results or database backups locally.
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Popular Workflows */}
+        <div className="border-t border-slate-100">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+            <div className="max-w-2xl mb-8">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">
+                Popular workflows
+              </p>
+              <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+                Start with the file-analysis task you have now
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-slate-500">
+                These focused guides cover the highest-intent ways people use SQL
+                for Files: local CSV, JSON, Parquet, DuckDB-WASM, privacy-first
+                analysis, and reusable SQL examples.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {workflowLinks.map((workflow) => (
+                <Link
+                  key={workflow.path}
+                  to={workflow.path}
+                  className="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50/30"
+                >
+                  <h3 className="text-sm font-semibold text-slate-900 transition-colors group-hover:text-blue-700">
+                    {workflow.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    {workflow.description}
+                  </p>
+                  <span className="mt-4 inline-flex text-sm font-medium text-blue-600">
+                    Learn more
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
