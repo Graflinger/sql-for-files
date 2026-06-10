@@ -2,6 +2,366 @@ import type { Guide } from "../types/guides";
 
 export const guides: Guide[] = [
   {
+    slug: "what-is-a-database-table",
+    title: "What Is a Database Table? Rows, Columns, and the Mental Model Behind SQL",
+    description:
+      "A beginner-friendly explanation of database tables, rows, and columns, with a quick intro to practicing SQL locally in SQL for Files.",
+    summary:
+      "Before SQL feels natural, you need one simple mental model: tables are structured collections of records with predictable columns.",
+    publishedAt: "2026-05-09",
+    updatedAt: "2026-05-09",
+    category: "Learn SQL",
+    keywords: [
+      "what is a database table",
+      "SQL rows and columns",
+      "learn SQL basics",
+      "SQL for Files lessons",
+    ],
+    relatedGuideSlugs: [
+      "sql-data-types-explained",
+      "sql-null-missing-values",
+      "query-csv-files-with-sql",
+    ],
+    relatedLessonIds: [
+      "data-basics-tables",
+      "data-basics-types",
+      "data-basics-null",
+    ],
+    sections: [
+      {
+        id: "start-with-the-shape",
+        title: "Start with the shape of data",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Most people start learning SQL by memorizing SELECT statements. That works for a few minutes, but it misses the deeper idea: SQL is a language for asking questions about structured data. Before the syntax matters, the shape matters.",
+          },
+          {
+            kind: "paragraph",
+            text: "SQL for Files is built to make that first step practical. You can open the app in your browser, load CSV, JSON, or Parquet files, and query them with SQL locally using DuckDB WASM. The Learn SQL lessons give you small, guided examples before you bring in your own files.",
+          },
+          {
+            kind: "callout",
+            title: "No server required",
+            text: "SQL for Files runs file import and query execution in the browser, so your practice data and query results stay on your device.",
+          },
+        ],
+      },
+      {
+        id: "tables-are-familiar",
+        title: "A table is the spreadsheet idea with stronger rules",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "If you have ever opened a spreadsheet, you already know the basic picture. Data sits in a grid. Columns run vertically. Rows run horizontally. A database table uses the same visual idea, but with more consistency and clearer expectations.",
+          },
+          {
+            kind: "list",
+            items: [
+              "Each column describes one property, such as name, department, salary, or hire date.",
+              "Each row represents one record, such as one employee, one order, or one measurement.",
+              "Every row follows the same structure, so SQL can ask reliable questions across the whole table.",
+            ],
+          },
+          {
+            kind: "code",
+            code: "id | name    | department  | salary\n---|---------|-------------|-------\n1  | Alice   | Engineering | 95000\n2  | Bob     | Marketing   | 72000\n3  | Charlie | Engineering | 110000",
+          },
+        ],
+      },
+      {
+        id: "rows-and-columns",
+        title: "Rows are records; columns are properties",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "The fastest way to understand a table is to read it in two directions. Across a row, you see a complete record. Down a column, you see the same property repeated for many records. SQL becomes powerful because it can move in both directions without manual copying, filtering, or scrolling.",
+          },
+          {
+            kind: "paragraph",
+            text: "For example, one employee row might contain an ID, a name, a department, a salary, and a hire date. The salary column, read downward, lets you ask questions like who earns the most, what the average salary is, or which departments have higher payroll costs.",
+          },
+        ],
+      },
+      {
+        id: "why-structure-matters",
+        title: "Why structure matters before your first query",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "SQL depends on predictable structure. When a table has a salary column, SQL can calculate averages. When it has a hire_date column, SQL can sort by tenure or filter a date range. When every row follows the same shape, a single query can inspect thousands or millions of records at once.",
+          },
+          {
+            kind: "list",
+            items: [
+              "A clear table shape makes queries easier to write.",
+              "Consistent columns make results easier to trust.",
+              "Structured records let you move from manual inspection to repeatable analysis.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "try-the-lesson",
+        title: "Try the matching Learn SQL lesson",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "The first Learn SQL lesson in SQL for Files focuses on this foundation: tables, rows, and columns. It is intentionally simple because it gives every later SQL topic a place to land.",
+          },
+          {
+            kind: "steps",
+            items: [
+              "Open the related lesson from the cards at the bottom of this article.",
+              "Read the short explanation of table structure.",
+              "Then continue to the next lesson on data types before writing your first SELECT query.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "sql-data-types-explained",
+    title: "SQL Data Types Explained: Text, Numbers, Dates, and Better Questions",
+    description:
+      "Learn why SQL data types matter, how text, numbers, and dates behave differently, and how SQL for Files helps beginners practice locally.",
+    summary:
+      "Data types are the reason SQL knows the difference between a name, a salary, and a hire date — and that difference shapes every query you write.",
+    publishedAt: "2026-05-09",
+    updatedAt: "2026-05-09",
+    category: "Learn SQL",
+    keywords: [
+      "SQL data types explained",
+      "learn SQL data types",
+      "text numbers dates SQL",
+      "SQL for Files tutorial",
+    ],
+    relatedGuideSlugs: [
+      "what-is-a-database-table",
+      "sql-null-missing-values",
+      "query-csv-files-with-sql",
+    ],
+    relatedLessonIds: [
+      "data-basics-types",
+      "data-basics-tables",
+      "data-basics-null",
+    ],
+    sections: [
+      {
+        id: "types-give-values-meaning",
+        title: "Data types give values meaning",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "A table tells you where data lives. Data types tell you what the values mean. That distinction sounds small, but it is one of the reasons SQL can do more than display rows on a screen.",
+          },
+          {
+            kind: "paragraph",
+            text: "In SQL for Files, you can practice this idea without setting up a database server. Load sample lesson data or bring your own CSV, JSON, or Parquet file into the browser, inspect the inferred columns, and run SQL locally with DuckDB WASM.",
+          },
+        ],
+      },
+      {
+        id: "three-common-types",
+        title: "The three beginner types you will see everywhere",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Most beginner SQL examples start with three everyday categories: text, numbers, and dates. They look obvious in a small table, but SQL treats them differently because they support different kinds of questions.",
+          },
+          {
+            kind: "list",
+            items: [
+              "Text stores words and characters, such as employee names, departments, product codes, or regions.",
+              "Numbers store quantities and measures, such as salaries, prices, counts, and percentages.",
+              "Dates store calendar or time values, such as hire dates, order dates, timestamps, and event times.",
+            ],
+          },
+          {
+            kind: "code",
+            code: "id          INTEGER\nname        VARCHAR\ndepartment  VARCHAR\nsalary      DECIMAL\nhire_date   DATE",
+          },
+        ],
+      },
+      {
+        id: "different-types-different-questions",
+        title: "Different types unlock different questions",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "A salary is not just characters on a screen. Because SQL understands it as a number, you can calculate a minimum, maximum, average, or total. A hire date is not just a label. Because SQL understands it as a date, you can sort chronologically or filter people hired after a certain day.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  AVG(salary) AS average_salary,\n  MIN(hire_date) AS earliest_hire_date\nFROM employees;",
+          },
+          {
+            kind: "paragraph",
+            text: "Text has its own strengths. You can search for names, group by departments, match patterns, and label results. The important part is not that one type is better than another. The important part is that SQL chooses behavior based on type.",
+          },
+        ],
+      },
+      {
+        id: "when-types-go-wrong",
+        title: "When a value has the wrong type, queries get weird",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "A common beginner surprise is that a value can look right but behave wrong. The value 2026 might be a number, part of a date, or text inside an ID. SQL needs the type to know whether it should add it, sort it alphabetically, compare it as a date, or preserve it exactly as written.",
+          },
+          {
+            kind: "callout",
+            title: "Practical habit",
+            text: "When you import a file, inspect the detected schema before writing a serious query. A column that looks numeric or date-like may still be stored as text depending on the file contents.",
+          },
+        ],
+      },
+      {
+        id: "practice-in-sql-for-files",
+        title: "Practice data types in SQL for Files",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "The second Learn SQL lesson introduces data types using a simple employee table. It shows why names, departments, salaries, and hire dates are not interchangeable, even when they all sit side by side in one row.",
+          },
+          {
+            kind: "steps",
+            items: [
+              "Open the related Data Types lesson below.",
+              "Notice which columns are text, numbers, and dates.",
+              "Then continue toward SELECT queries, where those types start to affect real results.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "sql-null-missing-values",
+    title: "SQL NULL Explained: How Missing Values Work and Why They Matter",
+    description:
+      "Learn what SQL NULL means, why it is different from zero or an empty string, and how beginners should query missing values correctly.",
+    summary:
+      "NULL is SQL's way of saying a value is missing or unknown — and it behaves differently from almost every other value beginners expect.",
+    publishedAt: "2026-05-09",
+    updatedAt: "2026-05-09",
+    category: "Learn SQL",
+    keywords: [
+      "SQL NULL explained",
+      "missing values in SQL",
+      "IS NULL SQL",
+      "learn SQL NULL",
+    ],
+    relatedGuideSlugs: [
+      "what-is-a-database-table",
+      "sql-data-types-explained",
+      "private-local-data-analysis",
+    ],
+    relatedLessonIds: [
+      "data-basics-null",
+      "data-basics-tables",
+      "data-basics-types",
+    ],
+    sections: [
+      {
+        id: "missing-is-not-empty",
+        title: "Missing is not the same as empty",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Real datasets are rarely complete. A customer may not have provided a phone number. An employee may not have a department assigned yet. A measurement may have failed before the value was recorded. SQL represents those absent or unknown values with NULL.",
+          },
+          {
+            kind: "paragraph",
+            text: "SQL for Files gives you a practical place to learn this behavior. You can open the app in your browser, work through the Learn SQL lessons, and later inspect missing values in your own CSV, JSON, or Parquet files locally with DuckDB WASM.",
+          },
+          {
+            kind: "callout",
+            title: "Beginner rule",
+            text: "NULL does not mean zero, blank text, false, or the word unknown. It means the value is absent or not known.",
+          },
+        ],
+      },
+      {
+        id: "why-null-exists",
+        title: "Why SQL needs NULL",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Without NULL, every missing value would need to be disguised as something else. A missing salary might become 0. A missing department might become an empty string. A missing date might become a fake placeholder date. Those shortcuts can make analysis misleading.",
+          },
+          {
+            kind: "list",
+            items: [
+              "A salary of 0 means the known salary is zero; NULL means the salary is not known.",
+              "An empty string means text is present but blank; NULL means no value was provided.",
+              "A placeholder date can look real; NULL clearly marks that the date is missing.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "how-to-check-null",
+        title: "How to check for NULL correctly",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "The most important beginner mistake is trying to compare a column to NULL with an equals sign. It looks reasonable, but it does not work the way normal comparisons do.",
+          },
+          {
+            kind: "code",
+            code: "-- This does not find missing departments\nSELECT *\nFROM employees\nWHERE department = NULL;",
+          },
+          {
+            kind: "paragraph",
+            text: "To find missing values, use IS NULL. To find values that are present, use IS NOT NULL.",
+          },
+          {
+            kind: "code",
+            code: "SELECT *\nFROM employees\nWHERE department IS NULL;\n\nSELECT *\nFROM employees\nWHERE department IS NOT NULL;",
+          },
+        ],
+      },
+      {
+        id: "null-affects-analysis",
+        title: "NULL changes how analysis behaves",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "NULL values show up again and again as you learn more SQL. Aggregates like SUM and AVG usually ignore NULL values. LEFT JOIN results use NULL when no matching row exists. Grouping and subtotal queries can also use NULL in ways that deserve careful reading.",
+          },
+          {
+            kind: "list",
+            items: [
+              "COUNT(*) counts rows, including rows that contain NULL values.",
+              "COUNT(column_name) counts only rows where that specific column is not NULL.",
+              "AVG(column_name) usually averages the known values and skips missing ones.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "practice-null-in-sql-for-files",
+        title: "Practice NULL in SQL for Files",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "The third lesson in the Understanding Data chapter introduces NULL before you move into your first SQL queries. That timing is intentional: missing values are not an advanced edge case. They are part of everyday data work.",
+          },
+          {
+            kind: "steps",
+            items: [
+              "Open the related Missing Values with NULL lesson below.",
+              "Compare NULL with empty strings, zero, and ordinary text values.",
+              "Remember to use IS NULL and IS NOT NULL when you start filtering rows later.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     slug: "query-csv-files-with-sql",
     title: "How to Query CSV Files with SQL in Your Browser",
     description:
