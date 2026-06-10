@@ -1,11 +1,18 @@
 import { useState } from "react";
-import { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+
+import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
 import { set as idbSet } from "idb-keyval";
+
 import {
   defaultTableNameFromFile,
   sanitizeTableName,
 } from "../utils/tableName";
 import { withDuckDBConnection } from "../utils/duckdb";
+import {
+  buildCsvOptionsSql,
+  type CsvAddOptions,
+} from "../utils/csvOptions";
+import { promoteDatetimeColumns } from "../utils/datetimePromotion";
 import { quoteIdentifier, quoteStringLiteral } from "../utils/sql";
 
 // Track progress for each file being added
@@ -25,17 +32,6 @@ interface AddProgress {
  * @param db - The DuckDB instance from DuckDBContext
  * @returns {addFile, adding, progress, clearProgress}
  */
-interface CsvAddOptions {
-  skip?: number;
-  header?: boolean;
-  delim?: string;
-  quote?: string;
-  escape?: string;
-  nullStr?: string;
-  dateformat?: string;
-  decimal_separator?: string;
-}
-
 interface AddOptions {
   tableNameOverride?: string;
   csvOptions?: CsvAddOptions;
@@ -100,7 +96,7 @@ export function useFileAdd(db: AsyncDuckDB | null) {
       if (fileName.endsWith(".csv")) {
         const csvOptions = options?.csvOptions;
         const csvOptionsSql = buildCsvOptionsSql(csvOptions);
-        // read_csv_auto automatically detects delimiters, headers, types
+        // read_csv_auto automatically detects delimiters, headers, and types.
         await withDuckDBConnection(db, async (conn) => {
           await conn.query(`
             CREATE TABLE ${quoteIdentifier(tableName)} AS
@@ -108,6 +104,18 @@ export function useFileAdd(db: AsyncDuckDB | null) {
               fileName
             )}${csvOptionsSql})
           `);
+          // Convenience: ISO datetimes ending in "Z" import as VARCHAR by
+          // default to avoid TIMESTAMP WITH TIME ZONE failures. Try promoting
+          // such text columns to TIMESTAMP when every value parses, otherwise
+          // leave them as VARCHAR. Opt-out via csvOptions.autoDetectDatetime,
+          // and explicit per-column overrides are always respected.
+          if (csvOptions?.autoDetectDatetime !== false) {
+            await promoteDatetimeColumns(
+              conn,
+              tableName,
+              Object.keys(csvOptions?.types ?? {})
+            );
+          }
         });
       } else if (fileName.endsWith(".json")) {
         // read_json_auto handles both JSON arrays and newline-delimited JSON
@@ -166,47 +174,4 @@ export function useFileAdd(db: AsyncDuckDB | null) {
   }
 
   return { addFile, adding, progress, clearProgress };
-}
-
-function buildCsvOptionsSql(options?: CsvAddOptions): string {
-  if (!options) return "";
-
-  const parts: string[] = [];
-
-  if (typeof options.skip === "number") {
-    parts.push(`skip=${options.skip}`);
-  }
-
-  if (typeof options.header === "boolean") {
-    parts.push(`header=${options.header}`);
-  }
-
-  if (options.delim) {
-    parts.push(`delim=${quoteStringLiteral(options.delim)}`);
-  }
-
-  if (options.quote) {
-    parts.push(`quote=${quoteStringLiteral(options.quote)}`);
-  }
-
-  if (options.escape) {
-    parts.push(`escape=${quoteStringLiteral(options.escape)}`);
-  }
-
-  if (options.nullStr) {
-    parts.push(`nullstr=${quoteStringLiteral(options.nullStr)}`);
-  }
-
-  if (options.dateformat) {
-    parts.push(`dateformat=${quoteStringLiteral(options.dateformat)}`);
-  }
-
-  if (options.decimal_separator) {
-    parts.push(
-      `decimal_separator=${quoteStringLiteral(options.decimal_separator)}`
-    );
-  }
-
-  if (parts.length === 0) return "";
-  return `, ${parts.join(", ")}`;
 }

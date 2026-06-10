@@ -174,6 +174,132 @@ describe("useFileAdd", () => {
     expect(queryCall).toContain("skip=1");
   });
 
+  it("passes timestamp formats and column type overrides to CSV imports", async () => {
+    const { result } = renderHook(() =>
+      useFileAdd(mockDb as unknown as AsyncDuckDB)
+    );
+
+    await act(async () => {
+      await result.current.addFile(
+        createFile("tasks.csv", "Name,Due Month\nA,2025-04-01T04:00:00Z"),
+        {
+          csvOptions: {
+            timestampformat: "%Y-%m-%dT%H:%M:%SZ",
+            types: {
+              "Due Month": "TIMESTAMP",
+            },
+          },
+        }
+      );
+    });
+
+    const queryCall = mockDb._mockConnection.query.mock.calls[0][0] as string;
+    expect(queryCall).toContain("timestampformat='%Y-%m-%dT%H:%M:%SZ'");
+    expect(queryCall).toContain("types={'Due Month': 'TIMESTAMP'}");
+  });
+
+  it("auto-promotes ISO datetime text columns to TIMESTAMP after import", async () => {
+    // A connection that answers DESCRIBE with one VARCHAR datetime column and a
+    // text column, and answers the probe so only the datetime column qualifies.
+    const query = vi.fn(async (sql: string) => {
+      if (sql.startsWith("DESCRIBE")) {
+        return {
+          toArray: () => [
+            { column_name: "due", column_type: "VARCHAR" },
+            { column_name: "note", column_type: "VARCHAR" },
+          ],
+        };
+      }
+      if (sql.trimStart().startsWith("SELECT")) {
+        return { toArray: () => [{ nn_0: 2n, fail_0: 0n, nn_1: 2n, fail_1: 2n }] };
+      }
+      return { toArray: () => [] };
+    });
+    const conn = { query, close: vi.fn().mockResolvedValue(undefined) };
+    const db = createMockDuckDB(conn as never);
+
+    const { result } = renderHook(() =>
+      useFileAdd(db as unknown as AsyncDuckDB)
+    );
+
+    await act(async () => {
+      await result.current.addFile(
+        createFile("tasks.csv", "due,note\n2025-04-01T04:00:00Z,hello")
+      );
+    });
+
+    const statements = query.mock.calls.map((call) => call[0] as string);
+    const alter = statements.find((s) => s.startsWith("ALTER TABLE"));
+    expect(alter).toBeDefined();
+    expect(alter).toContain('ALTER COLUMN "due" SET DATA TYPE TIMESTAMP');
+    // The non-datetime text column must NOT be promoted (fallback to VARCHAR).
+    expect(statements.some((s) => s.includes('ALTER COLUMN "note"'))).toBe(
+      false
+    );
+  });
+
+  it("does not auto-promote columns the user explicitly typed", async () => {
+    const query = vi.fn(async (sql: string) => {
+      if (sql.startsWith("DESCRIBE")) {
+        return {
+          toArray: () => [{ column_name: "due", column_type: "VARCHAR" }],
+        };
+      }
+      if (sql.trimStart().startsWith("SELECT")) {
+        return { toArray: () => [{ nn_0: 2n, fail_0: 0n }] };
+      }
+      return { toArray: () => [] };
+    });
+    const conn = { query, close: vi.fn().mockResolvedValue(undefined) };
+    const db = createMockDuckDB(conn as never);
+
+    const { result } = renderHook(() =>
+      useFileAdd(db as unknown as AsyncDuckDB)
+    );
+
+    await act(async () => {
+      await result.current.addFile(
+        createFile("tasks.csv", "due\n2025-04-01T04:00:00Z"),
+        { csvOptions: { types: { due: "VARCHAR" } } }
+      );
+    });
+
+    const statements = query.mock.calls.map((call) => call[0] as string);
+    expect(statements.some((s) => s.startsWith("ALTER TABLE"))).toBe(false);
+  });
+
+  it("skips auto-promotion entirely when autoDetectDatetime is false", async () => {
+    const query = vi.fn(async (sql: string) => {
+      if (sql.startsWith("DESCRIBE")) {
+        return {
+          toArray: () => [{ column_name: "due", column_type: "VARCHAR" }],
+        };
+      }
+      if (sql.trimStart().startsWith("SELECT")) {
+        return { toArray: () => [{ nn_0: 2n, fail_0: 0n }] };
+      }
+      return { toArray: () => [] };
+    });
+    const conn = { query, close: vi.fn().mockResolvedValue(undefined) };
+    const db = createMockDuckDB(conn as never);
+
+    const { result } = renderHook(() =>
+      useFileAdd(db as unknown as AsyncDuckDB)
+    );
+
+    await act(async () => {
+      await result.current.addFile(
+        createFile("tasks.csv", "due\n2025-04-01T04:00:00Z"),
+        { csvOptions: { autoDetectDatetime: false } }
+      );
+    });
+
+    const statements = query.mock.calls.map((call) => call[0] as string);
+    // No probe and no ALTER: only the CREATE TABLE statement runs.
+    expect(statements.some((s) => s.startsWith("DESCRIBE"))).toBe(false);
+    expect(statements.some((s) => s.startsWith("ALTER TABLE"))).toBe(false);
+  });
+
   it("updates progress during file addition", async () => {
     const { result } = renderHook(() =>
       useFileAdd(mockDb as unknown as AsyncDuckDB)
@@ -260,9 +386,24 @@ describe("CSV options SQL generation", () => {
     });
 
     const query = mockDb._mockConnection.query.mock.calls[0][0] as string;
-    expect(query).toContain("read_csv_auto('test.csv')");
-    // No trailing options
+    expect(query).toContain("read_csv_auto('test.csv', auto_type_candidates=");
     expect(query).not.toContain("delim=");
+  });
+
+  it("excludes TIMESTAMP WITH TIME ZONE from default auto type candidates", async () => {
+    const { result } = renderHook(() =>
+      useFileAdd(mockDb as unknown as AsyncDuckDB)
+    );
+
+    await act(async () => {
+      await result.current.addFile(createCsv("Due Month\n2025-04-01T04:00:00Z"));
+    });
+
+    const query = mockDb._mockConnection.query.mock.calls[0][0] as string;
+    expect(query).toContain(
+      "auto_type_candidates=['NULL', 'BOOLEAN', 'BIGINT', 'DOUBLE', 'TIME', 'DATE', 'TIMESTAMP', 'VARCHAR']"
+    );
+    expect(query).not.toContain("TIMESTAMP WITH TIME ZONE");
   });
 
   it("escapes single quotes in option values", async () => {
@@ -295,6 +436,7 @@ describe("CSV options SQL generation", () => {
           escape: "\\",
           nullStr: "NA",
           dateformat: "%Y-%m-%d",
+          timestampformat: "%Y-%m-%dT%H:%M:%SZ",
           decimal_separator: ",",
         },
       });
@@ -306,6 +448,7 @@ describe("CSV options SQL generation", () => {
     expect(query).toContain("delim='\t'");
     expect(query).toContain("nullstr='NA'");
     expect(query).toContain("dateformat='%Y-%m-%d'");
+    expect(query).toContain("timestampformat='%Y-%m-%dT%H:%M:%SZ'");
     expect(query).toContain("decimal_separator=','");
   });
 });
