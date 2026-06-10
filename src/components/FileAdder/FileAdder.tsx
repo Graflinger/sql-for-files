@@ -4,6 +4,7 @@ import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useFileAdd } from "../../hooks/useFileAdd";
 import { useNotifications } from "../../contexts/NotificationContext";
 import { saveTableToIndexedDB } from "../../utils/databasePersistence";
+import type { CsvAddOptions } from "../../utils/csvOptions";
 import AdvancedAddModal from "./AdvancedAddModal";
 
 interface FileAdderProps {
@@ -162,16 +163,7 @@ export default function FileAdder({ compact = false }: FileAdderProps) {
     async (params: {
       file: File;
       tableName: string;
-      csvOptions?: {
-        skip?: number;
-        header?: boolean;
-        delim?: string;
-        quote?: string;
-        escape?: string;
-        nullStr?: string;
-        dateformat?: string;
-        decimal_separator?: string;
-      };
+      csvOptions?: CsvAddOptions;
     }) => {
       const { file, tableName, csvOptions } = params;
       const notificationId = addNotification({

@@ -33,3 +33,5 @@ SEO_AI_DISCOVERABILITY_NON_CODE_TASKS.md
 !AGENTS.md
 !.agents/skills/**/SKILL.md
 !.agents/skills/*/*.md
+!medium-guides/
+!medium-guides/**/*.md

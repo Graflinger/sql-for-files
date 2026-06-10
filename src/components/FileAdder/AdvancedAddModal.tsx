@@ -1,19 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+
 import type { AsyncDuckDB } from "@duckdb/duckdb-wasm";
+
 import { defaultTableNameFromFile, sanitizeTableName } from "../../utils/tableName";
 import { withDuckDBConnection } from "../../utils/duckdb";
+import {
+  buildCsvOptionsSql,
+  type CsvAddOptions,
+} from "../../utils/csvOptions";
 import { quoteStringLiteral } from "../../utils/sql";
-
-interface CsvOptions {
-  skip?: number;
-  header?: boolean;
-  delim?: string;
-  quote?: string;
-  escape?: string;
-  nullStr?: string;
-  dateformat?: string;
-  decimal_separator?: string;
-}
 
 interface PreviewResult {
   columns: string[];
@@ -28,11 +23,20 @@ interface AdvancedAddModalProps {
   onCreateTable: (params: {
     file: File;
     tableName: string;
-    csvOptions?: CsvOptions;
+    csvOptions?: CsvAddOptions;
   }) => Promise<void>;
 }
 
 const PREVIEW_LIMIT = 10;
+const CSV_TYPE_OPTIONS = [
+  "VARCHAR",
+  "BOOLEAN",
+  "BIGINT",
+  "DOUBLE",
+  "DATE",
+  "TIMESTAMP",
+  "TIMESTAMP WITH TIME ZONE",
+];
 
 function isCsvFile(file?: File | null) {
   return file?.name.toLowerCase().endsWith(".csv");
@@ -64,48 +68,7 @@ function toOptionalNumber(value: string): number | undefined {
   return Number.isNaN(parsed) ? undefined : parsed;
 }
 
-function buildCsvOptionsSql(options?: CsvOptions): string {
-  if (!options) return "";
-
-  const parts: string[] = [];
-
-  if (typeof options.skip === "number") {
-    parts.push(`skip=${options.skip}`);
-  }
-
-  if (typeof options.header === "boolean") {
-    parts.push(`header=${options.header}`);
-  }
-
-  if (options.delim) {
-    parts.push(`delim=${quoteStringLiteral(options.delim)}`);
-  }
-
-  if (options.quote) {
-    parts.push(`quote=${quoteStringLiteral(options.quote)}`);
-  }
-
-  if (options.escape) {
-    parts.push(`escape=${quoteStringLiteral(options.escape)}`);
-  }
-
-  if (options.nullStr) {
-    parts.push(`nullstr=${quoteStringLiteral(options.nullStr)}`);
-  }
-
-  if (options.dateformat) {
-    parts.push(`dateformat=${quoteStringLiteral(options.dateformat)}`);
-  }
-
-  if (options.decimal_separator) {
-    parts.push(`decimal_separator=${quoteStringLiteral(options.decimal_separator)}`);
-  }
-
-  if (parts.length === 0) return "";
-  return `, ${parts.join(", ")}`;
-}
-
-function getPreviewQuery(file: File, csvOptions?: CsvOptions) {
+function getPreviewQuery(file: File, csvOptions?: CsvAddOptions) {
   const fileName = file.name;
   if (isCsvFile(file)) {
     const optionsSql = buildCsvOptionsSql(csvOptions);
@@ -132,8 +95,9 @@ export default function AdvancedAddModal({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [rawTableName, setRawTableName] = useState("");
   const [tableNameTouched, setTableNameTouched] = useState(false);
-  const [csvOptions, setCsvOptions] = useState<CsvOptions>({});
+  const [csvOptions, setCsvOptions] = useState<CsvAddOptions>({});
   const [preview, setPreview] = useState<PreviewResult | null>(null);
+  const [previewColumns, setPreviewColumns] = useState<string[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -156,6 +120,7 @@ export default function AdvancedAddModal({
     setTableNameTouched(false);
     setCsvOptions({});
     setPreview(null);
+    setPreviewColumns([]);
     setPreviewError(null);
     setCreating(false);
   }, [isOpen]);
@@ -188,6 +153,7 @@ export default function AdvancedAddModal({
         });
 
         if (!isActive) return;
+        setPreviewColumns(columns);
         setPreview({
           columns,
           rows,
@@ -196,6 +162,7 @@ export default function AdvancedAddModal({
       } catch (error) {
         if (!isActive) return;
         setPreview(null);
+        setPreviewColumns((prev) => (prev.length > 0 ? prev : []));
         setPreviewError(
           error instanceof Error ? error.message : "Failed to load preview"
         );
@@ -244,11 +211,30 @@ export default function AdvancedAddModal({
 
   const handleFileChange = (file: File | null) => {
     setSelectedFile(file);
+    setCsvOptions({});
     setPreview(null);
+    setPreviewColumns([]);
     setPreviewError(null);
     if (file && !tableNameTouched) {
       setRawTableName(defaultTableNameFromFile(file.name));
     }
+  };
+
+  const handleColumnTypeChange = (column: string, typeName: string) => {
+    setCsvOptions((prev) => {
+      const nextTypes = { ...(prev.types ?? {}) };
+
+      if (typeName) {
+        nextTypes[column] = typeName;
+      } else {
+        delete nextTypes[column];
+      }
+
+      return {
+        ...prev,
+        types: Object.keys(nextTypes).length > 0 ? nextTypes : undefined,
+      };
+    });
   };
 
   const handleCreate = async () => {
@@ -279,9 +265,9 @@ export default function AdvancedAddModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="advanced-options-title"
-        className="relative w-[min(1100px,95vw)] max-h-[90vh] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950"
+        className="relative flex max-h-[90vh] w-[min(1100px,95vw)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950"
       >
-        <div className="flex items-start justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+        <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
           <div>
             <h2 id="advanced-options-title" className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               Advanced Options
@@ -301,8 +287,8 @@ export default function AdvancedAddModal({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-0 max-h-[calc(90vh-120px)] overflow-hidden">
-          <div className="overflow-y-auto border-r border-slate-200 bg-slate-50/60 p-6 dark:border-slate-800 dark:bg-slate-900/40">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-0 overflow-hidden lg:grid-cols-[360px_1fr]">
+          <div className="min-h-0 overflow-y-auto border-r border-slate-200 bg-slate-50/60 p-6 dark:border-slate-800 dark:bg-slate-900/40">
             <div className="space-y-5">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-slate-700 dark:text-slate-200">
@@ -312,6 +298,7 @@ export default function AdvancedAddModal({
                   <input
                     type="file"
                     accept=".csv,.json,.parquet"
+                    aria-label="File"
                     className="hidden"
                     onChange={(event) =>
                       handleFileChange(event.target.files?.[0] ?? null)
@@ -482,6 +469,27 @@ export default function AdvancedAddModal({
                       />
                     </div>
                     <div>
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300" htmlFor="timestamp-format">
+                        Timestamp format
+                      </label>
+                      <input
+                        id="timestamp-format"
+                        type="text"
+                        value={csvOptions.timestampformat ?? ""}
+                        onChange={(event) =>
+                          setCsvOptions((prev) => ({
+                            ...prev,
+                            timestampformat: event.target.value || undefined,
+                          }))
+                        }
+                        placeholder="%Y-%m-%dT%H:%M:%SZ"
+                        className="mt-1 w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
                       <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Decimal separator</label>
                       <input
                         type="text"
@@ -497,12 +505,79 @@ export default function AdvancedAddModal({
                       />
                     </div>
                   </div>
+
+                  <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950/70">
+                    <label className="flex cursor-pointer items-start gap-2">
+                      <input
+                        type="checkbox"
+                        checked={csvOptions.autoDetectDatetime !== false}
+                        onChange={(event) =>
+                          setCsvOptions((prev) => ({
+                            ...prev,
+                            autoDetectDatetime: event.target.checked,
+                          }))
+                        }
+                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-900"
+                      />
+                      <span>
+                        <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                          Auto-detect datetime columns
+                        </span>
+                        <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                          Promote text columns to TIMESTAMP when every value
+                          parses (e.g. ISO values like 2025-04-01T04:00:00Z).
+                          Disable for a faster import on large, text-heavy files.
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-950/70">
+                    <div>
+                      <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                        Column type overrides
+                      </h4>
+                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        Optional. Use VARCHAR to keep a problematic datetime column as text, or TIMESTAMP with a timestamp format to parse ISO values like 2025-04-01T04:00:00Z.
+                      </p>
+                    </div>
+                    {previewColumns.length ? (
+                      <div className="space-y-2">
+                        {previewColumns.map((column) => (
+                          <div key={column} className="grid grid-cols-[1fr_150px] gap-2 items-center">
+                            <span className="truncate text-xs font-medium text-slate-600 dark:text-slate-300" title={column}>
+                              {column}
+                            </span>
+                            <select
+                              aria-label={`Type override for ${column}`}
+                              value={csvOptions.types?.[column] ?? ""}
+                              onChange={(event) =>
+                                handleColumnTypeChange(column, event.target.value)
+                              }
+                              className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                            >
+                              <option value="">Auto</option>
+                              {CSV_TYPE_OPTIONS.map((typeName) => (
+                                <option key={typeName} value={typeName}>
+                                  {typeName}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-400 dark:text-slate-500">
+                        Select a CSV file to load columns.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="overflow-y-auto p-6">
+          <div className="min-h-0 overflow-y-auto p-6">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Preview (first {PREVIEW_LIMIT} rows)</h3>
               {selectedFile && isSupportedFile(selectedFile) && (
@@ -554,7 +629,7 @@ export default function AdvancedAddModal({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-900/80">
+        <div className="flex shrink-0 items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-800 dark:bg-slate-900/80">
           <div className="text-xs text-slate-500 dark:text-slate-400">
             Preview does not create a table until you click Create table
           </div>
