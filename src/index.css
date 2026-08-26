@@ -128,7 +128,7 @@ html.dark .theme-page [class*="text-purple-700"] {
   color: #e879f9 !important;
 }
 
-html.dark .theme-page [class*="bg-slate-800"] {
+html.dark .theme-page [class~="bg-slate-800"] {
   background-color: #020617 !important;
 }
 

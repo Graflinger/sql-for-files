@@ -811,16 +811,16 @@ export default function About() {
         </div>
 
         {/* Learn SQL */}
-        <div className="border-t border-slate-100">
+        <div className="border-t border-slate-100 dark:border-slate-800">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-            <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+            <div className="relative overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:border-blue-400/20 dark:from-slate-950/80 dark:via-slate-900/80 dark:to-indigo-950/50">
               {/* Decorative background pattern */}
-              <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-blue-100/40 blur-3xl" />
-              <div className="pointer-events-none absolute -left-12 -bottom-12 h-48 w-48 rounded-full bg-indigo-100/40 blur-3xl" />
+              <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-blue-100/40 blur-3xl dark:bg-blue-500/15" />
+              <div className="pointer-events-none absolute -left-12 -bottom-12 h-48 w-48 rounded-full bg-indigo-100/40 blur-3xl dark:bg-indigo-500/15" />
 
               <div className="relative p-6 sm:p-10">
                 <div className="text-center max-w-2xl mx-auto mb-8">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-medium text-blue-700 mb-4 shadow-sm">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-3 py-1 text-xs font-medium text-blue-700 mb-4 shadow-sm dark:border-blue-400/30 dark:bg-slate-950/60 dark:text-blue-300">
                     <svg
                       className="h-3.5 w-3.5"
                       fill="none"
@@ -846,8 +846,8 @@ export default function About() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-3 mb-8">
-                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90">
-                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90 dark:border-slate-700/80 dark:bg-slate-950/50 dark:hover:bg-slate-900/70">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300">
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                       </svg>
@@ -856,8 +856,8 @@ export default function About() {
                     <p className="text-xs text-slate-500 leading-relaxed">Step-by-step SQL lessons from basics to advanced queries</p>
                   </div>
 
-                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90">
-                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90 dark:border-slate-700/80 dark:bg-slate-950/50 dark:hover:bg-slate-900/70">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300">
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
                       </svg>
@@ -866,8 +866,8 @@ export default function About() {
                     <p className="text-xs text-slate-500 leading-relaxed">Load practice datasets instantly so you can start querying right away</p>
                   </div>
 
-                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90">
-                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                  <div className="group rounded-xl border border-white/80 bg-white/70 backdrop-blur-sm p-5 text-center shadow-sm transition-all hover:shadow-md hover:bg-white/90 dark:border-slate-700/80 dark:bg-slate-950/50 dark:hover:bg-slate-900/70">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300">
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                       </svg>
