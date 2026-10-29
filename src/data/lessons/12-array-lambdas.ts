@@ -1,4 +1,5 @@
 import type { Chapter } from "../../types/learn";
+import { formatArrowValueForDisplay } from "../../utils/arrowDisplay";
 
 const ORDERS_SETUP = [
   `CREATE OR REPLACE TABLE orders (
@@ -16,6 +17,23 @@ const ORDERS_SETUP = [
 function getValue(row: Record<string, unknown>, column: string): unknown {
   const matchingKey = Object.keys(row).find((key) => key.toLowerCase() === column.toLowerCase());
   return matchingKey ? row[matchingKey] : undefined;
+}
+
+/**
+ * Convert a list cell into numbers. DuckDB-WASM returns list columns as Arrow
+ * vectors (not JS arrays), and DECIMAL elements need their scale applied.
+ */
+function listNumbers(value: unknown): number[] {
+  if (Array.isArray(value)) {
+    return value.map(Number);
+  }
+
+  if (value && typeof value === "object" && Symbol.iterator in value) {
+    const vector = value as Iterable<unknown> & { type?: unknown };
+    return Array.from(vector, (item) => Number(formatArrowValueForDisplay(item, vector.type)));
+  }
+
+  return [];
 }
 
 const arrayLambdas: Chapter = {
@@ -63,7 +81,7 @@ The sample table stores \`items\` and \`prices\` as parallel lists. That means t
           if (result.rowCount !== 4) {
             return {
               passed: false,
-              message: `Expected 3 rows but got ${result.rowCount}.`,
+              message: `Expected 4 rows but got ${result.rowCount}.`,
             };
           }
 
@@ -77,7 +95,7 @@ The sample table stores \`items\` and \`prices\` as parallel lists. That means t
           }
 
           const doubled = getValue(aliceRow, "doubled_prices");
-          const values = Array.isArray(doubled) ? doubled.map(Number) : [];
+          const values = listNumbers(doubled);
 
           if (values.length !== 2 || Math.abs(values[0] - 19.98) > 0.01 || Math.abs(values[1] - 49.98) > 0.01) {
             return {
@@ -130,7 +148,7 @@ If no elements match, the result is an empty list \`[]\`. This is useful for nar
           if (result.rowCount !== 4) {
             return {
               passed: false,
-              message: `Expected 3 rows but got ${result.rowCount}.`,
+              message: `Expected 4 rows but got ${result.rowCount}.`,
             };
           }
 
@@ -144,7 +162,7 @@ If no elements match, the result is an empty list \`[]\`. This is useful for nar
           }
 
           const filtered = getValue(bobRow, "high_prices");
-          const values = Array.isArray(filtered) ? filtered.map(Number) : [];
+          const values = listNumbers(filtered);
 
           if (values.length !== 1 || Math.abs(values[0] - 14.99) > 0.01) {
             return {
@@ -179,7 +197,16 @@ SELECT customer, list_reduce(prices, lambda a, b : a + b) AS order_total
 FROM orders
 \`\`\`
 
-\`list_reduce\` needs at least one element. For empty lists, it returns \`NULL\`. If the list has exactly one element, that element is the result without calling the lambda.`,
+If the list has exactly one element, that element is the result without calling the lambda. A \`NULL\` list returns \`NULL\`.
+
+An empty list is different: DuckDB raises an error ("Cannot perform list_reduce on an empty input list") unless you pass a starting value as an optional third argument:
+
+\`\`\`sql
+SELECT list_reduce([], lambda acc, x : acc + x, 0)
+-- 0
+\`\`\`
+
+The next lesson uses that starting value when a filter can leave a list empty.`,
       sampleData: {
         label: "orders table (4 rows with item and price lists)",
         setupSql: ORDERS_SETUP,
@@ -197,7 +224,7 @@ FROM orders
           if (result.rowCount !== 4) {
             return {
               passed: false,
-              message: `Expected 3 rows but got ${result.rowCount}.`,
+              message: `Expected 4 rows but got ${result.rowCount}.`,
             };
           }
 
@@ -240,12 +267,13 @@ For example, to sum only the prices above 10:
 SELECT customer,
        list_reduce(
          list_filter(prices, lambda p : p > 10),
-         lambda a, b : a + b
+         lambda a, b : a + b,
+         0
        ) AS expensive_total
 FROM orders
 \`\`\`
 
-The inner \`list_filter\` keeps prices above 10, then \`list_reduce\` sums the survivors. If \`list_filter\` returns an empty list, \`list_reduce\` returns \`NULL\`.
+The inner \`list_filter\` keeps prices above 10, then \`list_reduce\` sums the survivors. Some customers have no price above 10, so their filtered list is empty. The third argument, \`0\`, is the starting value: it makes an empty list reduce to \`0\` instead of raising an error.
 
 You can also transform first and filter second:
 
@@ -265,17 +293,17 @@ Nesting gives you a mini data pipeline inside a single \`SELECT\` expression.`,
       },
       challenge: {
         prompt:
-          "Combine list_filter and list_reduce: for each customer, sum only the prices that are above 10. Return customer and the total as expensive_total, ordered by customer. Use COALESCE to return 0 when no prices qualify.",
+          "Combine list_filter and list_reduce: for each customer, sum only the prices that are above 10. Return customer and the total as expensive_total, ordered by customer. Pass 0 as the starting value so customers without qualifying prices get 0.",
         hint:
-          "COALESCE(list_reduce(list_filter(prices, lambda p : p > 10), lambda a, b : a + b), 0)",
+          "list_reduce(list_filter(prices, lambda p : p > 10), lambda a, b : a + b, 0)",
         initialSql: "-- Sum only the expensive items per customer\n",
         solutionSql:
-          "SELECT customer,\n  COALESCE(\n    list_reduce(\n      list_filter(prices, lambda p : p > 10),\n      lambda a, b : a + b\n    ),\n    0\n  ) AS expensive_total\nFROM orders\nORDER BY customer;",
+          "SELECT customer,\n  list_reduce(\n    list_filter(prices, lambda p : p > 10),\n    lambda a, b : a + b,\n    0\n  ) AS expensive_total\nFROM orders\nORDER BY customer;",
         validate: (result) => {
           if (result.rowCount !== 4) {
             return {
               passed: false,
-              message: `Expected 3 rows but got ${result.rowCount}.`,
+              message: `Expected 4 rows but got ${result.rowCount}.`,
             };
           }
 

@@ -1288,7 +1288,12 @@ export const guides: Guide[] = [
           },
           {
             kind: "code",
-            code: "SELECT customer,\n  COALESCE(\n    list_reduce(\n      list_filter(prices, lambda p : p > 10),\n      lambda a, b : a + b\n    ),\n    0\n  ) AS expensive_total\nFROM orders\nORDER BY customer;",
+            code: "SELECT customer,\n  list_reduce(\n    list_filter(prices, lambda p : p > 10),\n    lambda a, b : a + b,\n    0\n  ) AS expensive_total\nFROM orders\nORDER BY customer;",
+          },
+          {
+            kind: "callout",
+            title: "Empty lists need a starting value",
+            text: "In current DuckDB versions, list_reduce raises an error on an empty list instead of returning NULL. When a filter can remove every element, pass a starting value such as 0 as the third argument.",
           },
         ],
       },

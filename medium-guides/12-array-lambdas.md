@@ -99,11 +99,9 @@ For example, filter prices first, then reduce the remaining values:
 ```sql
 SELECT
   customer,
-  COALESCE(
-    list_reduce(
-      list_filter(prices, lambda p : p > 10),
-      lambda a, b : a + b
-    ),
+  list_reduce(
+    list_filter(prices, lambda p : p > 10),
+    lambda a, b : a + b,
     0
   ) AS expensive_total
 FROM orders
@@ -114,7 +112,9 @@ This says:
 
 1. Keep only prices above 10.
 2. Sum the remaining prices.
-3. Return 0 when no prices qualify.
+3. Start from 0, so customers with no qualifying prices get 0.
+
+The starting value matters: in current DuckDB versions, `list_reduce` raises an error on an empty list instead of returning `NULL`.
 
 That is a compact SQL pipeline inside one expression.
 
