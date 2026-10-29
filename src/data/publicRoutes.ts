@@ -6,7 +6,7 @@ import { canonicalUrl, SITE_URL } from "../utils/siteUrl";
 export { SITE_URL };
 /** Last content change for static pages that did not change in the SEO/Learn SQL update. */
 export const STATIC_CONTENT_LASTMOD = "2026-05-03";
-/** Last content change for the homepage, editor, guide index, and legal page. */
+/** Last content change for the homepage, editor, docs, guide index, and legal page. */
 export const SITE_UPDATE_LASTMOD = "2026-10-29";
 /** Last content change for /learn-sql and every lesson page. */
 export const LEARN_SQL_LASTMOD = "2026-10-29";
@@ -37,7 +37,7 @@ export const staticRoutes: PublicRoute[] = [
     path: "/docs",
     changefreq: "monthly",
     priority: "0.8",
-    lastmod: STATIC_CONTENT_LASTMOD,
+    lastmod: SITE_UPDATE_LASTMOD,
   },
   {
     path: "/guides",

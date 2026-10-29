@@ -902,7 +902,16 @@ export default function About() {
                     </svg>
                   </Link>
                   <p className="mt-3 text-xs text-slate-500">
-                    Once inside the editor, click <span className="font-semibold text-slate-700">Learn SQL</span> in the top navigation.
+                    Inside the editor, click{" "}
+                    <span className="font-semibold text-slate-700">Open Lessons</span> in the
+                    top navigation, or{" "}
+                    <Link
+                      to="/learn-sql"
+                      className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      browse every chapter and lesson
+                    </Link>
+                    .
                   </p>
                 </div>
               </div>

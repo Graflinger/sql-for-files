@@ -5,6 +5,14 @@ import { guidePath, guides } from "../data/guides";
 import { canonicalUrl } from "../utils/siteUrl";
 
 
+/** Guides grouped by category, with SQL concept explanations first. */
+const guideGroups = [...new Set(guides.map((guide) => guide.category))]
+  .sort((a, b) => (a === "Learn SQL" ? -1 : b === "Learn SQL" ? 1 : 0))
+  .map((category) => ({
+    category,
+    guides: guides.filter((guide) => guide.category === category),
+  }));
+
 /** Guides page listing practical SQL for Files articles. */
 export default function Guides() {
   const itemListSchema = {
@@ -25,7 +33,7 @@ export default function Guides() {
     name: "SQL for Files Guides",
     url: canonicalUrl("/guides"),
     description:
-      "Evergreen guides and SQL examples for querying CSV, JSON, and Parquet files locally in your browser.",
+      "SQL tutorials and file-analysis guides for querying CSV, JSON, and Parquet files locally in your browser.",
   };
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -49,8 +57,8 @@ export default function Guides() {
   return (
     <>
       <SEO
-        title="Guides | SQL for Files"
-        description="Read practical guides for querying CSV, JSON, and Parquet files with SQL in your browser using SQL for Files and DuckDB WASM."
+        title="SQL Tutorials and Guides for File Analysis | SQL for Files"
+        description="Practical SQL tutorials on joins, window functions, CASE WHEN, CTEs, and string functions, plus guides for querying CSV, JSON, and Parquet files locally."
         canonicalPath="/guides"
         ogType="website"
         imageAlt="SQL for Files guides"
@@ -85,44 +93,53 @@ export default function Guides() {
               </span>
             </div>
 
-            <div className="mt-10 grid gap-5 md:grid-cols-2">
-              {guides.map((guide) => (
-                <Link
-                  key={guide.slug}
-                  to={guidePath(guide.slug)}
-                  className="group rounded-xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm transition-colors hover:border-blue-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/50 dark:hover:border-blue-700"
-                >
-                  <div className="mb-4 flex items-center justify-between gap-4">
-                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-400">
-                      {guide.category}
-                    </span>
-                    <span className="text-xs text-slate-400 dark:text-slate-500">
-                      Updated {guide.updatedAt}
-                    </span>
-                  </div>
-                  <h2 className="text-lg font-semibold text-slate-900 transition-colors group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-300">
-                    {guide.title}
+            <div className="mt-10 space-y-12">
+              {guideGroups.map((group) => (
+                <section key={group.category}>
+                  <h2 className="mb-5 border-b border-slate-200 pb-3 text-xl font-bold text-slate-900 dark:border-slate-800">
+                    {group.category === "Learn SQL" ? "SQL concepts explained" : group.category}
                   </h2>
-                  <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    {guide.summary}
-                  </p>
-                  <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400">
-                    Read guide
-                    <svg
-                      className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 7l5 5m0 0l-5 5m5-5H6"
-                      />
-                    </svg>
-                  </span>
-                </Link>
+                  <div className="grid gap-5 md:grid-cols-2">
+                    {group.guides.map((guide) => (
+                      <Link
+                        key={guide.slug}
+                        to={guidePath(guide.slug)}
+                        className="group rounded-xl border border-slate-200 bg-slate-50/80 p-6 shadow-sm transition-colors hover:border-blue-300 hover:bg-white dark:border-slate-800 dark:bg-slate-900/50 dark:hover:border-blue-700"
+                      >
+                        <div className="mb-4 flex items-center justify-between gap-4">
+                          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-500 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-400">
+                            {guide.category}
+                          </span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
+                            Updated {guide.updatedAt}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-slate-900 transition-colors group-hover:text-blue-700 dark:text-slate-100 dark:group-hover:text-blue-300">
+                          {guide.title}
+                        </h3>
+                        <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                          {guide.summary}
+                        </p>
+                        <span className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400">
+                          Read guide
+                          <svg
+                            className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 7l5 5m0 0l-5 5m5-5H6"
+                            />
+                          </svg>
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </div>
