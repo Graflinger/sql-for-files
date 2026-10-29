@@ -52,6 +52,22 @@ test.describe("Learn SQL lesson routes", () => {
   });
 });
 
+test.describe("New Learn SQL chapters", () => {
+  const newChapterLessons: Array<[string, RegExp]> = [
+    ["/editor/chapter13/04", /Conditional aggregation counted and summed/],
+    ["/editor/chapter14/02", /NOT EXISTS ignored the NULL member_id/],
+    ["/editor/chapter15/04", /UNION ALL kept every subscription/],
+    ["/editor/chapter16/04", /stripped every non-digit/],
+  ];
+
+  for (const [path, successMessage] of newChapterLessons) {
+    test(`solves ${path} with its official solution`, async ({ page }) => {
+      await page.goto(path);
+      await solveLessonWithSolution(page, successMessage);
+    });
+  }
+});
+
 test.describe("Not found", () => {
   test("renders a noindex not-found page for unknown URLs", async ({ page }) => {
     await page.goto("/this-page-does-not-exist");

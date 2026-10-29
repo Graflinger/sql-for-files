@@ -14,11 +14,18 @@ import normalization from "./09-normalization";
 import groupingSets from "./10-grouping-sets";
 import unnest from "./11-unnest";
 import arrayLambdas from "./12-array-lambdas";
+import caseWhen from "./13-case-when";
+import subqueriesCtes from "./14-subqueries-ctes";
+import setOperations from "./15-set-operations";
+import stringFunctions from "./16-string-functions";
 
 /** Name of the Learn SQL course used in structured data. */
 export const LEARN_SQL_COURSE_NAME = "Learn SQL with SQL for Files";
 
-/** All chapters in order. */
+/**
+ * All chapters in order. Lesson URLs are derived from this order
+ * (/editor/chapter{index}/{lesson}), so new chapters must be appended.
+ */
 export const chapters: Chapter[] = [
   dataBasics,
   intro,
@@ -33,6 +40,10 @@ export const chapters: Chapter[] = [
   groupingSets,
   unnest,
   arrayLambdas,
+  caseWhen,
+  subqueriesCtes,
+  setOperations,
+  stringFunctions,
 ];
 
 /** Flat list of all lessons across all chapters. */

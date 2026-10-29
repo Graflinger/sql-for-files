@@ -2,14 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://sqlforfiles.app/</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -23,56 +23,56 @@
 
   <url>
     <loc>https://sqlforfiles.app/guides</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/learn-sql</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/query-csv-with-sql</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/query-json-with-sql</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/query-parquet-with-sql</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/duckdb-wasm-sql-editor</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/private-local-data-analysis</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/sql-examples-for-files</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -86,9 +86,37 @@
 
   <url>
     <loc>https://sqlforfiles.app/legal</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-case-when-conditional-logic</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-subqueries-vs-ctes</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-union-intersect-except</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-string-functions-clean-text</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 
   <url>
@@ -240,448 +268,560 @@
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter0/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter0/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter0/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter1/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter1/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter1/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter1/04</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter2/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter2/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter2/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter3/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter3/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter3/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter3/04</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter3/05</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter3/06</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter3/07</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter4/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter4/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter4/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter5/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter5/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter5/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter6/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter6/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter6/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter6/04</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter6/05</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter6/06</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter6/07</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter7/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter7/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter7/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter7/04</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter7/05</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter7/06</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter8/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter8/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter8/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter8/04</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter8/05</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter8/06</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter8/07</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter8/08</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/04</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/05</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/06</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/07</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/08</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter9/09</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter10/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter10/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter10/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter11/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter11/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter11/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter11/04</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter12/01</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter12/02</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter12/03</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/editor/chapter12/04</loc>
-    <lastmod>2026-05-03</lastmod>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter13/01</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter13/02</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter13/03</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter13/04</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter14/01</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter14/02</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter14/03</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter14/04</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter15/01</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter15/02</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter15/03</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter15/04</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter16/01</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter16/02</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter16/03</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/editor/chapter16/04</loc>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

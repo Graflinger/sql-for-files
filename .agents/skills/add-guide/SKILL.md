@@ -65,7 +65,7 @@ Do not invent new block kinds unless you also update the renderer and tests.
 7. Include metadata:
    - `slug`
    - `title`
-   - `description` with more than 80 characters
+   - `description` with 80-170 characters (it becomes the meta description)
    - `summary` with more than 40 characters
    - `publishedAt`
    - `updatedAt`
@@ -73,6 +73,7 @@ Do not invent new block kinds unless you also update the renderer and tests.
    - at least 3 `keywords`
    - `relatedGuideSlugs`
    - `relatedLessonIds`
+   - `relatedPagePath` when a landing page in `src/data/landingPages.ts` covers the same topic
    - at least 4 `sections`
 8. Cross-link thoughtfully:
    - include the matching lesson ID first in `relatedLessonIds`
@@ -92,6 +93,14 @@ Do not invent new block kinds unless you also update the renderer and tests.
     - no database server setup required
 
 ## SEO guidance
+
+- Give each guide a distinct search intent. Landing pages (`/query-csv-with-sql` and similar)
+  target product intent ("query CSV with SQL"); guides target explanation or tutorial intent
+  ("how to analyze a CSV file", "CASE WHEN explained"). Do not reuse a landing page or lesson title.
+  `npm run validate:seo` fails on duplicate or near-duplicate titles across all pages.
+- When a guide is a chapter companion, set the chapter's `guideSlug` in `src/data/lessons`.
+- Companion guides for chapters with sample data should use that data in their SQL examples,
+  and be added to `runnableGuides` in `src/data/lessons/challenges.test.ts` so every example runs.
 
 - Use natural, search-oriented titles rather than keyword stuffing.
 - Target beginner search phrases for lesson companion posts, such as:
@@ -117,8 +126,9 @@ Do not invent new block kinds unless you also update the renderer and tests.
 After editing, run when available:
 
 ```bash
-npm test -- --run src/data/guides.test.ts src/data/publicRoutes.test.ts
+npm test -- --run src/data
 npx tsc -b
+npm run build && npm run validate:seo
 ```
 
 If package commands are unavailable in the environment, report that clearly.

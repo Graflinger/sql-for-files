@@ -8,9 +8,11 @@ This file is the primary agent reference for project context, architecture, and 
 ```bash
 npm install              # Install dependencies
 npm run dev              # Start Vite dev server (port 5173, --host enabled)
-npm run build            # TypeScript check + Vite build + prerender static pages
+npm run build            # Type check, generate sitemap.xml + llms.txt, Vite build, prerender pages
 npm run lint             # ESLint (flat config, TS + React rules)
 npm run preview          # Preview production build locally
+npm run validate:seo     # Check dist/ for SEO regressions (run after build)
+npm run verify:live      # Read-only HTTP checks against https://sqlforfiles.app (or --base=URL)
 ```
 
 ### TypeScript Only
@@ -35,8 +37,34 @@ Use Vitest for unit/component coverage and Playwright for browser flows.
 
 ## CI/CD
 
-GitHub Actions deploys to GitHub Pages on push to `main` (`.github/workflows/static.yml`).
-The build uses `VITE_BASE_PATH=/sql-for-files/` for the GitHub Pages subdirectory.
+`.github/workflows/ci.yml` runs lint, type check, unit tests, E2E tests, and the build on
+pushes and pull requests to `main`.
+
+Production is served by Cloudflare Pages at `https://sqlforfiles.app`. Releases are promoted
+by merging `main` into the `releases/cloudflare` branch, which Cloudflare Pages builds.
+The old GitHub Pages deployment (`VITE_BASE_PATH=/sql-for-files/`) is legacy; `public/_redirects`
+301-redirects that base path.
+
+## Public URLs and SEO
+
+- Every public route is listed in `src/data/publicRoutes.ts`; the sitemap, llms.txt, prerender,
+  and `scripts/validate-seo.ts` all read from it.
+- Canonical URL form has **no trailing slash** (except `/`). Build helpers live in
+  `src/utils/siteUrl.ts` (`canonicalUrl`, `normalizeSitePath`); internal `<Link>`s use the same form.
+- `scripts/prerender.ts` writes each route as a flat `name.html` file (`routeHtmlFile`).
+  Cloudflare Pages serves `/name` from `name.html` with 200 and 308-redirects `/name/`.
+  Never emit `name/index.html`: Cloudflare would redirect the canonical URL to a slash URL.
+- Unknown URLs render `src/pages/NotFound.tsx` (route `*`), prerendered to `dist/404.html`,
+  which Cloudflare Pages serves with a 404 status. Pass `canonicalPath={null}` to `SEO` for
+  pages that must not declare a canonical URL.
+- `public/sitemap.xml` and `public/llms.txt` are generated (`npm run generate:sitemap`,
+  `npm run generate:llms`); commit the regenerated files. Bump lastmod dates only when content changes.
+- `public/_headers` keeps `*.pages.dev` hosts out of search indexes; `public/_redirects` holds
+  path redirects. Host-level redirects (such as `www`) need Cloudflare dashboard rules.
+- Structured data must describe only visible, true facts. Never add ratings, reviews,
+  or invented statistics; `validate:seo` fails on `aggregateRating`/`review`.
+- Landing pages (`src/data/landingPages.ts`) target product intent; guides target explanation
+  intent and link back via `relatedPagePath`. `validate:seo` fails on duplicate or near-duplicate titles.
 
 ## Tech Stack
 
@@ -284,4 +312,5 @@ Charts must support high-quality export for embedding in PowerPoint, Excel, etc.
 
 The `.gitignore` excludes most `*.md` files except `README.md` and `AGENTS.md`.
 Repository skills are an intentional exception via `!.agents/skills/**/SKILL.md`.
-Local planning docs (implementation_plan.md, etc.) are intentionally untracked.
+Local planning docs (implementation_plan.md, MARKETING_PLAN.md,
+SEO_AI_DISCOVERABILITY_NON_CODE_TASKS.md, etc.) are intentionally untracked.
