@@ -88,3 +88,5 @@ jobs:
       - run: npm ci
       - name: Build
         run: npm run build
+      - name: Validate SEO output
+        run: npm run validate:seo

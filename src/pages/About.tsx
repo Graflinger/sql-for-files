@@ -79,10 +79,12 @@ export default function About() {
       "Zero installation required",
     ],
     screenshot: "https://sqlforfiles.app/og-image.png",
-    softwareVersion: "1.0",
+    isAccessibleForFree: true,
+    license: "https://www.gnu.org/licenses/agpl-3.0.html",
     author: {
       "@type": "Organization",
       name: "SQL for Files",
+      url: "https://sqlforfiles.app/",
     },
   };
   const organizationSchema = {
@@ -117,8 +119,8 @@ export default function About() {
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-4">
               Query, join, and analyze your{" "}
-              <span className="relative inline-block">
-                <span className="invisible">Parquet</span>
+              {/* The width placeholder lives in a pseudo-element so the H1 text stays readable for crawlers. */}
+              <span className="relative inline-block before:invisible before:content-['Parquet']">
                 <span className="absolute inset-0 text-blue-600 transition-opacity duration-500">
                   {FILE_TYPES[currentType]}
                 </span>
@@ -210,22 +212,6 @@ export default function About() {
                   />
                 </svg>
                 Local-only processing
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <svg
-                  className="w-3.5 h-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                Works offline after first load
               </span>
             </div>
             <p className="mt-4 text-xs text-slate-400">
@@ -900,7 +886,16 @@ export default function About() {
                     </svg>
                   </Link>
                   <p className="mt-3 text-xs text-slate-500">
-                    Once inside the editor, click <span className="font-semibold text-slate-700">Learn SQL</span> in the top navigation.
+                    Inside the editor, click{" "}
+                    <span className="font-semibold text-slate-700">Open Lessons</span> in the
+                    top navigation, or{" "}
+                    <Link
+                      to="/learn-sql"
+                      className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      browse every chapter and lesson
+                    </Link>
+                    .
                   </p>
                 </div>
               </div>

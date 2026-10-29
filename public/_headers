@@ -1,0 +1,14 @@
+# Cloudflare Pages response headers.
+# https://developers.cloudflare.com/pages/configuration/headers/
+
+# Keep the pages.dev production and preview hostnames out of search indexes.
+# The canonical host is https://sqlforfiles.app.
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+# Vite emits content-hashed file names into /assets, so browsers can cache them long-term.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

@@ -26,5 +26,11 @@ export interface Guide {
   sections: GuideSection[];
   relatedGuideSlugs: string[];
   relatedLessonIds: string[];
+  /**
+   * Product landing page that targets the head keyword for this topic. Guides
+   * link to it so search engines see the guide as supporting content, not a
+   * competing page.
+   */
+  relatedPagePath?: string;
   howTo?: boolean;
 }

@@ -1,38 +1,75 @@
 import { Link } from "react-router-dom";
 
 import SEO from "../components/SEO/SEO";
-import { chapters, lessonPath, totalLessonCount } from "../data/lessons";
+import { guideBySlug, guidePath } from "../data/guides";
+import {
+  chapters,
+  LEARN_SQL_COURSE_NAME,
+  lessonDescription,
+  lessonPath,
+  totalLessonCount,
+} from "../data/lessons";
+import { canonicalUrl, SITE_NAME } from "../utils/siteUrl";
+
+const COURSE_DESCRIPTION =
+  "A free, practical SQL course with interactive lessons, one-click sample data, and validated challenges that run locally in your browser with DuckDB.";
+
+const challengeCount = chapters.reduce(
+  (count, chapter) => count + chapter.lessons.filter((lesson) => lesson.challenge).length,
+  0
+);
 
 /** LearnSQL provides a crawlable overview of the built-in SQL lesson track. */
 export default function LearnSQL() {
+  const courseUrl = canonicalUrl("/learn-sql");
   const courseSchema = {
     "@context": "https://schema.org",
     "@type": "Course",
-    name: "Learn SQL with SQL for Files",
-    description:
-      "A practical SQL learning track with browser-based lessons, sample data, and hands-on challenges inside SQL for Files.",
-    url: "https://sqlforfiles.app/learn-sql",
+    name: LEARN_SQL_COURSE_NAME,
+    description: COURSE_DESCRIPTION,
+    url: courseUrl,
+    inLanguage: "en",
+    isAccessibleForFree: true,
+    teaches: chapters.map((chapter) => chapter.title),
     provider: {
       "@type": "Organization",
-      name: "SQL for Files",
-      url: "https://sqlforfiles.app/",
+      name: SITE_NAME,
+      url: canonicalUrl("/"),
+    },
+    offers: {
+      "@type": "Offer",
+      category: "Free",
+      price: "0",
+      priceCurrency: "USD",
     },
     hasCourseInstance: {
       "@type": "CourseInstance",
-      courseMode: "online",
-      courseWorkload: `${totalLessonCount} short SQL lessons`,
+      courseMode: "Online",
     },
+    syllabusSections: chapters.map((chapter) => ({
+      "@type": "Syllabus",
+      name: chapter.title,
+      description: chapter.description ?? chapter.title,
+    })),
+  };
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("/") },
+      { "@type": "ListItem", position: 2, name: "Learn SQL", item: courseUrl },
+    ],
   };
 
   return (
     <>
       <SEO
-        title="Learn SQL in Your Browser | SQL for Files"
-        description="Learn SQL with guided lessons, sample data, and hands-on challenges inside a private browser-based DuckDB editor."
+        title="Learn SQL Online with Interactive Lessons | SQL for Files"
+        description={`Learn SQL for free with ${totalLessonCount} interactive lessons, sample data, and ${challengeCount} validated challenges that run in your browser with DuckDB.`}
         canonicalPath="/learn-sql"
-        ogType="article"
+        ogType="website"
         imageAlt="Learn SQL with SQL for Files"
-        structuredData={courseSchema}
+        structuredData={[courseSchema, breadcrumbSchema]}
       />
       <div className="theme-page min-h-screen bg-white">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
@@ -45,13 +82,15 @@ export default function LearnSQL() {
                 Learn SQL while querying real files
               </h1>
               <p className="text-base leading-7 text-slate-600 dark:text-slate-300">
-                SQL for Files includes {totalLessonCount} guided lessons that
-                open directly in the editor. Load sample tables, run SQL with
-                autocomplete, and solve challenges without installing a database.
+                SQL for Files includes {totalLessonCount} guided lessons in{" "}
+                {chapters.length} chapters, with {challengeCount} hands-on
+                challenges that check your query result automatically. Lessons
+                open directly in the editor: load sample tables, run SQL with
+                autocomplete, and practice without installing a database.
               </p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/editor/chapter0/01"
+                  to={lessonPath(chapters[0].lessons[0].id) ?? "/editor"}
                   className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:bg-blue-500 dark:text-slate-950 dark:hover:bg-blue-400"
                 >
                   Start the first lesson
@@ -95,42 +134,89 @@ export default function LearnSQL() {
               </div>
             </div>
 
-            <div className="mt-12 space-y-8">
-              {chapters.map((chapter, chapterIndex) => (
-                <section key={chapter.id}>
-                  <div className="mb-4 flex items-baseline gap-3 border-b border-slate-200 pb-3">
-                    <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">
-                      {String(chapterIndex).padStart(2, "0")}
-                    </span>
-                    <h2 className="text-xl font-bold text-slate-900">
-                      {chapter.title}
-                    </h2>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {chapter.lessons.map((lesson, lessonIndex) => {
-                      const path = lessonPath(lesson.id) ?? "/editor";
+            <nav aria-label="Chapters" className="mt-12">
+              <h2 className="text-xl font-bold text-slate-900">Chapters</h2>
+              <ol className="mt-4 grid gap-2 text-sm sm:grid-cols-2">
+                {chapters.map((chapter, chapterIndex) => (
+                  <li key={chapter.id}>
+                    <a
+                      href={`#${chapter.id}`}
+                      className="text-slate-600 transition-colors hover:text-blue-700 dark:text-slate-300 dark:hover:text-blue-300"
+                    >
+                      {String(chapterIndex).padStart(2, "0")} · {chapter.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
 
-                      return (
-                        <Link
-                          key={lesson.id}
-                          to={path}
-                          className="rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-blue-300 hover:bg-blue-50/40"
-                        >
-                          <p className="mb-1 text-xs font-medium text-slate-400">
-                            Lesson {String(lessonIndex + 1).padStart(2, "0")}
-                          </p>
-                          <h3 className="text-sm font-semibold text-slate-900">
-                            {lesson.title}
-                          </h3>
-                          <p className="mt-2 line-clamp-2 text-xs leading-5 text-slate-500">
-                            {lesson.content.split("\n")[0]}
-                          </p>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </section>
-              ))}
+            <div className="mt-12 space-y-12">
+              {chapters.map((chapter, chapterIndex) => {
+                const guide = chapter.guideSlug ? guideBySlug(chapter.guideSlug) : undefined;
+                const recommendedAfter = chapter.recommendedAfter
+                  ? chapters.findIndex((candidate) => candidate.id === chapter.recommendedAfter)
+                  : -1;
+
+                return (
+                  <section key={chapter.id} id={chapter.id} className="scroll-mt-24">
+                    <div className="mb-4 border-b border-slate-200 pb-3">
+                      <div className="flex items-baseline gap-3">
+                        <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-bold text-slate-500">
+                          {String(chapterIndex).padStart(2, "0")}
+                        </span>
+                        <h2 className="text-xl font-bold text-slate-900">
+                          {chapter.title}
+                        </h2>
+                      </div>
+                      {chapter.description && (
+                        <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                          {chapter.description}
+                        </p>
+                      )}
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                        {recommendedAfter >= 0 && (
+                          <span>
+                            Works well after chapter {recommendedAfter}:{" "}
+                            {chapters[recommendedAfter].title}
+                          </span>
+                        )}
+                        {guide && (
+                          <Link
+                            to={guidePath(guide.slug)}
+                            className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            Companion guide: {guide.title}
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {chapter.lessons.map((lesson, lessonIndex) => {
+                        const path = lessonPath(lesson.id) ?? "/editor";
+
+                        return (
+                          <Link
+                            key={lesson.id}
+                            to={path}
+                            className="rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-blue-300 hover:bg-blue-50/40"
+                          >
+                            <p className="mb-1 text-xs font-medium text-slate-400">
+                              Lesson {String(lessonIndex + 1).padStart(2, "0")}
+                              {lesson.challenge ? " · Challenge" : " · Theory"}
+                            </p>
+                            <h3 className="text-sm font-semibold text-slate-900">
+                              {lesson.title}
+                            </h3>
+                            <p className="mt-2 text-xs leading-5 text-slate-500">
+                              {lessonDescription(lesson)}
+                            </p>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
             </div>
           </div>
         </div>

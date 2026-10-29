@@ -96,10 +96,15 @@ function hasColumns(result: QueryResult, expectedColumns: string[]): boolean {
 const normalization: Chapter = {
   id: "normalization",
   title: "Normalization",
+  description:
+    "See why well-designed databases split data into related tables, feel update, insert, and delete anomalies, and learn 1NF, 2NF, and 3NF.",
+  guideSlug: "database-normalization-explained",
   lessons: [
     {
       id: "normalization-why",
       title: "Why Normalization Matters",
+      summary:
+        "Understand what database normalization is, why each fact should be stored in one place, and how it prevents inconsistent data.",
       content: `Normalization is the process of splitting data into related tables so each fact is stored in the right place only once. We do this to reduce duplication and keep data consistent.
 
 Imagine a single table that stores orders like this:
@@ -121,6 +126,8 @@ Normalization solves this by separating \`customers\`, \`products\`, \`orders\`,
     {
       id: "normalization-update-anomaly",
       title: "Feel the Update Anomaly",
+      summary:
+        "Experience an update anomaly in a flat orders table, where one customer's city is repeated on many rows that would all need changing.",
       content: `Let's make the update problem concrete. In the bad schema below, customer details are copied into every order row.
 
 If Alice moves from Berlin to Munich, you do not update one customer record. You must find every row where Alice appears and change all of them. Missing just one row leaves the database in an inconsistent state.
@@ -180,6 +187,8 @@ Load the sample data and query the rows that would need to be changed. You shoul
     {
       id: "normalization-update-solved",
       title: "One Row to Update in a Good Schema",
+      summary:
+        "See how a normalized customers table turns a risky multi-row update into a change to a single row, then query that one row.",
       content: `Now compare that with a normalized design. Customer facts live in the \`customers\` table, while \`orders\` only stores \`customer_id\`.
 
 If Alice moves, you update her row once in \`customers\`. Her orders do not need their own copies of city and email.
@@ -235,6 +244,8 @@ This is one of the main reasons normalized tables are easier to maintain correct
     {
       id: "normalization-bad-1nf",
       title: "Feel Why Packed Lists Break 1NF",
+      summary:
+        "Discover why comma-separated lists in a single column break first normal form, and why searching them with LIKE is fragile.",
       content: `First normal form says each column should hold one value, not a comma-separated list of values.
 
 In the bad table below, each order stores multiple product names in a single text column. That means the database cannot reason about products cleanly. You end up searching inside strings instead of working with individual rows.
@@ -297,6 +308,8 @@ Try the challenge and notice how awkward it feels compared with a proper \`order
     {
       id: "normalization-good-1nf",
       title: "Order Items Feel Better",
+      summary:
+        "Model order lines in their own order_items table to satisfy first normal form, then find orders that contain a product with a JOIN.",
       content: `In a normalized schema, each ordered product gets its own row in \`order_items\`. That means products are queryable with normal joins and filters.
 
 Instead of asking, "Does this big text blob contain Keyboard?", you can say, "Which \`order_items\` rows point to the Keyboard product?" That is much cleaner and much more reliable.
@@ -359,6 +372,8 @@ Load the normalized tables and try the same business question again.`,
     {
       id: "normalization-delete-anomaly",
       title: "Feel the Delete Anomaly",
+      summary:
+        "Experience a delete anomaly, where removing an order row would also erase the only record of a product, using GROUP BY and HAVING.",
       content: `The flat table also has a delete problem. Product facts exist only because they are attached to order rows.
 
 If a product appears in exactly one row, deleting that order would also delete the only stored record of that product. The database would forget that the product ever existed.
@@ -423,6 +438,8 @@ Try finding the products that are hanging by a single row.`,
     {
       id: "normalization-insert-delete-solved",
       title: "Products Can Exist Without Orders",
+      summary:
+        "See how a separate products table fixes insert and delete anomalies, and find products that have never been ordered with a LEFT JOIN.",
       content: `A normalized schema fixes both insert and delete anomalies by giving products their own table.
 
 That means a product can exist before the first order is placed, and it can still exist after the last order is deleted. Product facts are no longer tied to the survival of order rows.
@@ -477,6 +494,8 @@ In the sample below, Monitor Stand exists in the \`products\` catalog but has no
     {
       id: "normalization-first-second-third",
       title: "1NF, 2NF, and 3NF",
+      summary:
+        "Learn what first, second, and third normal form require, with short examples of the dependency problems each normal form removes.",
       content: `Most application databases aim for first, second, and third normal form. These are practical rules for organizing data well.
 
 First normal form (1NF) means each column contains a single atomic value, and each row can be identified uniquely. For example, a column like \`products = 'Keyboard, Mouse'\` breaks 1NF because it stores multiple values in one field.
@@ -499,6 +518,8 @@ Each fact lives where it logically belongs, and the keys describe how the tables
     {
       id: "normalization-why-we-build-in-nf",
       title: "Why We Build Tables in Normal Forms",
+      summary:
+        "Review why teams design tables in normal forms, from cleaner updates to better data quality, and when denormalizing is a deliberate trade-off.",
       content: `Normal forms are not just theory. They give us concrete benefits when we design real systems.
 
 Why teams prefer normalized schemas:

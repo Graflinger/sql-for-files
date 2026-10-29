@@ -41,10 +41,15 @@ function hasExpectedGroups(
 const groupingSets: Chapter = {
   id: "grouping-sets",
   title: "GROUPING SETS, ROLLUP, and CUBE",
+  description:
+    "Produce subtotals and grand totals in a single query with GROUPING SETS, ROLLUP, and CUBE.",
+  guideSlug: "sql-grouping-sets-rollup-cube",
   lessons: [
     {
       id: "grouping-sets-basics",
       title: "Multi-Dimension Aggregates with GROUPING SETS",
+      summary:
+        "Compute several groupings in one query with GROUPING SETS, returning totals by region, by product, and a grand total together.",
       content: `Sometimes you need aggregates along several dimensions in one result. \`GROUPING SETS\` lets you specify exactly which groups to compute.
 
 For example, totals by region, by product, and an overall grand total:
@@ -108,6 +113,8 @@ Without \`GROUPING SETS\` you would need a separate query and \`UNION ALL\` for 
     {
       id: "grouping-sets-rollup",
       title: "ROLLUP for Hierarchical Totals",
+      summary:
+        "Use ROLLUP to produce hierarchical subtotals and a grand total in one SQL query, such as revenue by region and then by product.",
       content: `\`ROLLUP\` is a shorthand that creates progressively less detailed grouping sets, perfect for subtotals and a grand total.
 
 \`\`\`sql
@@ -185,6 +192,8 @@ The display order is not guaranteed by \`ROLLUP\` itself. Use \`ORDER BY\` to pu
     {
       id: "grouping-sets-cube",
       title: "CUBE for All Combinations",
+      summary:
+        "Use CUBE to aggregate every combination of the listed columns, producing all subtotals for region and product in one result.",
       content: `\`CUBE\` goes further than \`ROLLUP\`: it produces every possible combination of the listed columns.
 
 \`\`\`sql
