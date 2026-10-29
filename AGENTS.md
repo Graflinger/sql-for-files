@@ -37,8 +37,8 @@ Use Vitest for unit/component coverage and Playwright for browser flows.
 
 ## CI/CD
 
-`.github/workflows/ci.yml` runs lint, type check, unit tests, E2E tests, and the build on
-pushes and pull requests to `main`.
+`.github/workflows/ci.yml` runs lint, type check, unit tests, E2E tests, the build, and
+`npm run validate:seo` on pushes and pull requests to `main`.
 
 Production is served by Cloudflare Pages at `https://sqlforfiles.app`. Releases are promoted
 by merging `main` into the `releases/cloudflare` branch, which Cloudflare Pages builds.
