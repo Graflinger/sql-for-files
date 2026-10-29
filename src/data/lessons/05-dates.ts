@@ -26,10 +26,15 @@ function getValue(row: Record<string, unknown>, column: string): unknown {
 const dates: Chapter = {
   id: "dates",
   title: "Working with Dates",
+  description:
+    "Filter by date ranges, extract parts of dates, and calculate the days between two dates in DuckDB SQL.",
+  guideSlug: "sql-date-queries-date-ranges-extract-date-diff",
   lessons: [
     {
       id: "dates-filtering",
       title: "Filtering by Date Ranges",
+      summary:
+        "Filter rows by date ranges with comparison operators and DATE literals, and return only the orders placed in one specific month.",
       content: `Dates are easier to work with when you treat them as dates, not strings. SQL lets you compare them directly.
 
 To find February orders, you can write:
@@ -90,6 +95,8 @@ You can use the same idea for weeks, quarters, or any other date window.`,
     {
       id: "dates-extract",
       title: "Extracting Parts of a Date",
+      summary:
+        "Pull the year, month, or day out of a date with EXTRACT, then group by the extracted part to count how many orders arrived per month.",
       content: `You can pull specific parts out of a date with \`EXTRACT\`.
 
 For example, to get the month number from \`order_date\`:
@@ -159,6 +166,8 @@ FROM orders
     {
       id: "dates-date-diff",
       title: "Date Arithmetic with DATE_DIFF",
+      summary:
+        "Calculate the number of days between two dates with DuckDB's DATE_DIFF, such as the shipping time between order and ship dates.",
       content: `SQL can calculate the distance between two dates. In DuckDB, \`DATE_DIFF\` is a convenient way to do that.
 
 \`\`\`sql

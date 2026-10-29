@@ -92,29 +92,134 @@
   </url>
 
   <url>
+    <loc>https://sqlforfiles.app/guides/introduction-to-sql-select-columns-aliases-sorting</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-where-filtering-data</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-aggregate-functions-count-sum-min-max-avg</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-distinct-group-by-having</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-date-queries-date-ranges-extract-date-diff</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-joins-explained-inner-left-full-self-cross</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-window-functions-over-partition-running-total</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-execution-order-explained</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/database-normalization-explained</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-grouping-sets-rollup-cube</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/duckdb-sql-unnest-lists-structs-nested-data</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/duckdb-array-lambda-functions-transform-filter-reduce</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/what-is-a-database-table</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-data-types-explained</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://sqlforfiles.app/guides/sql-null-missing-values</loc>
+    <lastmod>2026-05-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
     <loc>https://sqlforfiles.app/guides/query-csv-files-with-sql</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/guides/query-json-files-with-sql</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/guides/query-parquet-files-in-browser</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://sqlforfiles.app/guides/sql-examples-for-csv-json-parquet</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -128,7 +233,7 @@
 
   <url>
     <loc>https://sqlforfiles.app/guides/private-local-data-analysis</loc>
-    <lastmod>2026-05-02</lastmod>
+    <lastmod>2026-10-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

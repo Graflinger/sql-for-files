@@ -2,10 +2,11 @@ import { Link, useParams } from "react-router-dom";
 
 import SEO from "../components/SEO/SEO";
 import { guideBySlug, guidePath } from "../data/guides";
+import { landingPageByPath } from "../data/landingPages";
 import { lessonPath, lessonById } from "../data/lessons";
 import type { Guide, GuideBlock } from "../types/guides";
+import { canonicalUrl, SITE_NAME } from "../utils/siteUrl";
 
-const SITE_URL = "https://sqlforfiles.app";
 
 function renderBlock(block: GuideBlock, index: number) {
   if (block.kind === "paragraph") {
@@ -61,7 +62,7 @@ function renderBlock(block: GuideBlock, index: number) {
 }
 
 function articleStructuredData(guide: Guide) {
-  const articleUrl = `${SITE_URL}${guidePath(guide.slug)}`;
+  const articleUrl = canonicalUrl(guidePath(guide.slug));
   const techArticle = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
@@ -71,15 +72,17 @@ function articleStructuredData(guide: Guide) {
     datePublished: guide.publishedAt,
     dateModified: guide.updatedAt,
     keywords: guide.keywords.join(", "),
+    inLanguage: "en",
+    isAccessibleForFree: true,
     author: {
       "@type": "Organization",
-      name: "SQL for Files",
-      url: SITE_URL,
+      name: SITE_NAME,
+      url: canonicalUrl("/"),
     },
     publisher: {
       "@type": "Organization",
-      name: "SQL for Files",
-      url: SITE_URL,
+      name: SITE_NAME,
+      url: canonicalUrl("/"),
     },
     mainEntityOfPage: articleUrl,
   };
@@ -91,13 +94,13 @@ function articleStructuredData(guide: Guide) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: `${SITE_URL}/`,
+        item: canonicalUrl("/"),
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Guides",
-        item: `${SITE_URL}/guides`,
+        item: canonicalUrl("/guides"),
       },
       {
         "@type": "ListItem",
@@ -141,7 +144,7 @@ export default function GuideArticle() {
         <SEO
           title="Guide Not Found | SQL for Files"
           description="The requested SQL for Files guide could not be found. Browse all guides for CSV, JSON, Parquet, DuckDB WASM, and local SQL examples."
-          canonicalPath="/guides"
+          canonicalPath={null}
           robots="noindex,follow"
         />
         <div className="theme-page min-h-screen bg-white">
@@ -171,6 +174,7 @@ export default function GuideArticle() {
     );
   }
 
+  const relatedPage = guide.relatedPagePath ? landingPageByPath(guide.relatedPagePath) : undefined;
   const relatedGuides = guide.relatedGuideSlugs
     .map((slug) => guideBySlug(slug))
     .filter((relatedGuide): relatedGuide is Guide => Boolean(relatedGuide));
@@ -262,12 +266,22 @@ export default function GuideArticle() {
                   Open SQL for Files to add your own CSV, JSON, or Parquet files
                   and try these examples locally in your browser.
                 </p>
-                <Link
-                  to="/editor"
-                  className="mt-5 inline-flex rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:bg-blue-500 dark:text-slate-950 dark:hover:bg-blue-400"
-                >
-                  Open editor
-                </Link>
+                <div className="mt-5 flex flex-wrap items-center gap-4">
+                  <Link
+                    to="/editor"
+                    className="inline-flex rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:bg-blue-500 dark:text-slate-950 dark:hover:bg-blue-400"
+                  >
+                    Open editor
+                  </Link>
+                  {relatedPage && (
+                    <Link
+                      to={relatedPage.canonicalPath}
+                      className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      {relatedPage.linkLabel}
+                    </Link>
+                  )}
+                </div>
               </div>
 
               <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-6 dark:border-slate-800 dark:bg-slate-900/50">

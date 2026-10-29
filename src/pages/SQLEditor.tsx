@@ -5,18 +5,29 @@ import { useDuckDBContext } from "../contexts/DuckDBContext";
 import { useEditorTabsContext } from "../contexts/EditorTabsContext";
 import { useNotifications } from "../contexts/NotificationContext";
 import { useLearnSQL } from "../contexts/LearnSQLContext";
-import { chapterForLesson, lessonByRoute, lessonNumbering } from "../data/lessons";
+import {
+  chapterForLesson,
+  LEARN_SQL_COURSE_NAME,
+  lessonByRoute,
+  lessonDescription,
+  lessonNumbering,
+  lessonPageTitle,
+  lessonPath,
+} from "../data/lessons";
 import FileAdder from "../components/FileAdder/FileAdder";
 import SQLEditor from "../components/SQLEditor/SQLEditor";
 import TableList from "../components/DatabaseManager/TableList";
 import QueryResults from "../components/QueryResults/QueryResults";
 import QueryHistorySidebar from "../components/QueryHistory/QueryHistorySidebar";
 import LearnSQLPanel from "../components/LearnSQL/LearnSQLPanel";
+import LessonArticle from "../components/LearnSQL/LessonArticle";
 import { IDELayout } from "../components/IDE";
 import { useQueryExecution } from "../hooks/useQueryExecution";
 import { useQueryHistory } from "../hooks/useQueryHistory";
 import SEO from "../components/SEO/SEO";
 import { quoteIdentifier } from "../utils/sql";
+import { canonicalUrl, SITE_NAME } from "../utils/siteUrl";
+import type { Chapter, Lesson } from "../types/learn";
 
 /**
  * SQL Editor Page Content
@@ -199,10 +210,52 @@ function SQLEditorContent() {
   );
 }
 
+/** Structured data for a lesson page: the lesson as part of the Learn SQL course, plus breadcrumbs. */
+function lessonStructuredData(lesson: Lesson, chapter: Chapter | null, description: string) {
+  const lessonUrl = canonicalUrl(lessonPath(lesson.id) ?? "/editor");
+  const courseUrl = canonicalUrl("/learn-sql");
+  const numbering = lessonNumbering(lesson.id);
+
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "LearningResource",
+      name: lesson.title,
+      description,
+      url: lessonUrl,
+      inLanguage: "en",
+      isAccessibleForFree: true,
+      learningResourceType: lesson.challenge ? ["Lesson", "Exercise"] : "Lesson",
+      interactivityType: lesson.challenge ? "active" : "expositive",
+      teaches: chapter?.title ?? "SQL",
+      position: numbering?.lessonNumber,
+      isPartOf: {
+        "@type": "Course",
+        name: LEARN_SQL_COURSE_NAME,
+        url: courseUrl,
+      },
+      provider: {
+        "@type": "Organization",
+        name: SITE_NAME,
+        url: canonicalUrl("/"),
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: canonicalUrl("/") },
+        { "@type": "ListItem", position: 2, name: "Learn SQL", item: courseUrl },
+        { "@type": "ListItem", position: 3, name: lesson.title, item: lessonUrl },
+      ],
+    },
+  ];
+}
+
 /**
  * SQL Editor Page
  *
- * DuckDB and editor tab providers are global (in App.tsx),
+ * DuckDB and editor tab providers wrap the editor route in App.tsx,
  * so this component is just SEO + content.
  */
 export default function SqlEditorPage() {
@@ -211,68 +264,27 @@ export default function SqlEditorPage() {
   const isPrerenderSnapshot = new URLSearchParams(location.search).has("prerender");
   const routeLesson =
     chapterSlug && lessonSlug ? lessonByRoute(chapterSlug, lessonSlug) : null;
-  const canonicalPath =
-    chapterSlug && lessonSlug && routeLesson
-      ? `/editor/${chapterSlug}/${lessonSlug}`
-      : "/editor";
+  // Always canonicalize to the generated lesson path so alias segments such as
+  // /editor/chapter01/4 do not declare themselves as separate URLs.
+  const canonicalPath = (routeLesson ? lessonPath(routeLesson.id) : null) ?? "/editor";
+  const routeChapter = routeLesson ? chapterForLesson(routeLesson.id) ?? null : null;
   const pageTitle = routeLesson
-    ? `${routeLesson.title} | Learn SQL | SQL for Files`
+    ? lessonPageTitle(routeLesson)
     : "SQL Editor for CSV, JSON & Parquet | SQL for Files";
   const pageDescription = routeLesson
-    ? `Practice ${routeLesson.title.toLowerCase()} with browser-based sample data, guided SQL examples, and hands-on validation in SQL for Files.`
+    ? lessonDescription(routeLesson)
     : "Run SQL queries on CSV, JSON, and Parquet files directly in your browser. Files, SQL queries, and results stay local in your browser.";
-  const routeChapter = routeLesson ? chapterForLesson(routeLesson.id) : null;
-  const routeNumbering = routeLesson ? lessonNumbering(routeLesson.id) : null;
   const structuredData = routeLesson
-    ? [
-        {
-          "@context": "https://schema.org",
-          "@type": "LearningResource",
-          name: routeLesson.title,
-          description: pageDescription,
-          url: `https://sqlforfiles.app${canonicalPath}`,
-          learningResourceType: "Lesson",
-          teaches: routeChapter?.title ?? "SQL",
-          position: routeNumbering?.lessonNumber,
-          provider: {
-            "@type": "Organization",
-            name: "SQL for Files",
-            url: "https://sqlforfiles.app/",
-          },
-        },
-        {
-          "@context": "https://schema.org",
-          "@type": "BreadcrumbList",
-          itemListElement: [
-            {
-              "@type": "ListItem",
-              position: 1,
-              name: "Home",
-              item: "https://sqlforfiles.app/",
-            },
-            {
-              "@type": "ListItem",
-              position: 2,
-              name: "Learn SQL",
-              item: "https://sqlforfiles.app/learn-sql",
-            },
-            {
-              "@type": "ListItem",
-              position: 3,
-              name: routeLesson.title,
-              item: `https://sqlforfiles.app${canonicalPath}`,
-            },
-          ],
-        },
-      ]
+    ? lessonStructuredData(routeLesson, routeChapter, pageDescription)
     : {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         name: "SQL for Files Editor",
         applicationCategory: "DeveloperApplication",
         operatingSystem: "Web Browser",
-        url: "https://sqlforfiles.app/editor",
+        url: canonicalUrl("/editor"),
         description: pageDescription,
+        isAccessibleForFree: true,
         offers: {
           "@type": "Offer",
           price: "0",
@@ -286,12 +298,16 @@ export default function SqlEditorPage() {
         title={pageTitle}
         description={pageDescription}
         canonicalPath={canonicalPath}
-        ogType="website"
-        imageAlt="SQL for Files SQL editor"
+        ogType={routeLesson ? "article" : "website"}
+        imageAlt={routeLesson ? `${routeLesson.title} - Learn SQL lesson` : "SQL for Files SQL editor"}
         structuredData={structuredData}
       />
       {isPrerenderSnapshot ? (
-        <SQLEditorSnapshot lesson={routeLesson} />
+        routeLesson && routeChapter ? (
+          <LessonArticle lesson={routeLesson} chapter={routeChapter} />
+        ) : (
+          <EditorSnapshot />
+        )
       ) : (
         <SQLEditorContent />
       )}
@@ -299,63 +315,8 @@ export default function SqlEditorPage() {
   );
 }
 
-interface SQLEditorSnapshotProps {
-  lesson: ReturnType<typeof lessonByRoute>;
-}
-
-function SQLEditorSnapshot({ lesson }: SQLEditorSnapshotProps) {
-  if (lesson) {
-    return (
-      <div className="theme-page min-h-screen bg-white">
-        <article className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-slate-200 bg-white/90 p-8 shadow-sm md:p-10">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-blue-600">
-              Learn SQL Lesson
-            </p>
-            <h1 className="text-3xl font-bold text-slate-900 md:text-4xl">
-              {lesson.title}
-            </h1>
-            <div className="mt-6 space-y-5 text-base leading-7 text-slate-700">
-              {lesson.content.split("\n\n").map((block) => {
-                const trimmed = block.trim();
-                const isSqlBlock = trimmed.startsWith("```sql") && trimmed.endsWith("```");
-
-                if (isSqlBlock) {
-                  return (
-                    <pre
-                      key={trimmed}
-                      className="overflow-x-auto rounded-xl bg-slate-900 p-4 text-sm text-slate-100"
-                    >
-                      <code>{trimmed.replace(/^```sql\n/, "").replace(/```$/, "")}</code>
-                    </pre>
-                  );
-                }
-
-                return <p key={trimmed}>{trimmed}</p>;
-              })}
-            </div>
-            {lesson.challenge && (
-              <div className="mt-8 rounded-xl border border-blue-200 bg-blue-50 p-5">
-                <h2 className="text-lg font-semibold text-blue-950">
-                  Practice challenge
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-blue-900">
-                  {lesson.challenge.prompt}
-                </p>
-              </div>
-            )}
-            <Link
-              to="/editor"
-              className="mt-8 inline-flex rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white"
-            >
-              Open interactive editor
-            </Link>
-          </div>
-        </article>
-      </div>
-    );
-  }
-
+/** Static editor landing content used for the prerendered /editor HTML. */
+function EditorSnapshot() {
   return (
     <div className="theme-page min-h-screen bg-white">
       <section className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 lg:px-8">
@@ -371,12 +332,20 @@ function SQLEditorSnapshot({ lesson }: SQLEditorSnapshotProps) {
             includes table import, schema browsing, query history, charts,
             classification, CSV export, and local database backups.
           </p>
-          <Link
-            to="/editor"
-            className="mt-8 inline-flex rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white"
-          >
-            Open interactive editor
-          </Link>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link
+              to="/editor"
+              className="inline-flex rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white"
+            >
+              Open interactive editor
+            </Link>
+            <Link
+              to="/learn-sql"
+              className="inline-flex rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700"
+            >
+              Browse Learn SQL lessons
+            </Link>
+          </div>
         </div>
       </section>
     </div>

@@ -22,10 +22,15 @@ const EMPLOYEES_SETUP = [
 const filtering: Chapter = {
   id: "filtering",
   title: "Filtering Data",
+  description:
+    "Narrow results to the rows you need with WHERE, combine conditions with AND and OR, and match text patterns with LIKE.",
+  guideSlug: "sql-where-filtering-data",
   lessons: [
     {
       id: "filtering-where",
       title: "WHERE Clause Basics",
+      summary:
+        "Filter rows with the SQL WHERE clause and comparison operators, then find every employee earning more than 80,000 in a sample table.",
       content: `The \`WHERE\` clause filters rows based on a condition. Only rows that satisfy the condition are included in the result:
 
 \`\`\`sql
@@ -84,6 +89,8 @@ For text values, remember to wrap them in single quotes: \`'Engineering'\`.`,
     {
       id: "filtering-and-or",
       title: "Combining Conditions",
+      summary:
+        "Combine filter conditions with AND, OR, and parentheses so a WHERE clause returns exactly the rows you mean, not a broader slice.",
       content: `You can combine multiple conditions using \`AND\` and \`OR\`:
 
 \`AND\` — both conditions must be true:
@@ -146,6 +153,8 @@ WHERE (department = 'Sales' OR department = 'Marketing')
     {
       id: "filtering-like",
       title: "Pattern Matching with LIKE",
+      summary:
+        "Match text patterns with LIKE and ILIKE using the % and _ wildcards, and find names that contain a given substring in a SQL challenge.",
       content: `The \`LIKE\` operator matches text patterns using two wildcards:
 
 \`%\` matches any sequence of characters (including none)

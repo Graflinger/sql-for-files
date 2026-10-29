@@ -1,198 +1,58 @@
 import { Link } from "react-router-dom";
 
 import SEO from "../components/SEO/SEO";
-
-type UseCaseKind = "csv" | "json" | "parquet" | "duckdb" | "private" | "examples";
+import { guideBySlug, guidePath } from "../data/guides";
+import { landingPages } from "../data/landingPages";
+import type { LandingPageKind } from "../data/landingPages";
+import { lessonById, lessonPath } from "../data/lessons";
+import { canonicalUrl, SITE_NAME } from "../utils/siteUrl";
 
 interface UseCaseProps {
-  kind: UseCaseKind;
+  kind: LandingPageKind;
 }
 
-interface UseCaseConfig {
-  title: string;
-  description: string;
-  canonicalPath: string;
-  eyebrow: string;
-  heading: string;
-  intro: string;
-  bullets: string[];
-  examples: Array<{ label: string; sql: string }>;
-}
-
-const useCases: Record<UseCaseKind, UseCaseConfig> = {
-  csv: {
-    title: "Query CSV Files with SQL in Your Browser | SQL for Files",
-    description:
-      "Query CSV files with SQL locally in your browser. Load a CSV, inspect columns, aggregate rows, and export results without uploading data.",
-    canonicalPath: "/query-csv-with-sql",
-    eyebrow: "CSV Analysis",
-    heading: "Query CSV files with SQL in your browser",
-    intro:
-      "Drop a CSV file into SQL for Files, inspect the generated table, and run analytical SQL locally with DuckDB-WASM.",
-    bullets: [
-      "Automatic table creation for CSV files",
-      "Advanced CSV options for delimiters, headers, skipped rows, null strings, and date formats",
-      "Local browser-side processing without uploading file contents",
-      "CSV export for full query results",
-    ],
-    examples: [
-      {
-        label: "Preview a CSV table",
-        sql: "SELECT *\nFROM sales\nLIMIT 25;",
-      },
-      {
-        label: "Aggregate CSV rows",
-        sql: "SELECT category, COUNT(*) AS rows, SUM(amount) AS revenue\nFROM sales\nGROUP BY category\nORDER BY revenue DESC;",
-      },
-    ],
-  },
-  json: {
-    title: "Query JSON Files with SQL Locally | SQL for Files",
-    description:
-      "Analyze JSON arrays and NDJSON files with browser-based DuckDB SQL. Filter events, flatten nested records, and keep exports on your device.",
-    canonicalPath: "/query-json-with-sql",
-    eyebrow: "JSON Analysis",
-    heading: "Query JSON and NDJSON files with SQL",
-    intro:
-      "SQL for Files turns JSON arrays and newline-delimited JSON into DuckDB tables so you can filter, join, and summarize nested exports locally.",
-    bullets: [
-      "Supports JSON arrays and NDJSON records",
-      "Useful for API exports, logs, and application data snapshots",
-      "DuckDB SQL support for filtering, grouping, joining, and unnesting",
-      "All processing happens in the browser",
-    ],
-    examples: [
-      {
-        label: "Filter imported JSON records",
-        sql: "SELECT id, status, created_at\nFROM events\nWHERE status = 'active'\nORDER BY created_at DESC;",
-      },
-      {
-        label: "Summarize JSON events",
-        sql: "SELECT type, COUNT(*) AS events\nFROM events\nGROUP BY type\nORDER BY events DESC;",
-      },
-    ],
-  },
-  parquet: {
-    title: "Query Parquet Files in the Browser | SQL for Files",
-    description:
-      "Open Parquet files in a browser-based DuckDB editor. Inspect schemas, run analytical SQL, and keep columnar data local.",
-    canonicalPath: "/query-parquet-with-sql",
-    eyebrow: "Parquet Analysis",
-    heading: "Query Parquet files in the browser",
-    intro:
-      "Parquet is efficient for analytical workloads. SQL for Files lets you load Parquet into a browser-based DuckDB engine and query it immediately.",
-    bullets: [
-      "Columnar Parquet support through DuckDB-WASM",
-      "Good fit for larger analytical extracts compared with raw CSV or JSON",
-      "Schema inspection, SQL editor, charts, and column statistics",
-      "Parquet ZIP database backup and restore",
-    ],
-    examples: [
-      {
-        label: "Inspect Parquet rows",
-        sql: "SELECT *\nFROM transactions\nLIMIT 100;",
-      },
-      {
-        label: "Build chart-ready totals",
-        sql: "SELECT region, DATE_TRUNC('month', order_date) AS month, SUM(amount) AS revenue\nFROM transactions\nGROUP BY region, month\nORDER BY month, revenue DESC;",
-      },
-    ],
-  },
-  duckdb: {
-    title: "DuckDB-WASM SQL Editor | SQL for Files",
-    description:
-      "Use a DuckDB-WASM SQL editor with Monaco, autocomplete, charts, column stats, and CSV export for local CSV, JSON, and Parquet analysis.",
-    canonicalPath: "/duckdb-wasm-sql-editor",
-    eyebrow: "DuckDB-WASM",
-    heading: "A DuckDB-WASM SQL editor for local file analysis",
-    intro:
-      "SQL for Files packages DuckDB-WASM, Monaco, Apache Arrow, charts, and export tools into a browser IDE for ad-hoc file analysis.",
-    bullets: [
-      "Full analytical SQL engine running in WebAssembly",
-      "Monaco editor with syntax highlighting and autocomplete",
-      "Separate tabs, query history, schema browsing, and table previews",
-      "No database server installation required",
-    ],
-    examples: [
-      {
-        label: "Join local files",
-        sql: "SELECT o.order_id, c.customer_name, o.total_amount\nFROM orders o\nJOIN customers c ON o.customer_id = c.id\nORDER BY o.total_amount DESC;",
-      },
-      {
-        label: "Use window functions",
-        sql: "SELECT customer_name, total_amount, RANK() OVER (ORDER BY total_amount DESC) AS revenue_rank\nFROM orders;",
-      },
-    ],
-  },
-  private: {
-    title: "Private Local Data Analysis in Your Browser | SQL for Files",
-    description:
-      "Analyze sensitive CSV, JSON, and Parquet files locally. SQL for Files keeps files, queries, and results in your browser unless you export them.",
-    canonicalPath: "/private-local-data-analysis",
-    eyebrow: "Private Analysis",
-    heading: "Analyze local files without uploading data",
-    intro:
-      "SQL for Files is designed for sensitive ad-hoc analysis: files, imported tables, SQL queries, and results stay in browser storage unless you export them.",
-    bullets: [
-      "No account required",
-      "File processing and SQL execution run locally in the browser",
-      "IndexedDB stores persisted tables and query history on your device",
-      "Useful when AI can help draft SQL but should not receive underlying data",
-    ],
-    examples: [
-      {
-        label: "Profile a sensitive export locally",
-        sql: "SELECT status, COUNT(*) AS rows\nFROM customer_export\nGROUP BY status\nORDER BY rows DESC;",
-      },
-      {
-        label: "Check missing data",
-        sql: "SELECT COUNT(*) AS missing_email_rows\nFROM customer_export\nWHERE email IS NULL;",
-      },
-    ],
-  },
-  examples: {
-    title: "SQL Examples for CSV, JSON, and Parquet Files | SQL for Files",
-    description:
-      "Copy practical SQL examples for file analysis: preview rows, filter data, join files, aggregate totals, prepare charts, and check missing values.",
-    canonicalPath: "/sql-examples-for-files",
-    eyebrow: "SQL Examples",
-    heading: "SQL examples for local file analysis",
-    intro:
-      "These starter queries work well after importing CSV, JSON, or Parquet files into SQL for Files. Replace table and column names with your own schema.",
-    bullets: [
-      "Preview and inspect imported tables",
-      "Filter rows and check missing values",
-      "Join two imported files",
-      "Create chart-ready aggregate result sets",
-    ],
-    examples: [
-      {
-        label: "Find missing values",
-        sql: "SELECT COUNT(*) AS missing_rows\nFROM my_table\nWHERE important_column IS NULL;",
-      },
-      {
-        label: "Create a chart-ready result",
-        sql: "SELECT category, COUNT(*) AS rows, AVG(amount) AS average_amount\nFROM my_table\nGROUP BY category\nORDER BY rows DESC;",
-      },
-    ],
-  },
-};
-
-/** UseCase renders focused SEO pages for common SQL for Files discovery intents. */
+/** UseCase renders focused product pages for common SQL for Files discovery intents. */
 export default function UseCase({ kind }: UseCaseProps) {
-  const config = useCases[kind];
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": "TechArticle",
-    headline: config.heading,
-    description: config.description,
-    url: `https://sqlforfiles.app${config.canonicalPath}`,
-    dateModified: "2026-05-02",
-    author: {
-      "@type": "Organization",
-      name: "SQL for Files",
+  const config = landingPages[kind];
+  const pageUrl = canonicalUrl(config.canonicalPath);
+  const guide = guideBySlug(config.guideSlug);
+  const lessons = config.lessonIds
+    .map((lessonId) => {
+      const lesson = lessonById(lessonId);
+      const path = lessonPath(lessonId);
+      return lesson && path ? { lesson, path } : null;
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item));
+
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: config.heading,
+      headline: config.heading,
+      description: config.description,
+      url: pageUrl,
+      inLanguage: "en",
+      dateModified: config.updatedAt,
+      isPartOf: { "@type": "WebSite", name: SITE_NAME, url: canonicalUrl("/") },
+      about: {
+        "@type": "WebApplication",
+        name: SITE_NAME,
+        url: canonicalUrl("/"),
+        applicationCategory: "DeveloperApplication",
+        operatingSystem: "Web Browser",
+      },
     },
-  };
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: config.faqs.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: { "@type": "Answer", text: faq.answer },
+      })),
+    },
+  ];
 
   return (
     <>
@@ -200,9 +60,9 @@ export default function UseCase({ kind }: UseCaseProps) {
         title={config.title}
         description={config.description}
         canonicalPath={config.canonicalPath}
-        ogType="article"
+        ogType="website"
         imageAlt={config.heading}
-        structuredData={articleSchema}
+        structuredData={structuredData}
       />
       <div className="theme-page min-h-screen bg-white">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
@@ -242,6 +102,15 @@ export default function UseCase({ kind }: UseCaseProps) {
             </div>
 
             <section className="mt-12">
+              <h2 className="mb-5 text-2xl font-bold text-slate-900">How it works</h2>
+              <ol className="list-decimal space-y-3 pl-5 leading-7 text-slate-700 dark:text-slate-300">
+                {config.steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </section>
+
+            <section className="mt-12">
               <h2 className="mb-5 text-2xl font-bold text-slate-900">
                 Example queries
               </h2>
@@ -257,6 +126,57 @@ export default function UseCase({ kind }: UseCaseProps) {
                   </div>
                 ))}
               </div>
+            </section>
+
+            <section className="mt-12">
+              <h2 className="mb-5 text-2xl font-bold text-slate-900">
+                Frequently asked questions
+              </h2>
+              <div className="space-y-4">
+                {config.faqs.map((faq) => (
+                  <div key={faq.question} className="rounded-xl border border-slate-200 bg-slate-50/80 p-5">
+                    <h3 className="text-sm font-semibold text-slate-900">{faq.question}</h3>
+                    <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
+                      {faq.answer}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-12 grid gap-6 border-t border-slate-200 pt-10 md:grid-cols-2 dark:border-slate-800">
+              {guide && (
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">Go deeper</h2>
+                  <Link
+                    to={guidePath(guide.slug)}
+                    className="mt-3 block rounded-xl border border-slate-200 bg-white p-4 text-sm transition-colors hover:border-blue-300 dark:border-slate-800 dark:bg-slate-950/30 dark:hover:border-blue-700"
+                  >
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      {guide.title}
+                    </span>
+                    <span className="mt-1 block leading-6 text-slate-600 dark:text-slate-300">
+                      {guide.summary}
+                    </span>
+                  </Link>
+                </div>
+              )}
+              {lessons.length > 0 && (
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">Practice the SQL</h2>
+                  <div className="mt-3 space-y-2">
+                    {lessons.map(({ lesson, path }) => (
+                      <Link
+                        key={lesson.id}
+                        to={path}
+                        className="block rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition-colors hover:border-blue-300 hover:text-blue-700 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-300 dark:hover:border-blue-700 dark:hover:text-blue-300"
+                      >
+                        {lesson.title}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
           </div>
         </div>

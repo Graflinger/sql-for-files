@@ -91,6 +91,7 @@ function renderEditor(initialRoute: string) {
                 <Routes>
                   <Route path="/editor" element={<SqlEditorPage />} />
                   <Route path="/editor/:chapterSlug/:lessonSlug" element={<SqlEditorPage />} />
+                  <Route path="/learn-sql" element={<div>Learn SQL page</div>} />
                 </Routes>
               </MemoryRouter>
             </LearnSQLProvider>
@@ -120,6 +121,60 @@ describe("SqlEditorPage lesson routes", () => {
     await waitFor(() => {
       const canonicalLink = document.querySelector('link[rel="canonical"]');
       expect(canonicalLink).toHaveAttribute("href", "https://sqlforfiles.app/editor/chapter1/03");
+    });
+  });
+
+  it("canonicalizes alias lesson segments to the generated lesson path", async () => {
+    renderEditor("/editor/chapter01/3");
+
+    await waitFor(() => {
+      const canonicalLink = document.querySelector('link[rel="canonical"]');
+      expect(canonicalLink).toHaveAttribute("href", "https://sqlforfiles.app/editor/chapter1/03");
+    });
+  });
+
+  it("uses the lesson summary as meta description and a practice-intent title", async () => {
+    renderEditor("/editor/chapter1/04");
+
+    await waitFor(() => {
+      expect(document.title).toBe("Sorting Results: Interactive SQL Lesson | SQL for Files");
+    });
+    expect(document.querySelector('meta[name="description"]')?.getAttribute("content")).toMatch(
+      /^Sort query results with ORDER BY/
+    );
+  });
+
+  it("prerenders a crawlable lesson article with navigation and related guides", async () => {
+    renderEditor("/editor/chapter1/04?prerender=1");
+
+    expect(screen.getByRole("heading", { level: 1, name: "Sorting Results" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Practice challenge" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Previous lesson/ })).toHaveAttribute(
+      "href",
+      "/editor/chapter1/03"
+    );
+    expect(screen.getByRole("link", { name: /Next lesson/ })).toHaveAttribute(
+      "href",
+      "/editor/chapter2/01"
+    );
+    expect(screen.getByRole("link", { name: "Learn SQL" })).toHaveAttribute("href", "/learn-sql");
+    expect(
+      screen.getByRole("link", { name: /Introduction to SQL: SELECT, Columns, Aliases, and Sorting Results/ })
+    ).toHaveAttribute("href", "/guides/introduction-to-sql-select-columns-aliases-sorting");
+
+    await waitFor(() => {
+      const structuredData = [...document.querySelectorAll('script[type="application/ld+json"]')].map(
+        (script) => JSON.parse(script.textContent ?? "{}")
+      );
+      expect(structuredData).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            "@type": "LearningResource",
+            url: "https://sqlforfiles.app/editor/chapter1/04",
+            isPartOf: expect.objectContaining({ "@type": "Course", url: "https://sqlforfiles.app/learn-sql" }),
+          }),
+        ])
+      );
     });
   });
 });

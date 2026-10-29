@@ -1,12 +1,18 @@
 import { useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 
+import { canonicalUrl, SITE_NAME, SITE_URL } from "../../utils/siteUrl";
+
 type StructuredData = Record<string, unknown>;
 
 interface SEOProps {
   title: string;
   description: string;
-  canonicalPath?: string;
+  /**
+   * Path used for the canonical link and og:url. Defaults to the current path.
+   * Pass `null` for pages that must not declare a canonical URL, such as 404 pages.
+   */
+  canonicalPath?: string | null;
   ogType?: string;
   ogImage?: string;
   twitterImage?: string;
@@ -16,24 +22,10 @@ interface SEOProps {
   structuredData?: StructuredData | StructuredData[];
 }
 
-const SITE_URL = "https://sqlforfiles.app";
-const SITE_NAME = "SQL for Files";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 const DEFAULT_TWITTER_IMAGE = `${SITE_URL}/twitter-image.png`;
 
-const resolveUrl = (path: string) => {
-  if (path.startsWith("http://") || path.startsWith("https://")) {
-    return path;
-  }
-
-  if (path === "/") {
-    return `${SITE_URL}/`;
-  }
-
-  const normalized = path.startsWith("/") ? path : `/${path}`;
-  return `${SITE_URL}${normalized.replace(/\/$/, "")}`;
-};
-
+/** SEO writes page metadata, canonical links, social tags, and JSON-LD into the document head. */
 export default function SEO({
   title,
   description,
@@ -47,9 +39,10 @@ export default function SEO({
   structuredData,
 }: SEOProps) {
   const location = useLocation();
-  const canonical = resolveUrl(canonicalPath ?? location.pathname);
-  const ogImageUrl = resolveUrl(ogImage);
-  const twitterImageUrl = resolveUrl(twitterImage);
+  const canonical =
+    canonicalPath === null ? null : canonicalUrl(canonicalPath ?? location.pathname);
+  const ogImageUrl = canonicalUrl(ogImage);
+  const twitterImageUrl = canonicalUrl(twitterImage);
   const metaImageAlt = imageAlt ?? `${title} - ${SITE_NAME}`;
   const structuredDataItems = useMemo(
     () =>
@@ -69,15 +62,19 @@ export default function SEO({
     document.title = title;
 
     const metaTags = [
-      { name: "title", content: title },
       { name: "description", content: description },
       { name: "robots", content: robots },
       ...(keywords ? [{ name: "keywords", content: keywords }] : []),
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: title },
+      { name: "twitter:description", content: description },
+      { name: "twitter:image", content: twitterImageUrl },
+      { name: "twitter:image:alt", content: metaImageAlt },
     ];
 
     const propertyTags = [
       { property: "og:type", content: ogType },
-      { property: "og:url", content: canonical },
+      ...(canonical ? [{ property: "og:url", content: canonical }] : []),
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:image", content: ogImageUrl },
@@ -85,12 +82,7 @@ export default function SEO({
       { property: "og:image:height", content: "1260" },
       { property: "og:image:alt", content: metaImageAlt },
       { property: "og:site_name", content: SITE_NAME },
-      { property: "twitter:card", content: "summary_large_image" },
-      { property: "twitter:url", content: canonical },
-      { property: "twitter:title", content: title },
-      { property: "twitter:description", content: description },
-      { property: "twitter:image", content: twitterImageUrl },
-      { property: "twitter:image:alt", content: metaImageAlt },
+      { property: "og:locale", content: "en_US" },
     ];
 
     metaTags.forEach(({ name, content }) => {
@@ -109,11 +101,13 @@ export default function SEO({
       head.appendChild(meta);
     });
 
-    const canonicalLink = document.createElement("link");
-    canonicalLink.setAttribute("rel", "canonical");
-    canonicalLink.setAttribute("href", canonical);
-    canonicalLink.setAttribute("data-seo", "true");
-    head.appendChild(canonicalLink);
+    if (canonical) {
+      const canonicalLink = document.createElement("link");
+      canonicalLink.setAttribute("rel", "canonical");
+      canonicalLink.setAttribute("href", canonical);
+      canonicalLink.setAttribute("data-seo", "true");
+      head.appendChild(canonicalLink);
+    }
 
     structuredDataItems.forEach((item) => {
       const script = document.createElement("script");

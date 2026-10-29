@@ -36,6 +36,11 @@ export interface Lesson {
   id: string;
   /** Display title. */
   title: string;
+  /**
+   * One-sentence plain-text summary (about 110-155 characters) used for the
+   * lesson page meta description, Learn SQL overview cards, and llms.txt.
+   */
+  summary?: string;
   /** Lesson body — plain text with simple markdown-style formatting. */
   content: string;
   /** Optional sample data to load with one click. */
@@ -50,6 +55,15 @@ export interface Chapter {
   id: string;
   /** Display title (e.g. "Introduction to SQL"). */
   title: string;
+  /** Short plain-text description shown on /learn-sql and lesson pages. */
+  description?: string;
+  /** Slug of the companion guide in src/data/guides.ts, if one exists. */
+  guideSlug?: string;
+  /**
+   * Chapter ID a learner should finish first when this chapter is not meant to
+   * be taken strictly in order (chapter numbers are fixed by lesson URLs).
+   */
+  recommendedAfter?: string;
   /** Ordered list of lessons in this chapter. */
   lessons: Lesson[];
 }

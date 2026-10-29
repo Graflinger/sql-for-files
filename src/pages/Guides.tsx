@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 
 import SEO from "../components/SEO/SEO";
 import { guidePath, guides } from "../data/guides";
+import { canonicalUrl } from "../utils/siteUrl";
 
-const SITE_URL = "https://sqlforfiles.app";
 
 /** Guides page listing practical SQL for Files articles. */
 export default function Guides() {
@@ -14,7 +14,7 @@ export default function Guides() {
     itemListElement: guides.map((guide, index) => ({
       "@type": "ListItem",
       position: index + 1,
-      url: `${SITE_URL}${guidePath(guide.slug)}`,
+      url: canonicalUrl(guidePath(guide.slug)),
       name: guide.title,
       description: guide.description,
     })),
@@ -23,7 +23,7 @@ export default function Guides() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     name: "SQL for Files Guides",
-    url: `${SITE_URL}/guides`,
+    url: canonicalUrl("/guides"),
     description:
       "Evergreen guides and SQL examples for querying CSV, JSON, and Parquet files locally in your browser.",
   };
@@ -35,13 +35,13 @@ export default function Guides() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: `${SITE_URL}/`,
+        item: canonicalUrl("/"),
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Guides",
-        item: `${SITE_URL}/guides`,
+        item: canonicalUrl("/guides"),
       },
     ],
   };

@@ -1,7 +1,8 @@
 import { chapters, lessonPath } from "./lessons";
 import { guidePath, guides } from "./guides";
+import { canonicalUrl, SITE_URL } from "../utils/siteUrl";
 
-export const SITE_URL = "https://sqlforfiles.app";
+export { SITE_URL };
 export const STATIC_CONTENT_LASTMOD = "2026-05-03";
 export const LEARN_SQL_LASTMOD = "2026-05-03";
 
@@ -127,3 +128,22 @@ export const publicRoutes: PublicRoute[] = [
   ...guideRoutes,
   ...learnRoutes,
 ];
+
+/** Absolute canonical URL for a public route (no trailing slash except `/`). */
+export function routeUrl(routePath: string): string {
+  return canonicalUrl(routePath);
+}
+
+/**
+ * Relative file in `dist/` that serves a public route on Cloudflare Pages.
+ *
+ * Routes are written as flat `name.html` files so `/name` is served directly
+ * with 200. A `name/index.html` layout would make Cloudflare 308-redirect
+ * `/name` to `/name/`, which conflicts with the canonical URLs.
+ */
+export function routeHtmlFile(routePath: string): string {
+  return routePath === "/" ? "index.html" : `${routePath.replace(/^\/+/, "")}.html`;
+}
+
+/** Output file for the prerendered not-found page served with a 404 status. */
+export const NOT_FOUND_HTML_FILE = "404.html";

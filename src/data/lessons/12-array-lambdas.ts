@@ -39,10 +39,15 @@ function listNumbers(value: unknown): number[] {
 const arrayLambdas: Chapter = {
   id: "array-lambdas",
   title: "Array Lambdas",
+  description:
+    "Transform, filter, and reduce DuckDB list columns with lambda functions such as list_transform, list_filter, and list_reduce.",
+  guideSlug: "duckdb-array-lambda-functions-transform-filter-reduce",
   lessons: [
     {
       id: "array-lambdas-transform",
       title: "Transforming Lists with list_transform",
+      summary:
+        "Apply a lambda to every element of a DuckDB list with list_transform, such as doubling each price in an order's price list.",
       content: `\`list_transform\` applies a function to every element of a list and returns a new list with the results. Think of it like a map operation.
 
 The syntax uses a \`lambda\` expression:
@@ -114,6 +119,8 @@ The sample table stores \`items\` and \`prices\` as parallel lists. That means t
     {
       id: "array-lambdas-filter",
       title: "Filtering Lists with list_filter",
+      summary:
+        "Keep only the list elements that match a condition with list_filter and a lambda, such as the prices above 10 in each order.",
       content: `\`list_filter\` keeps only the elements that satisfy a condition and returns a shorter list.
 
 \`\`\`sql
@@ -181,6 +188,8 @@ If no elements match, the result is an empty list \`[]\`. This is useful for nar
     {
       id: "array-lambdas-reduce",
       title: "Reducing a List with list_reduce",
+      summary:
+        "Fold a DuckDB list into a single value with list_reduce, sum each order's prices, and learn why empty lists need a starting value.",
       content: `\`list_reduce\` collapses a list into a single value by applying a two-argument \`lambda\` across all elements, one at a time.
 
 \`\`\`sql
@@ -259,6 +268,8 @@ The next lesson uses that starting value when a filter can leave a list empty.`,
     {
       id: "array-lambdas-combining",
       title: "Combining Lambda Functions",
+      summary:
+        "Nest list_filter inside list_reduce to build an inline list pipeline, summing only prices above 10 with a starting value of 0.",
       content: `Lambda functions can be nested. You can filter a list first, then transform or reduce the result.
 
 For example, to sum only the prices above 10:

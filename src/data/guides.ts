@@ -1216,7 +1216,7 @@ export const guides: Guide[] = [
     summary:
       "DuckDB list lambdas let you map, filter, and reduce arrays inside SQL, creating compact pipelines for nested list data.",
     publishedAt: "2026-05-09",
-    updatedAt: "2026-05-09",
+    updatedAt: "2026-10-29",
     category: "Learn SQL",
     keywords: [
       "DuckDB list_transform",
@@ -1676,20 +1676,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "query-csv-files-with-sql",
-    title: "How to Query CSV Files with SQL in Your Browser",
+    title: "How to Analyze a CSV File with SQL: A Step-by-Step Walkthrough",
     description:
-      "Learn how to load CSV files into SQL for Files, inspect columns, run SQL queries, aggregate data, and export results without uploading your data.",
+      "Walk through a full CSV analysis with SQL: add the file, check detected columns with DESCRIBE and SUMMARIZE, filter, aggregate, join a second CSV, and export.",
     summary:
-      "Use SQL for Files as a local CSV analysis workspace: add a file, inspect the generated table, write SQL, and export the rows you need.",
+      "From raw CSV export to answer: confirm the detected column types, filter and aggregate with SQL, join a lookup file, and export only the result you need.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "CSV analysis",
     keywords: [
-      "query CSV with SQL",
-      "browser CSV analysis",
-      "DuckDB WASM CSV",
-      "local CSV query tool",
+      "analyze CSV with SQL",
+      "CSV analysis walkthrough",
+      "DuckDB DESCRIBE SUMMARIZE",
+      "join two CSV files",
     ],
+    relatedPagePath: "/query-csv-with-sql",
     howTo: true,
     relatedGuideSlugs: [
       "sql-examples-for-csv-json-parquet",
@@ -1739,6 +1740,33 @@ export const guides: Guide[] = [
             kind: "callout",
             title: "Advanced CSV options",
             text: "If your CSV uses a custom delimiter, skipped rows, unusual quote character, or a regional decimal separator, use advanced add options before creating the table.",
+          },
+        ],
+      },
+      {
+        id: "check-columns",
+        title: "Check the detected column types before you trust them",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "CSV files only contain text, so DuckDB infers each column type while it reads the file. Most of the time the guess is right, but a date stored in an unusual format or a number with a thousands separator can arrive as VARCHAR. Checking types first saves confusing results later.",
+          },
+          {
+            kind: "code",
+            code: "DESCRIBE sales;",
+          },
+          {
+            kind: "paragraph",
+            text: "DESCRIBE lists every column with its detected type. SUMMARIZE goes further and profiles each column with min, max, approximate distinct count, and null percentage, which is a fast way to spot empty columns or outliers.",
+          },
+          {
+            kind: "code",
+            code: "SUMMARIZE sales;",
+          },
+          {
+            kind: "callout",
+            title: "When a type is wrong",
+            text: "If a date or number column shows up as VARCHAR, add the file again with the matching date format, decimal separator, or null string in the advanced options, or convert the column in SQL with CAST or TRY_CAST.",
           },
         ],
       },
@@ -1810,20 +1838,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "query-json-files-with-sql",
-    title: "How to Analyze JSON Files Locally with SQL",
+    title: "How to Flatten Nested JSON with SQL: Structs, Lists, and UNNEST",
     description:
-      "Use SQL for Files to query JSON arrays and NDJSON files locally with DuckDB WASM, including filtering, flattening, and aggregation examples.",
+      "Flatten nested JSON and NDJSON with DuckDB SQL: read struct fields with dot notation, expand arrays into rows with UNNEST, and summarize the flattened records.",
     summary:
-      "Load JSON or NDJSON into a local DuckDB table, then use SQL to inspect records, filter fields, and work with nested values.",
+      "Nested JSON becomes STRUCT and LIST columns in DuckDB. Learn how to reach into structs, turn arrays into rows, and aggregate the flattened result.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "JSON analysis",
     keywords: [
-      "query JSON with SQL",
-      "local JSON analysis",
+      "flatten nested JSON SQL",
       "NDJSON SQL",
-      "DuckDB WASM JSON",
+      "DuckDB UNNEST JSON",
+      "JSON struct dot notation",
     ],
+    relatedPagePath: "/query-json-with-sql",
     howTo: true,
     relatedGuideSlugs: [
       "sql-examples-for-csv-json-parquet",
@@ -1899,8 +1928,27 @@ export const guides: Guide[] = [
         ],
       },
       {
+        id: "struct-fields",
+        title: "Read nested objects with dot notation",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "When DuckDB reads JSON, nested objects usually become STRUCT columns and arrays become LIST columns. A struct field can be read with dot notation, even several levels deep.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  order_id,\n  customer.name AS customer_name,\n  customer.address.city AS city\nFROM orders;",
+          },
+          {
+            kind: "callout",
+            title: "Check the inferred shape first",
+            text: "If the objects in a file have inconsistent shapes, DuckDB may keep a field as JSON text instead of a STRUCT. Run DESCRIBE on the table to see which columns are STRUCT, LIST, or JSON before writing the query.",
+          },
+        ],
+      },
+      {
         id: "nested-json",
-        title: "Work with nested JSON",
+        title: "Turn arrays into rows with UNNEST",
         blocks: [
           {
             kind: "paragraph",
@@ -1926,20 +1974,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "query-parquet-files-in-browser",
-    title: "How to Query Parquet Files in the Browser",
+    title: "Parquet vs CSV for SQL Analysis: Types, Columnar Reads, and Memory Limits",
     description:
-      "Query Parquet files directly in your browser with DuckDB WASM, inspect schemas, aggregate columns, and keep analysis local.",
+      "Why Parquet often beats CSV for SQL analysis: stored column types, columnar reads, and compression, plus what changes when you query Parquet inside a browser.",
     summary:
-      "Use browser-based DuckDB to inspect Parquet files, run fast analytical queries, and export compact results without a local database install.",
+      "Parquet stores typed columns that engines can read selectively. See what that means for SQL analysis and where browser memory still sets the limit.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "Parquet analysis",
     keywords: [
-      "query Parquet in browser",
-      "Parquet SQL tool",
+      "Parquet vs CSV",
+      "Parquet columnar format",
+      "Parquet schema SQL",
       "DuckDB WASM Parquet",
-      "local Parquet analysis",
     ],
+    relatedPagePath: "/query-parquet-with-sql",
     howTo: true,
     relatedGuideSlugs: [
       "duckdb-wasm-browser-sql",
@@ -1968,6 +2017,25 @@ export const guides: Guide[] = [
               "Analytical queries can read only the columns they need.",
               "Parquet is common in data warehouses, lakehouses, and Python/R workflows.",
             ],
+          },
+        ],
+      },
+      {
+        id: "parquet-vs-csv",
+        title: "Parquet vs CSV at a glance",
+        blocks: [
+          {
+            kind: "list",
+            items: [
+              "Types: Parquet stores each column's type in the file. CSV stores text, so types are inferred when the file is read.",
+              "Reads: Parquet is columnar, so an engine can read only the columns a query needs. CSV has to be parsed row by row.",
+              "Size: Parquet compresses each column and is often much smaller than the same data exported as CSV.",
+              "Editing: CSV opens in any text editor or spreadsheet. Parquet needs a tool that understands the format, such as DuckDB.",
+            ],
+          },
+          {
+            kind: "paragraph",
+            text: "For SQL analysis this usually means fewer type surprises and faster scans with Parquet, while CSV stays the most portable format for sharing small results.",
           },
         ],
       },
@@ -2020,7 +2088,7 @@ export const guides: Guide[] = [
         blocks: [
           {
             kind: "paragraph",
-            text: "Parquet can be efficient, but SQL for Files still runs inside browser memory. Very large files may hit browser limits earlier than a native DuckDB process or server-side database.",
+            text: "Parquet can be efficient, but SQL for Files still runs inside browser memory. When you add a file, the app loads the whole file into a DuckDB table, so the memory you need depends on the full file rather than the columns a later query reads. Very large files may hit browser limits earlier than a native DuckDB process or server-side database.",
           },
           {
             kind: "callout",
@@ -2033,20 +2101,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "sql-examples-for-csv-json-parquet",
-    title: "Practical SQL Examples for CSV, JSON, and Parquet Files",
+    title: "SQL Cheat Sheet for Data Analysis: Filter, Group, Join, Dates, and Ranking",
     description:
-      "Copy practical SQL examples for filtering, grouping, joining, sorting, and analyzing local CSV, JSON, and Parquet files.",
+      "A compact SQL cheat sheet for everyday data analysis: preview rows, filter, aggregate, join, bucket dates, rank rows, label values, and combine results.",
     summary:
-      "A compact collection of SQL patterns you can adapt for local file analysis in SQL for Files.",
+      "One pattern per common analysis question, from previewing a new table to ranking rows inside groups, each linked to a lesson where you can practice it.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "SQL examples",
     keywords: [
-      "SQL examples",
-      "CSV SQL examples",
-      "JSON SQL examples",
-      "Parquet SQL examples",
+      "SQL cheat sheet",
+      "SQL for data analysis",
+      "common SQL patterns",
+      "SQL query patterns",
     ],
+    relatedPagePath: "/sql-examples-for-files",
     relatedGuideSlugs: [
       "query-csv-files-with-sql",
       "query-json-files-with-sql",
@@ -2163,6 +2232,7 @@ export const guides: Guide[] = [
       "WebAssembly SQL engine",
       "local data analysis",
     ],
+    relatedPagePath: "/duckdb-wasm-sql-editor",
     relatedGuideSlugs: [
       "private-local-data-analysis",
       "query-parquet-files-in-browser",
@@ -2241,20 +2311,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "private-local-data-analysis",
-    title: "Private Local Data Analysis in the Browser",
+    title: "Analyzing Sensitive Data in the Browser: What Stays Local and a Safety Checklist",
     description:
-      "Learn how SQL for Files keeps file analysis local in your browser, what is stored locally, and what privacy tradeoffs still matter.",
+      "What local browser processing does and does not protect when you analyze sensitive CSV, JSON, or Parquet files, plus a safety checklist for devices and exports.",
     summary:
       "Understand the local processing model behind SQL for Files and how to work safely with sensitive CSV, JSON, and Parquet files.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "Privacy",
     keywords: [
-      "private data analysis",
-      "local browser data analysis",
+      "analyze sensitive data locally",
+      "browser data privacy checklist",
+      "local processing risks",
       "SQL without upload",
-      "private CSV analysis",
     ],
+    relatedPagePath: "/private-local-data-analysis",
     relatedGuideSlugs: [
       "duckdb-wasm-browser-sql",
       "query-csv-files-with-sql",
@@ -2346,4 +2417,17 @@ export function guidePath(slug: string): string {
 
 export function guideBySlug(slug: string): Guide | undefined {
   return guides.find((guide) => guide.slug === slug);
+}
+
+/**
+ * Guides related to a lesson: the chapter's companion guide first, followed by
+ * guides that list the lesson in relatedLessonIds.
+ */
+export function guidesForLesson(lessonId: string, companionSlug?: string, limit = 3): Guide[] {
+  const companion = companionSlug ? guideBySlug(companionSlug) : undefined;
+  const referencing = guides.filter(
+    (guide) => guide.slug !== companionSlug && guide.relatedLessonIds.includes(lessonId)
+  );
+
+  return [...(companion ? [companion] : []), ...referencing].slice(0, limit);
 }

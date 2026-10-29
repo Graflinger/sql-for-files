@@ -10,6 +10,7 @@ import Guides from "./pages/Guides";
 import GuideArticle from "./pages/GuideArticle";
 import LearnSQL from "./pages/LearnSQL";
 import UseCase from "./pages/UseCase";
+import NotFound from "./pages/NotFound";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import { NotificationProvider } from "./contexts/NotificationContext";
 import NotificationContainer from "./components/Notification/NotificationContainer";
@@ -72,6 +73,7 @@ function App() {
                 <Route path="/sql-examples-for-files" element={<UseCase kind="examples" />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/legal" element={<Legal />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
           </Layout>

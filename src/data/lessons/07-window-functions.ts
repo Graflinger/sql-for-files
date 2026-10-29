@@ -42,10 +42,15 @@ function hasColumns(result: QueryResult, expectedColumns: string[]): boolean {
 const windowFunctions: Chapter = {
   id: "window-functions",
   title: "Window Functions",
+  description:
+    "Calculate totals, running sums, rankings, and previous-row comparisons with OVER and PARTITION BY while keeping every detail row.",
+  guideSlug: "sql-window-functions-over-partition-running-total",
   lessons: [
     {
       id: "window-functions-over",
       title: "OVER Keeps the Detail Rows",
+      summary:
+        "Use a window function with OVER () to show an aggregate like a grand total next to every detail row without collapsing the rows.",
       content: `A window function calculates across a set of related rows without collapsing the result into one row per group.
 
 That is the big difference from \`GROUP BY\`. \`GROUP BY\` shrinks many rows into fewer summary rows. A window function keeps every original row visible and adds extra information beside it.
@@ -130,6 +135,8 @@ FROM sales_2
     {
       id: "window-functions-partition",
       title: "PARTITION BY Creates Mini Windows",
+      summary:
+        "Split a window into groups with PARTITION BY to show each sale beside its regional total while keeping every row in the result.",
       content: `\`PARTITION BY\` splits the result set into smaller windows before the function runs.
 
 If you want each sale to carry its region total, you do not want one giant company-wide window anymore. You want one window per region:
@@ -215,6 +222,8 @@ This is one of the most useful patterns in SQL because it lets you compare a row
     {
       id: "window-functions-running-total",
       title: "Running Totals with ORDER BY",
+      summary:
+        "Build running totals by adding ORDER BY inside OVER, and calculate cumulative sales for each salesperson over time.",
       content: `Adding \`ORDER BY\` inside the window makes the function care about row sequence.
 
 That is how you build running totals:
@@ -312,6 +321,8 @@ This pattern is common in finance, analytics, and product dashboards whenever yo
     {
       id: "window-functions-row-number",
       title: "Ranking Rows with ROW_NUMBER",
+      summary:
+        "Number rows inside each group with ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...) to rank sales from largest to smallest.",
       content: `Window functions are also great for ranking.
 
 \`ROW_NUMBER\` gives each row a position inside its partition:
@@ -412,6 +423,8 @@ If two rows have the same sorting value, add a second column to make the order d
     {
       id: "window-functions-lag",
       title: "Looking Back with LAG",
+      summary:
+        "Compare each row with the previous one using LAG, such as showing each salesperson's prior sale amount next to the current sale.",
       content: `\`LAG\` lets you reach into an earlier row in the same partition.
 
 For example, you can show each salesperson's previous sale amount beside the current one:
@@ -511,6 +524,8 @@ This is useful for change-over-time questions like month-over-month growth, prev
     {
       id: "window-functions-common-functions",
       title: "Other Common Window Functions",
+      summary:
+        "Review other common window functions, including RANK, DENSE_RANK, NTILE, LEAD, FIRST_VALUE, and LAST_VALUE, and how frames affect them.",
       content: `You have now seen the main shape of window functions: a function call followed by an \`OVER (...)\` clause.
 
 The same window definition can be paired with several families of functions:

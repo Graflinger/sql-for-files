@@ -78,10 +78,15 @@ function hasColumns(result: QueryResult, expectedColumns: string[]): boolean {
 const executionOrder: Chapter = {
   id: "execution-order",
   title: "Execution Order",
+  description:
+    "Understand the logical order in which SQL evaluates FROM, WHERE, GROUP BY, HAVING, window functions, SELECT, ORDER BY, and LIMIT.",
+  guideSlug: "sql-execution-order-explained",
   lessons: [
     {
       id: "execution-order-logical-order",
       title: "Written Order vs Logical Order",
+      summary:
+        "Learn the logical order SQL uses to evaluate a query, from FROM through LIMIT, and why it differs from the order you write clauses.",
       content: `SQL is written one way but logically evaluated in another order. A useful mental model is:
 
 \`\`\`
@@ -106,6 +111,8 @@ When a query feels confusing, try reading it in logical order instead of written
     {
       id: "execution-order-from-join-where",
       title: "FROM and JOIN Build the Rows First",
+      summary:
+        "See how FROM and JOIN assemble the working rows before WHERE filters them, then filter joined employee and department data.",
       content: `The first big step is \`FROM\` plus \`JOIN\`. SQL first decides which tables participate and how their rows connect.
 
 Only after the joined row set exists does \`WHERE\` filter it.
@@ -179,6 +186,8 @@ The \`WHERE\` clause can filter on department data because the \`JOIN\` has alre
     {
       id: "execution-order-where-before-group-by",
       title: "WHERE Filters Before GROUP BY",
+      summary:
+        "Learn why WHERE removes individual rows before GROUP BY runs, and total only the larger sales per region in a hands-on query.",
       content: `\`WHERE\` removes individual rows before any grouping or aggregation happens.
 
 If you write:
@@ -250,6 +259,8 @@ This is why \`WHERE\` is for row-level filters, not group-level filters.`,
     {
       id: "execution-order-having-after-group-by",
       title: "HAVING Filters After GROUP BY",
+      summary:
+        "Learn why HAVING filters aggregated groups after GROUP BY, and return only the regions whose total sales exceed a threshold.",
       content: `\`HAVING\` runs after \`GROUP BY\`. Instead of filtering individual rows, it filters the aggregated groups.
 
 That means this pattern works:
@@ -319,6 +330,8 @@ SQL first forms one group per region, calculates each total, and only then remov
     {
       id: "execution-order-window-functions",
       title: "Where Window Functions Fit",
+      summary:
+        "See where window functions run in the logical query order, and rank grouped regional totals with RANK() over a GROUP BY result.",
       content: `Window functions belong later in SQL's logical order. A good mental model is:
 
 FROM → WHERE → GROUP BY → HAVING → WINDOW FUNCTIONS → SELECT → ORDER BY → LIMIT
@@ -404,6 +417,8 @@ The grouped rows exist first, and then the window function ranks them.`,
     {
       id: "execution-order-window-functions-not-in-where",
       title: "Why Window Functions Cannot Go Directly in WHERE",
+      summary:
+        "Learn why window functions cannot appear in WHERE and how a subquery or CTE lets you filter to the top-ranked row in each group.",
       content: `A common beginner question is: “If window functions run late, can I filter on them in \`WHERE\`?”
 
 Usually, no. \`WHERE\` happens earlier than window functions in SQL's logical order.
@@ -501,6 +516,8 @@ DuckDB also supports \`QUALIFY\`, which filters after window functions. A \`QUAL
     {
       id: "execution-order-select-alias-order-by",
       title: "Why SELECT Aliases Work in ORDER BY",
+      summary:
+        "Learn why a SELECT alias works in ORDER BY but not in WHERE, and sort employees by a calculated annual bonus column.",
       content: `\`SELECT\` runs later than \`WHERE\` but earlier than \`ORDER BY\`.
 
 That has an important consequence:
@@ -577,6 +594,8 @@ DuckDB is permissive with some aliases in earlier clauses, but this standard log
     {
       id: "execution-order-limit-last",
       title: "LIMIT Happens at the End",
+      summary:
+        "Learn why LIMIT applies to the final sorted result, and return the two highest-paid employees in one department with ORDER BY.",
       content: `\`LIMIT\` is one of the last steps. It cuts down the final ordered result, not the raw table.
 
 So in a query like:

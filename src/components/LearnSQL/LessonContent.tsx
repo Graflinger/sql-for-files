@@ -1,154 +1,8 @@
 import type { Lesson } from "../../types/learn";
 import type { QueryResult } from "../../types/query";
-import type { SqlTokenType } from "../../utils/sqlHighlight";
 
-import { tokenizeSql } from "../../utils/sqlHighlight";
 import ChallengeBlock from "./ChallengeBlock";
-
-// ---------------------------------------------------------------------------
-// Content parsing helpers
-// ---------------------------------------------------------------------------
-
-interface CodeBlock {
-  type: "code";
-  code: string;
-  highlighted: boolean;
-}
-
-interface TextBlock {
-  type: "text";
-  text: string;
-}
-
-type ContentBlock = CodeBlock | TextBlock;
-
-/** Split a plain-text section (no fences) into paragraphs and indented code blocks. */
-function splitTextSection(text: string): ContentBlock[] {
-  return text
-    .split("\n\n")
-    .filter((p) => p.trim())
-    .map((paragraph) => {
-      const trimmed = paragraph.trim();
-      // Backward-compat: detect indented code blocks (every line starts with 2+ spaces)
-      if (
-        trimmed
-          .split("\n")
-          .every((line) => line.startsWith("  ") || line.trim() === "")
-      ) {
-        return {
-          type: "code" as const,
-          code: trimmed
-            .split("\n")
-            .map((l) => l.replace(/^ {2}/, ""))
-            .join("\n"),
-          highlighted: false,
-        };
-      }
-      return { type: "text" as const, text: trimmed };
-    });
-}
-
-/**
- * Parse lesson content into an array of code and text blocks.
- *
- * Supports:
- * - Fenced code blocks: ```sql ... ``` or ~~~sql ... ~~~ (highlighted)
- *   and ``` ... ``` or ~~~ ... ~~~ (plain)
- * - Indented code blocks: lines starting with 2+ spaces (plain, backward compat)
- * - Regular text paragraphs (separated by blank lines)
- */
-function parseContent(content: string): ContentBlock[] {
-  const blocks: ContentBlock[] = [];
-  const fenceRegex = /(```|~~~)(\w*)\n([\s\S]*?)\1/g;
-  let lastIndex = 0;
-  let match;
-
-  while ((match = fenceRegex.exec(content)) !== null) {
-    if (match.index > lastIndex) {
-      blocks.push(...splitTextSection(content.slice(lastIndex, match.index)));
-    }
-    blocks.push({
-      type: "code",
-      code: match[3].trimEnd(),
-      highlighted: match[2].toLowerCase() === "sql",
-    });
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < content.length) {
-    blocks.push(...splitTextSection(content.slice(lastIndex)));
-  }
-
-  return blocks;
-}
-
-// ---------------------------------------------------------------------------
-// Rendering helpers
-// ---------------------------------------------------------------------------
-
-/** Map a token type to Tailwind colour classes. */
-function tokenClassName(type: SqlTokenType): string {
-  switch (type) {
-    case "keyword":
-      return "text-blue-600 dark:text-blue-400 font-semibold";
-    case "function":
-      return "text-violet-600 dark:text-violet-400";
-    case "string":
-      return "text-emerald-600 dark:text-emerald-400";
-    case "number":
-      return "text-amber-600 dark:text-amber-400";
-    case "comment":
-      return "text-slate-400 dark:text-slate-500 italic";
-    case "operator":
-      return "text-rose-600 dark:text-rose-400";
-    default:
-      return "";
-  }
-}
-
-/** Render a SQL string with syntax-highlighted spans. */
-function renderSqlHighlighted(code: string) {
-  return tokenizeSql(code).map((token, i) => {
-    const cn = tokenClassName(token.type);
-    return cn ? (
-      <span key={i} className={cn}>
-        {token.text}
-      </span>
-    ) : (
-      <span key={i}>{token.text}</span>
-    );
-  });
-}
-
-/** Render a text string with lightweight inline markdown support. */
-function renderInlineMarkdown(text: string) {
-  const parts = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
-  if (parts.length === 1) return text;
-  return (
-    <>
-      {parts.map((part, i) => {
-        if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-          return (
-            <code
-              key={i}
-              className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[11px] text-slate-700 dark:bg-slate-700 dark:text-slate-200"
-            >
-              {part.slice(1, -1)}
-            </code>
-          );
-        }
-        if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
-          return (
-            <strong key={i} className="font-semibold text-slate-800 dark:text-slate-100">
-              {part.slice(2, -2)}
-            </strong>
-          );
-        }
-        return <span key={i}>{part}</span>;
-      })}
-    </>
-  );
-}
+import LessonBody from "./LessonBody";
 
 // ---------------------------------------------------------------------------
 // Component
@@ -186,6 +40,8 @@ interface LessonContentProps {
   isCompleted: boolean;
   /** Go back to overview. */
   onBack: () => void;
+  /** Optional companion guide that explains the chapter topic in more depth. */
+  companionGuide?: { title: string; path: string } | null;
 }
 
 /**
@@ -212,6 +68,7 @@ export default function LessonContent({
   hasPrevious,
   isCompleted,
   onBack,
+  companionGuide = null,
 }: LessonContentProps) {
   return (
     <div className="flex flex-col gap-4">
@@ -256,27 +113,7 @@ export default function LessonContent({
       </div>
 
       {/* Lesson body */}
-      <div className="text-xs leading-relaxed text-slate-600 dark:text-slate-300 space-y-3">
-        {parseContent(lesson.content).map((block, i) => {
-          if (block.type === "code") {
-            return (
-              <pre
-                key={i}
-                className="rounded-md bg-slate-100 p-2.5 font-mono text-[11px] text-slate-700 dark:bg-slate-800 dark:text-slate-300 overflow-x-auto"
-              >
-                {block.highlighted
-                  ? renderSqlHighlighted(block.code)
-                  : block.code}
-              </pre>
-            );
-          }
-          return (
-            <p key={i} className="whitespace-pre-wrap">
-              {renderInlineMarkdown(block.text)}
-            </p>
-          );
-        })}
-      </div>
+      <LessonBody content={lesson.content} variant="panel" />
 
       {/* Challenge + data loader */}
       {(lesson.sampleData || lesson.challenge) && (
@@ -313,6 +150,20 @@ export default function LessonContent({
             )}
           </div>
         </div>
+      )}
+
+      {companionGuide && (
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Want more context?{" "}
+          <a
+            href={companionGuide.path}
+            target="_blank"
+            rel="noopener"
+            className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            Read the companion guide: {companionGuide.title}
+          </a>
+        </p>
       )}
 
       {/* Prev / Next navigation */}

@@ -79,10 +79,12 @@ export default function About() {
       "Zero installation required",
     ],
     screenshot: "https://sqlforfiles.app/og-image.png",
-    softwareVersion: "1.0",
+    isAccessibleForFree: true,
+    license: "https://www.gnu.org/licenses/agpl-3.0.html",
     author: {
       "@type": "Organization",
       name: "SQL for Files",
+      url: "https://sqlforfiles.app/",
     },
   };
   const organizationSchema = {
@@ -117,8 +119,8 @@ export default function About() {
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 mb-4">
               Query, join, and analyze your{" "}
-              <span className="relative inline-block">
-                <span className="invisible">Parquet</span>
+              {/* The width placeholder lives in a pseudo-element so the H1 text stays readable for crawlers. */}
+              <span className="relative inline-block before:invisible before:content-['Parquet']">
                 <span className="absolute inset-0 text-blue-600 transition-opacity duration-500">
                   {FILE_TYPES[currentType]}
                 </span>

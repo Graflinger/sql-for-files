@@ -10,7 +10,7 @@ export default function Legal() {
     <>
       <SEO
         title="Legal Notice | SQL for Files"
-        description="Legal notice and contact information for SQL for Files."
+        description="Legal notice for SQL for Files: provider information under § 5 DDG, contact details, disclaimer, and open-source license information."
         canonicalPath="/legal"
         ogType="article"
         imageAlt="SQL for Files legal notice"

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { guides } from "./guides";
+import { guides, guidesForLesson } from "./guides";
+import { landingPageByPath } from "./landingPages";
 import { validLessonIds } from "./lessons";
 
 describe("guides", () => {
@@ -42,5 +43,32 @@ describe("guides", () => {
         expect(validLessonIds.has(lessonId)).toBe(true);
       });
     });
+  });
+});
+
+describe("guide relationships", () => {
+  it("links each guide's relatedPagePath to an existing landing page", () => {
+    guides
+      .filter((guide) => guide.relatedPagePath)
+      .forEach((guide) => {
+        expect(landingPageByPath(guide.relatedPagePath ?? ""), guide.slug).toBeDefined();
+      });
+  });
+
+  it("does not reuse a landing page title as a guide title", () => {
+    guides.forEach((guide) => {
+      const landingPage = guide.relatedPagePath ? landingPageByPath(guide.relatedPagePath) : undefined;
+      if (landingPage) {
+        expect(guide.title.toLowerCase()).not.toBe(landingPage.heading.toLowerCase());
+        expect(`${guide.title} | SQL for Files`.toLowerCase()).not.toBe(landingPage.title.toLowerCase());
+      }
+    });
+  });
+
+  it("returns the companion guide first for a lesson", () => {
+    const related = guidesForLesson("intro-first-query", "introduction-to-sql-select-columns-aliases-sorting");
+
+    expect(related[0]?.slug).toBe("introduction-to-sql-select-columns-aliases-sorting");
+    expect(new Set(related.map((guide) => guide.slug)).size).toBe(related.length);
   });
 });

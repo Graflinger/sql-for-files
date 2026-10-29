@@ -1,0 +1,6 @@
+# Cloudflare Pages redirects.
+# https://developers.cloudflare.com/pages/configuration/redirects/
+
+# Legacy GitHub Pages base path used by early builds.
+/sql-for-files /  301
+/sql-for-files/* /:splat 301
