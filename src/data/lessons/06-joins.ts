@@ -61,10 +61,15 @@ function nullableText(value: unknown) {
 const joins: Chapter = {
   id: "joins",
   title: "JOIN Types",
+  description:
+    "Combine related tables with INNER, LEFT, RIGHT, FULL OUTER, SELF, and CROSS JOIN, and find rows that have no match.",
+  guideSlug: "sql-joins-explained-inner-left-full-self-cross",
   lessons: [
     {
       id: "joins-why",
       title: "Why JOINs Exist",
+      summary:
+        "Understand why normalized data lives in separate tables and how JOINs reconnect related rows through matching key columns.",
       content: `When a database is normalized, related facts live in different tables. That keeps the data clean, but it also means you need a way to bring those facts back together when you query.
 
 That is what \`JOIN\` does. It combines rows from two tables based on a matching key.
@@ -82,6 +87,8 @@ If you understand which columns connect the tables, the rest of the \`JOIN\` bec
     {
       id: "joins-inner",
       title: "INNER JOIN Basics",
+      summary:
+        "Combine two tables with INNER JOIN and an ON condition, keeping only rows that match on both sides, like employees and departments.",
       content: `An \`INNER JOIN\` keeps only rows that match on both sides.
 
 For example, \`employees.department_id\` points to \`departments.id\`. To show each employee with their department name, you can write:
@@ -156,6 +163,8 @@ Use \`INNER JOIN\` when you only want records that exist in both tables.`,
     {
       id: "joins-left",
       title: "LEFT JOIN Keeps the Left Side",
+      summary:
+        "Keep every row from the left table with LEFT JOIN, see unmatched rows filled with NULL, and list departments even without employees.",
       content: `A \`LEFT JOIN\` keeps every row from the left table and fills missing right-side values with \`NULL\`.
 
 \`\`\`sql
@@ -229,6 +238,8 @@ In this example, Support still appears even though nobody works there.`,
     {
       id: "joins-find-missing",
       title: "Finding Missing Matches",
+      summary:
+        "Use a LEFT JOIN with a WHERE ... IS NULL filter to find rows without a match, such as departments that have no employees yet.",
       content: `One common use of \`LEFT JOIN\` is to find rows that do not have a match.
 
 Start with the table you want to keep, \`LEFT JOIN\` the related table, then filter to rows where the right side is \`NULL\`.
@@ -291,6 +302,8 @@ This pattern is very useful for spotting missing data and gaps in relationships.
     {
       id: "joins-full-outer",
       title: "RIGHT JOIN and FULL OUTER JOIN",
+      summary:
+        "Learn how RIGHT JOIN mirrors LEFT JOIN and how FULL OUTER JOIN keeps unmatched rows from both tables in a single result.",
       content: `\`RIGHT JOIN\` is the mirror image of \`LEFT JOIN\`: it keeps every row from the right table.
 
 \`FULL OUTER JOIN\` goes one step further and keeps unmatched rows from both sides.
@@ -364,6 +377,8 @@ This is useful when you want a complete picture of how two tables overlap. In th
     {
       id: "joins-self",
       title: "SELF JOIN for Hierarchies",
+      summary:
+        "Join a table to itself with table aliases to model a hierarchy, and list each employee next to their manager's name.",
       content: `A self join joins a table to itself. This is common when rows relate to other rows in the same table, such as employees and managers.
 
 \`\`\`sql
@@ -437,6 +452,8 @@ This pattern is useful for org charts, parent-child relationships, and tree-like
     {
       id: "joins-cross",
       title: "CROSS JOIN for All Combinations",
+      summary:
+        "Generate every combination of rows from two tables with CROSS JOIN, such as each department paired with each meeting day.",
       content: `\`CROSS JOIN\` returns every possible combination of rows from both tables.
 
 If one table has 4 rows and the other has 2, the result has 8 rows.

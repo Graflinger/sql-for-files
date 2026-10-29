@@ -62,7 +62,17 @@ Each lesson requires:
 
 - `id`: stable unique kebab-case ID, usually prefixed by chapter ID
 - `title`: short display title
+- `summary`: one plain-text sentence of 100-160 characters, unique across all lessons. It is the
+  lesson page meta description, the card text on `/learn-sql`, and the llms.txt entry, so say what
+  the learner practices and name the SQL feature (no markup)
 - `content`: lesson body as a TypeScript template literal
+
+Each chapter also needs:
+
+- `description`: one or two plain-text sentences shown on `/learn-sql` and lesson pages
+- `guideSlug`: the companion guide in `src/data/guides.ts` (add the guide with the `add-guide` skill)
+- `recommendedAfter` (optional): the chapter ID a learner should finish first, for chapters that
+  are appended late but only need early basics
 
 Optional fields:
 
@@ -134,6 +144,13 @@ Recommended:
 
 Validation guidelines:
 
+- `src/data/lessons/challenges.test.ts` loads each lesson's `sampleData` into a real DuckDB-WASM
+  instance, runs `solutionSql`, and requires `validate` to pass, so the solution must work on the
+  lesson's own sample data
+- Add typical wrong answers to `commonMistakes` in that test when a challenge teaches a trap,
+  and make the validator's failure message name the mistake
+- List columns arrive as Arrow vectors, not JS arrays; convert them before comparing values
+
 - Validate columns case-insensitively
 - Validate row counts where relevant
 - Validate values when ordering, grouping, ranking, or window results matter
@@ -155,10 +172,13 @@ When adding a new chapter:
 1. Create `src/data/lessons/<number>-<chapter-name>.ts`
 2. Export a default `Chapter`
 3. Import it in `src/data/lessons/index.ts`
-4. Add it to the ordered `chapters` array
-5. Check route-related tests if chapter order changes
+4. **Append** it to the end of the `chapters` array
+5. Run the route-related tests
 
-Route paths are derived from chapter order and lesson order. Do not hard-code lesson URLs in the lesson data.
+Route paths (`/editor/chapter{index}/{lesson}`) are derived from chapter order and lesson order.
+They are public, indexed, and linked from external articles, so **never insert or reorder
+chapters or lessons**; append new ones. Use `recommendedAfter` to suggest a learning order instead.
+Do not hard-code lesson URLs in the lesson data.
 
 ## Lesson content style
 
@@ -263,7 +283,8 @@ For larger SQL examples, use `~~~sql` fences to avoid escaping triple backticks.
 6. Use only supported renderer markup, preferring `~~~sql` for code blocks
 7. If adding a chapter, register it in `src/data/lessons/index.ts`
 8. Run `npx tsc -b` after TypeScript lesson changes
-9. Run targeted tests if route numbering, lesson lookup, or UI behavior changed
+9. Run `npx vitest run src/data` (route, metadata, and DuckDB challenge tests)
+10. Run `npm run build && npm run validate:seo` to check the prerendered lesson pages
 
 ## Validation checklist
 
@@ -272,6 +293,8 @@ Before finishing, verify:
 - lesson IDs are unique and kebab-case
 - the chapter exports a valid `Chapter`
 - new chapters are imported and included in `chapters`
+- every lesson has a unique `summary`; every chapter has `description` and `guideSlug`
+- new chapters are appended, not inserted
 - sample data table names match setup SQL exactly
 - solution SQL uses the correct table names and columns
 - validation matches the expected output from the sample data

@@ -28,10 +28,15 @@ function getValue(row: Record<string, unknown>, column: string): unknown {
 const grouping: Chapter = {
   id: "grouping",
   title: "DISTINCT and GROUP BY",
+  description:
+    "Remove duplicates with DISTINCT, summarize per category with GROUP BY, and filter grouped results with HAVING.",
+  guideSlug: "sql-distinct-group-by-having",
   lessons: [
     {
       id: "grouping-distinct",
       title: "Removing Duplicates with DISTINCT",
+      summary:
+        "Remove duplicate rows with SELECT DISTINCT, see how it applies to the full combination of columns, and list each region exactly once.",
       content: `\`DISTINCT\` removes duplicate rows from a result set.
 
 If you only want the unique regions in the \`sales\` table, you can write:
@@ -92,6 +97,8 @@ Use \`DISTINCT\` when you want a clean list of unique values.`,
     {
       id: "grouping-group-by",
       title: "Summarizing with GROUP BY",
+      summary:
+        "Summarize rows per category with GROUP BY and SUM, and learn the rule that every selected column must be grouped or aggregated.",
       content: `\`GROUP BY\` collects rows into groups before applying aggregate functions.
 
 For example, to total sales by region:
@@ -157,6 +164,8 @@ Remember this rule: when you use \`GROUP BY\`, every selected column must either
     {
       id: "grouping-having",
       title: "Filtering Groups with HAVING",
+      summary:
+        "Filter grouped results with HAVING, learn how it differs from WHERE, and find salespeople with more than one sale using COUNT(*).",
       content: `\`WHERE\` filters individual rows before grouping. \`HAVING\` filters the groups after aggregation.
 
 For example, to find salespeople with more than one sale:

@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import { publicRoutes, SITE_URL } from "../src/data/publicRoutes";
+import { publicRoutes, routeUrl } from "../src/data/publicRoutes";
 import type { PublicRoute } from "../src/data/publicRoutes";
 
 const outputPath = path.resolve(process.cwd(), "public", "sitemap.xml");
@@ -15,7 +15,7 @@ const escapeXml = (value: string) =>
     .replaceAll("'", "&apos;");
 
 const routeToUrl = ({ path: routePath, changefreq, priority, lastmod }: PublicRoute) => {
-  const loc = routePath === "/" ? `${SITE_URL}/` : `${SITE_URL}${routePath}`;
+  const loc = routeUrl(routePath);
 
   return `  <url>
     <loc>${escapeXml(loc)}</loc>

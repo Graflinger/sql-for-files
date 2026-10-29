@@ -22,10 +22,15 @@ const EMPLOYEES_SETUP = [
 const intro: Chapter = {
   id: "intro",
   title: "Introduction to SQL",
+  description:
+    "Write your first SELECT queries: return rows, choose columns, rename results with aliases, and sort output with ORDER BY.",
+  guideSlug: "introduction-to-sql-select-columns-aliases-sorting",
   lessons: [
     {
       id: "intro-first-query",
       title: "Your First Query",
+      summary:
+        "Write your first SQL query with SELECT * FROM and return every row and column from a sample employees table directly in your browser.",
       content: `SQL (Structured Query Language) is the standard language for working with data in databases. The most fundamental SQL statement is \`SELECT\`, which retrieves data from a table.
 
 The simplest query looks like this:
@@ -81,6 +86,8 @@ Click "Load Data" below to create a sample employees table, then try running the
     {
       id: "intro-select-columns",
       title: "Selecting Columns",
+      summary:
+        "Practice selecting only the columns you need by listing them after SELECT, and see how the column order in your query shapes the result.",
       content: `Instead of selecting all columns with \`*\`, you can pick specific columns by listing their names separated by commas:
 
 \`\`\`sql
@@ -136,6 +143,8 @@ You can list columns in any order — the result will follow the order you speci
     {
       id: "intro-aliases",
       title: "Naming Results with Aliases",
+      summary:
+        "Rename result columns with AS aliases so query output is easier to read, then rename the name and salary columns in a hands-on challenge.",
       content: `Aliases let you give columns or tables a temporary name inside a query.
 
 For columns, aliases make results easier to read:
@@ -203,6 +212,8 @@ Here \`e\` is a short temporary name for \`employees\`. It keeps longer queries 
     {
       id: "intro-order-by",
       title: "Sorting Results",
+      summary:
+        "Sort query results with ORDER BY, choose ascending or descending order, and sort by several columns to control exactly how rows appear.",
       content: `By default, SQL doesn't guarantee a particular row order. To sort your results, use \`ORDER BY\`:
 
 \`\`\`sql

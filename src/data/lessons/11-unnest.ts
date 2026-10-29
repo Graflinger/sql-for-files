@@ -42,10 +42,15 @@ function getValue(row: Record<string, unknown>, column: string): unknown {
 const unnest: Chapter = {
   id: "unnest",
   title: "UNNEST",
+  description:
+    "Flatten DuckDB lists and structs into rows and columns with UNNEST, including recursive flattening and max_depth.",
+  guideSlug: "duckdb-sql-unnest-lists-structs-nested-data",
   lessons: [
     {
       id: "unnest-lists",
       title: "Unnesting Lists into Rows",
+      summary:
+        "Turn each element of a DuckDB list column into its own row with UNNEST, such as giving every product tag a separate row.",
       content: `\`UNNEST\` turns each element of a list column into its own row. This is essential when working with JSON or other data that stores arrays inside columns.
 
 If the products table has a \`tags\` column of type \`VARCHAR[]\`, you can expand it:
@@ -101,6 +106,8 @@ DuckDB supports the convenient \`SELECT unnest(...)\` form. Other databases ofte
     {
       id: "unnest-structs",
       title: "Unnesting Structs into Columns",
+      summary:
+        "Expand a STRUCT column into separate columns with UNNEST, such as splitting an address struct into city and zip columns.",
       content: `When a column holds a \`STRUCT\`, \`UNNEST\` expands its fields into separate columns.
 
 If the contacts table has an \`address\` column of type \`STRUCT(city VARCHAR, zip VARCHAR)\`:
@@ -166,6 +173,8 @@ This is especially useful when importing JSON data where objects are stored as D
     {
       id: "unnest-recursive",
       title: "Recursive UNNEST for Nested Data",
+      summary:
+        "Flatten nested lists in one step with UNNEST and recursive := true, turning a list of lists into individual values in DuckDB SQL.",
       content: `When lists contain other lists, a single \`UNNEST\` only peels off one layer. Use the \`recursive\` parameter to flatten all levels at once.
 
 \`\`\`sql
@@ -230,6 +239,8 @@ Note that lists inside structs are not unnested — recursive unnesting first fu
     {
       id: "unnest-max-depth",
       title: "Controlling Depth with max_depth",
+      summary:
+        "Control how far UNNEST flattens nested lists with max_depth, expanding only the outer level and keeping the inner lists intact.",
       content: `Sometimes you want to peel off only a few layers of nesting rather than flattening everything. The \`max_depth\` parameter controls how many levels \`UNNEST\` removes.
 
 \`\`\`sql

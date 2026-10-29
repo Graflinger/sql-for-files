@@ -375,6 +375,17 @@ export default function Docs() {
                       <strong>Reset progress</strong> from the lesson overview.
                     </li>
                     <li>
+                      Browse every chapter and lesson, with a short summary of
+                      each, on the{" "}
+                      <Link
+                        to="/learn-sql"
+                        className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                      >
+                        Learn SQL overview
+                      </Link>
+                      .
+                    </li>
+                    <li>
                       The checker uses the latest query result from the active
                       editor tab, so rerun your SQL after making changes before
                       checking again.

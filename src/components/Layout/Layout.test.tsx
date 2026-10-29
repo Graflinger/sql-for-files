@@ -57,6 +57,23 @@ describe("Layout", () => {
     expect(feedbackLink.getAttribute("href")).toContain("mailto:info@sqlforfiles.app");
   });
 
+  it("keeps browser details out of the feedback link until it is clicked", async () => {
+    const user = userEvent.setup();
+    renderLayout();
+
+    const feedbackLink = screen.getByRole("link", { name: "Feedback" });
+    const initialHref = decodeURIComponent(feedbackLink.getAttribute("href") ?? "");
+    expect(initialHref).not.toContain(navigator.userAgent);
+    expect(initialHref).not.toContain("Browser:");
+
+    feedbackLink.addEventListener("click", (event) => event.preventDefault());
+    await user.click(feedbackLink);
+
+    expect(decodeURIComponent(feedbackLink.getAttribute("href") ?? "")).toContain(
+      `Browser: ${navigator.userAgent}`
+    );
+  });
+
   it("renders the About link in the footer", () => {
     renderLayout();
 

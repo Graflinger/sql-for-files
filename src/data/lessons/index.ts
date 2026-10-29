@@ -1,4 +1,5 @@
 import type { Chapter, Lesson } from "../../types/learn";
+import { lessonSummary } from "../../utils/lessonContent";
 
 import dataBasics from "./00-data-basics";
 import intro from "./01-intro";
@@ -13,8 +14,18 @@ import normalization from "./09-normalization";
 import groupingSets from "./10-grouping-sets";
 import unnest from "./11-unnest";
 import arrayLambdas from "./12-array-lambdas";
+import caseWhen from "./13-case-when";
+import subqueriesCtes from "./14-subqueries-ctes";
+import setOperations from "./15-set-operations";
+import stringFunctions from "./16-string-functions";
 
-/** All chapters in order. */
+/** Name of the Learn SQL course used in structured data. */
+export const LEARN_SQL_COURSE_NAME = "Learn SQL with SQL for Files";
+
+/**
+ * All chapters in order. Lesson URLs are derived from this order
+ * (/editor/chapter{index}/{lesson}), so new chapters must be appended.
+ */
 export const chapters: Chapter[] = [
   dataBasics,
   intro,
@@ -29,6 +40,10 @@ export const chapters: Chapter[] = [
   groupingSets,
   unnest,
   arrayLambdas,
+  caseWhen,
+  subqueriesCtes,
+  setOperations,
+  stringFunctions,
 ];
 
 /** Flat list of all lessons across all chapters. */
@@ -121,4 +136,48 @@ export function lessonByRoute(chapterSegment: string, lessonSegment: string): Le
   }
 
   return chapter.lessons[lessonNumber - 1] ?? null;
+}
+
+/** Zero-based chapter number used in lesson URLs (e.g. 1 for /editor/chapter1/01). */
+export function chapterNumber(chapterId: string): number {
+  return chapters.findIndex((chapter) => chapter.id === chapterId);
+}
+
+/** Plain-text lesson description for metadata, overview cards, and llms.txt. */
+export function lessonDescription(lesson: Lesson): string {
+  return lesson.summary ?? lessonSummary(lesson);
+}
+
+/** Previous and next lessons in course order, crossing chapter boundaries. */
+export function adjacentLessons(lessonId: string): {
+  previous: Lesson | null;
+  next: Lesson | null;
+} {
+  const index = allLessons.findIndex((lesson) => lesson.id === lessonId);
+  if (index < 0) {
+    return { previous: null, next: null };
+  }
+
+  return {
+    previous: index > 0 ? allLessons[index - 1] : null,
+    next: index < allLessons.length - 1 ? allLessons[index + 1] : null,
+  };
+}
+
+const MAX_TITLE_LENGTH = 65;
+
+/**
+ * HTML title for a lesson page. Lesson pages target practice intent
+ * ("interactive SQL lesson") so they do not compete with the companion guides,
+ * which target explanation intent. Longer lesson titles drop suffixes to stay
+ * within typical search-result title widths.
+ */
+export function lessonPageTitle(lesson: Lesson): string {
+  const candidates = [
+    `${lesson.title}: Interactive SQL Lesson | SQL for Files`,
+    `${lesson.title}: Interactive SQL Lesson`,
+    `${lesson.title} | Learn SQL`,
+  ];
+
+  return candidates.find((title) => title.length <= MAX_TITLE_LENGTH) ?? lesson.title;
 }

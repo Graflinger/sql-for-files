@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import Navbar from "../Navbar/Navbar";
@@ -8,26 +8,39 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-/**
- * Layout Component
- *
- * Wraps all pages with consistent navigation and footer
- */
-export default function Layout({ children }: LayoutProps) {
-  const feedbackMailto = `mailto:info@sqlforfiles.app?subject=${encodeURIComponent(
-    "SQL for Files - Feedback"
-  )}&body=${encodeURIComponent(
-    `Hi,
+const FEEDBACK_EMAIL = "info@sqlforfiles.app";
+
+/** Build the feedback mailto link; optional diagnostics are appended to the body. */
+function buildFeedbackMailto(diagnostics = ""): string {
+  const body = `Hi,
 
 I'd like to share feedback about SQL for Files:
 
 [Please describe your feedback, suggestions, or issues here]
 
 ---
-Browser: ${navigator.userAgent}
-Page: ${window.location.href}
-`
-  )}`;
+${diagnostics}`;
+
+  return `mailto:${FEEDBACK_EMAIL}?subject=${encodeURIComponent(
+    "SQL for Files - Feedback"
+  )}&body=${encodeURIComponent(body)}`;
+}
+
+/**
+ * Layout Component
+ *
+ * Wraps all pages with consistent navigation and footer
+ */
+export default function Layout({ children }: LayoutProps) {
+  /**
+   * Browser and page details are added only when the visitor clicks the link,
+   * so prerendered HTML never contains the build machine's user agent or URL.
+   */
+  const handleFeedbackClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.currentTarget.href = buildFeedbackMailto(
+      `Browser: ${navigator.userAgent}\nPage: ${window.location.href}\n`
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col text-slate-900 dark:text-slate-100">
@@ -80,14 +93,15 @@ Page: ${window.location.href}
             </Link>
             <span className="text-slate-300 dark:text-slate-700">·</span>
             <a
-              href="mailto:info@sqlforfiles.app"
+              href={`mailto:${FEEDBACK_EMAIL}`}
               className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
             >
               Contact
             </a>
             <span className="text-slate-300 dark:text-slate-700">·</span>
             <a
-              href={feedbackMailto}
+              href={buildFeedbackMailto()}
+              onClick={handleFeedbackClick}
               className="transition-colors hover:text-slate-700 dark:hover:text-slate-200"
             >
               Feedback

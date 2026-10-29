@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useLearnSQL } from "../../contexts/LearnSQLContext";
 import { allLessons, chapterForLesson, lessonNumbering, lessonPath } from "../../data/lessons";
+import { guideBySlug, guidePath } from "../../data/guides";
 import { useDuckDBContext } from "../../contexts/DuckDBContext";
 import { useEditorTabsContext } from "../../contexts/EditorTabsContext";
 import { withDuckDBConnection } from "../../utils/duckdb";
@@ -42,6 +43,12 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
   const { addTab } = useEditorTabsContext();
   const currentLessonNumbering = currentLesson ? lessonNumbering(currentLesson.id) : null;
   const currentChapter = currentLesson ? chapterForLesson(currentLesson.id) : null;
+  const companionGuideData = currentChapter?.guideSlug
+    ? guideBySlug(currentChapter.guideSlug)
+    : undefined;
+  const companionGuide = companionGuideData
+    ? { title: companionGuideData.title, path: guidePath(companionGuideData.slug) }
+    : null;
   const currentLessonIndex = currentLesson
     ? allLessons.findIndex((lesson) => lesson.id === currentLesson.id)
     : -1;
@@ -191,6 +198,7 @@ export default function LearnSQLPanel({ lastResult }: LearnSQLPanelProps) {
             lessonNumber={currentLessonNumbering?.display ?? null}
             chapterLabel={currentChapter?.title ?? null}
             onBack={handleShowOverview}
+            companionGuide={companionGuide}
           />
         ) : (
           <LessonNav onLessonSelect={navigateToLesson} />

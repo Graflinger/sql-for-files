@@ -2,6 +2,560 @@ import type { Guide } from "../types/guides";
 
 export const guides: Guide[] = [
   {
+    slug: "sql-case-when-conditional-logic",
+    title: "SQL CASE WHEN Explained: Conditional Logic, Buckets, and Conditional Aggregation",
+    description:
+      "Learn SQL CASE WHEN with practical examples: label rows, bucket numbers into ranges, handle NULL safely, map codes to names, and count or sum only matching rows.",
+    summary:
+      "CASE WHEN is SQL's if/else. Use it to label rows, build ranges, translate codes, and turn one grouped query into a compact pivot-style report.",
+    publishedAt: "2026-10-29",
+    updatedAt: "2026-10-29",
+    category: "Learn SQL",
+    keywords: [
+      "SQL CASE WHEN",
+      "CASE WHEN examples",
+      "SQL conditional aggregation",
+      "SQL if else",
+    ],
+    relatedGuideSlugs: [
+      "sql-null-missing-values",
+      "sql-distinct-group-by-having",
+      "sql-examples-for-csv-json-parquet",
+    ],
+    relatedLessonIds: [
+      "case-when-basics",
+      "case-when-else-null",
+      "case-when-simple",
+      "case-when-conditional-aggregation",
+    ],
+    sections: [
+      {
+        id: "if-else-for-every-row",
+        title: "CASE WHEN is if/else for every row",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Sooner or later every analysis needs a rule like: if the amount is small, call it small; otherwise call it large. In SQL, that rule is a CASE expression. It runs once per row and returns one value, so you can add a label column without changing the underlying table.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  order_id,\n  amount,\n  CASE\n    WHEN amount < 50 THEN 'small'\n    WHEN amount < 200 THEN 'medium'\n    ELSE 'large'\n  END AS size_band\nFROM shop_orders\nWHERE amount IS NOT NULL;",
+          },
+          {
+            kind: "paragraph",
+            text: "The examples in this guide come from the CASE WHEN chapter in SQL for Files, a browser-based SQL editor that runs DuckDB locally on CSV, JSON, and Parquet files. You can run every query against one-click sample data without installing a database.",
+          },
+        ],
+      },
+      {
+        id: "searched-vs-simple",
+        title: "Searched CASE vs simple CASE",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "The searched form above lists full conditions, so it can test ranges, combine columns, or check for NULL. The simple form compares one column with fixed values and is shorter for lookups such as status codes.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  order_id,\n  CASE status\n    WHEN 'shipped' THEN 'complete'\n    WHEN 'pending' THEN 'open'\n    ELSE 'closed'\n  END AS status_group\nFROM shop_orders;",
+          },
+          {
+            kind: "list",
+            items: [
+              "Use the searched form for ranges, multiple columns, and NULL checks.",
+              "Use the simple form when every branch is an equality test on the same column.",
+              "CASE status WHEN NULL never matches, because NULL = NULL is not true.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "branch-order-and-null",
+        title: "Branch order and NULL values",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "CASE checks its branches from top to bottom and stops at the first one that is true. Without an ELSE, rows that match nothing get NULL. Missing values cause the most surprises: a comparison like NULL < 100 is not true, so the row skips every WHEN and lands in ELSE.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  order_id,\n  CASE\n    WHEN amount IS NULL THEN 'missing'\n    WHEN amount < 100 THEN 'under 100'\n    ELSE '100 or more'\n  END AS amount_label\nFROM shop_orders;",
+          },
+          {
+            kind: "callout",
+            title: "Check IS NULL first",
+            text: "Put the IS NULL branch before any comparison. Otherwise a missing amount silently ends up in the ELSE bucket and inflates it.",
+          },
+        ],
+      },
+      {
+        id: "conditional-aggregation",
+        title: "Conditional aggregation: count and sum only what matches",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Placed inside an aggregate, CASE lets one grouped query report several slices side by side. COUNT ignores NULL, so a CASE without ELSE counts only matching rows. SUM with ELSE 0 adds only the matching amounts.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  country,\n  COUNT(*) AS all_orders,\n  COUNT(CASE WHEN status = 'shipped' THEN 1 END) AS shipped_orders,\n  SUM(CASE WHEN status = 'shipped' THEN amount ELSE 0 END) AS shipped_amount\nFROM shop_orders\nGROUP BY country\nORDER BY country;",
+          },
+          {
+            kind: "paragraph",
+            text: "DuckDB also supports the standard FILTER clause, which expresses the same idea a little more directly.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  country,\n  COUNT(*) FILTER (WHERE status = 'shipped') AS shipped_orders\nFROM shop_orders\nGROUP BY country;",
+          },
+        ],
+      },
+      {
+        id: "where-case-fits",
+        title: "Other places CASE fits",
+        blocks: [
+          {
+            kind: "list",
+            items: [
+              "SELECT: add labels, flags, and buckets.",
+              "GROUP BY: group by a bucket to build a histogram-style summary.",
+              "ORDER BY: define a custom sort order, such as pending orders first.",
+              "Inside aggregates: count or sum only the rows that match.",
+            ],
+          },
+          {
+            kind: "code",
+            code: "SELECT order_id, status\nFROM shop_orders\nORDER BY\n  CASE status\n    WHEN 'pending' THEN 1\n    WHEN 'shipped' THEN 2\n    ELSE 3\n  END,\n  order_id;",
+          },
+        ],
+      },
+      {
+        id: "practice-case-when",
+        title: "Practice CASE WHEN in the browser",
+        blocks: [
+          {
+            kind: "steps",
+            items: [
+              "Open the CASE WHEN chapter in the SQL for Files Learn SQL course.",
+              "Load the shop_orders sample table with one click.",
+              "Solve the four challenges: buckets, NULL handling, value mapping, and conditional aggregation.",
+              "Apply the same patterns to your own CSV, JSON, or Parquet files.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "sql-subqueries-vs-ctes",
+    title: "SQL Subqueries vs CTEs: When to Use WITH, IN, EXISTS, and Correlated Subqueries",
+    description:
+      "Understand SQL subqueries and CTEs: scalar subqueries in WHERE, IN vs EXISTS, the NOT IN NULL trap, correlated subqueries, and readable WITH steps.",
+    summary:
+      "Subqueries nest one question inside another; CTEs give each step a name. Learn which form to use, and the NULL trap that makes NOT IN return nothing.",
+    publishedAt: "2026-10-29",
+    updatedAt: "2026-10-29",
+    category: "Learn SQL",
+    keywords: [
+      "SQL subquery vs CTE",
+      "SQL WITH clause",
+      "NOT IN vs NOT EXISTS",
+      "correlated subquery",
+    ],
+    relatedGuideSlugs: [
+      "sql-execution-order-explained",
+      "sql-null-missing-values",
+      "sql-joins-explained-inner-left-full-self-cross",
+    ],
+    relatedLessonIds: [
+      "subqueries-scalar",
+      "subqueries-in-exists",
+      "ctes-with",
+      "subqueries-correlated",
+      "execution-order-window-functions-not-in-where",
+    ],
+    sections: [
+      {
+        id: "questions-inside-questions",
+        title: "Subqueries answer a question inside a question",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Who earns more than the average? To answer that, SQL first needs the average, then the comparison. You cannot write WHERE salary > AVG(salary), because WHERE filters single rows before any aggregation runs. A subquery computes the average as its own small query.",
+          },
+          {
+            kind: "code",
+            code: "SELECT name, salary\nFROM team_members\nWHERE salary > (SELECT AVG(salary) FROM team_members)\nORDER BY salary DESC;",
+          },
+          {
+            kind: "paragraph",
+            text: "A subquery that returns exactly one value is a scalar subquery and can go anywhere a single value fits. These examples come from the Subqueries and CTEs chapter in SQL for Files, a browser SQL editor that runs DuckDB locally, so you can try them on sample data without installing anything.",
+          },
+        ],
+      },
+      {
+        id: "in-and-exists",
+        title: "IN and EXISTS test for related rows",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "A subquery that returns a list works with IN. EXISTS asks whether the inner query returns at least one row, and its inner query can refer to the current outer row.",
+          },
+          {
+            kind: "code",
+            code: "-- Members with at least one project\nSELECT m.name\nFROM team_members AS m\nWHERE EXISTS (\n  SELECT 1 FROM projects AS p WHERE p.member_id = m.id\n);",
+          },
+        ],
+      },
+      {
+        id: "not-in-null-trap",
+        title: "The NOT IN NULL trap",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "To find rows without a match, NOT IN looks natural. But if the subquery returns even one NULL, x NOT IN (1, 2, NULL) can never be true, and the query returns no rows at all. NOT EXISTS does not have this problem.",
+          },
+          {
+            kind: "code",
+            code: "-- Members without any project, safe even when member_id has NULLs\nSELECT m.name\nFROM team_members AS m\nWHERE NOT EXISTS (\n  SELECT 1 FROM projects AS p WHERE p.member_id = m.id\n)\nORDER BY m.name;",
+          },
+          {
+            kind: "callout",
+            title: "Rule of thumb",
+            text: "For has-no-match questions, prefer NOT EXISTS or a LEFT JOIN with IS NULL. Use NOT IN only when the subquery column can never be NULL.",
+          },
+        ],
+      },
+      {
+        id: "ctes-name-your-steps",
+        title: "CTEs name each step with WITH",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "A common table expression (CTE) is a named subquery defined at the top of a query. It does not add new power, but it makes multi-step logic read from top to bottom, and later steps can reuse earlier ones.",
+          },
+          {
+            kind: "code",
+            code: "WITH team_stats AS (\n  SELECT team, AVG(salary) AS avg_salary\n  FROM team_members\n  GROUP BY team\n)\nSELECT team, avg_salary\nFROM team_stats\nWHERE avg_salary > 70000\nORDER BY avg_salary DESC;",
+          },
+        ],
+      },
+      {
+        id: "correlated-subqueries",
+        title: "Correlated subqueries compare each row with its own group",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "A correlated subquery refers to the outer row, so it is evaluated per row. It is a direct way to compare each person with the average of their own team. A CTE plus a join expresses the same idea and is often easier to debug.",
+          },
+          {
+            kind: "code",
+            code: "SELECT m.name, m.team, m.salary\nFROM team_members AS m\nWHERE m.salary > (\n  SELECT AVG(t.salary)\n  FROM team_members AS t\n  WHERE t.team = m.team\n)\nORDER BY m.name;",
+          },
+        ],
+      },
+      {
+        id: "subquery-or-cte",
+        title: "Subquery or CTE: how to choose",
+        blocks: [
+          {
+            kind: "list",
+            items: [
+              "One value or a short list used once: an inline subquery is fine.",
+              "Several steps, or a result you reuse: name the steps with WITH.",
+              "Has-no-match questions: NOT EXISTS instead of NOT IN.",
+              "Filtering on window function results: compute them in a CTE, then filter in the outer query.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "practice-subqueries-ctes",
+        title: "Practice subqueries and CTEs",
+        blocks: [
+          {
+            kind: "steps",
+            items: [
+              "Open the Subqueries and CTEs chapter in the SQL for Files Learn SQL course.",
+              "Load the team_members and projects sample tables.",
+              "Solve the challenges, including the NOT IN trap and a correlated subquery.",
+              "Revisit the Execution Order chapter to see why window functions need a CTE before you filter them.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "sql-union-intersect-except",
+    title: "SQL UNION, INTERSECT, and EXCEPT Explained: Combine and Compare Query Results",
+    description:
+      "Learn SQL set operations with clear examples: UNION vs UNION ALL, INTERSECT for overlap, EXCEPT for differences, column rules, and stacking yearly exports.",
+    summary:
+      "Set operations stack or compare whole query results. They are the quickest way to merge yearly exports or find rows that appear in one list but not the other.",
+    publishedAt: "2026-10-29",
+    updatedAt: "2026-10-29",
+    category: "Learn SQL",
+    keywords: [
+      "SQL UNION vs UNION ALL",
+      "SQL INTERSECT",
+      "SQL EXCEPT",
+      "compare two tables SQL",
+    ],
+    relatedGuideSlugs: [
+      "sql-joins-explained-inner-left-full-self-cross",
+      "sql-distinct-group-by-having",
+      "query-csv-files-with-sql",
+    ],
+    relatedLessonIds: [
+      "set-operations-union",
+      "set-operations-intersect",
+      "set-operations-except",
+      "set-operations-union-all-label",
+    ],
+    sections: [
+      {
+        id: "joins-vs-set-operations",
+        title: "Joins combine columns, set operations combine rows",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "A JOIN puts matching rows side by side. Set operations put whole query results on top of each other, or compare them. They answer questions like: who is on either list, who is on both, and who is only on the first one?",
+          },
+          {
+            kind: "paragraph",
+            text: "The examples use two newsletter lists from the Set Operations chapter in SQL for Files, a browser SQL editor that runs DuckDB locally on CSV, JSON, and Parquet files.",
+          },
+        ],
+      },
+      {
+        id: "union-vs-union-all",
+        title: "UNION vs UNION ALL",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "UNION ALL stacks every row from both queries. UNION does the same and then removes duplicate rows. Three people subscribed in both years, so UNION ALL returns 10 emails and UNION returns 7.",
+          },
+          {
+            kind: "code",
+            code: "SELECT email FROM newsletter_2023\nUNION\nSELECT email FROM newsletter_2024\nORDER BY email;",
+          },
+          {
+            kind: "list",
+            items: [
+              "Both queries must return the same number of columns.",
+              "Columns are matched by position, so keep the same order and compatible types.",
+              "ORDER BY comes once, at the end, and sorts the combined result.",
+              "UNION ALL is cheaper because it skips the duplicate check.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "intersect",
+        title: "INTERSECT returns the overlap",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "INTERSECT keeps rows that appear in both results. It compares entire rows, so selecting email and country requires both to match.",
+          },
+          {
+            kind: "code",
+            code: "SELECT email FROM newsletter_2023\nINTERSECT\nSELECT email FROM newsletter_2024\nORDER BY email;",
+          },
+        ],
+      },
+      {
+        id: "except",
+        title: "EXCEPT returns what only the first query has",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "EXCEPT returns rows from the first query that are missing from the second. The order of the two queries matters: swap them and you answer the opposite question. Some databases call this operator MINUS.",
+          },
+          {
+            kind: "code",
+            code: "-- Subscribers who did not come back in 2024\nSELECT email FROM newsletter_2023\nEXCEPT\nSELECT email FROM newsletter_2024\nORDER BY email;",
+          },
+          {
+            kind: "callout",
+            title: "Compare two exports of the same file",
+            text: "EXCEPT in both directions is a fast way to see which records disappeared or appeared between last month's export and this month's.",
+          },
+        ],
+      },
+      {
+        id: "stack-yearly-files",
+        title: "Stack files with UNION ALL and a label column",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "When the same data is split across files, such as one export per year, load each file as a table and stack them with UNION ALL. A literal column records where each row came from, and the stacked result can be grouped like any table.",
+          },
+          {
+            kind: "code",
+            code: "WITH all_signups AS (\n  SELECT 2023 AS signup_year, email, country FROM newsletter_2023\n  UNION ALL\n  SELECT 2024 AS signup_year, email, country FROM newsletter_2024\n)\nSELECT signup_year, COUNT(*) AS subscribers\nFROM all_signups\nGROUP BY signup_year\nORDER BY signup_year;",
+          },
+          {
+            kind: "callout",
+            title: "UNION can shrink your counts",
+            text: "Plain UNION removes identical rows, which silently lowers counts when two files contain the same record. Use UNION ALL before aggregating. If the files list columns in different orders, DuckDB's UNION ALL BY NAME matches them by name.",
+          },
+        ],
+      },
+      {
+        id: "practice-set-operations",
+        title: "Practice set operations",
+        blocks: [
+          {
+            kind: "steps",
+            items: [
+              "Open the Set Operations chapter in the SQL for Files Learn SQL course.",
+              "Load the newsletter_2023 and newsletter_2024 sample tables.",
+              "Solve the UNION, INTERSECT, EXCEPT, and stacking challenges.",
+              "Try the same patterns on two exports of one of your own files.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    slug: "sql-string-functions-clean-text",
+    title: "SQL String Functions for Cleaning Text: TRIM, LOWER, SPLIT_PART, and REGEXP_REPLACE",
+    description:
+      "Clean messy text with SQL string functions in DuckDB: trim spaces, fix letter case, concatenate around NULL, extract email domains, and strip characters with regex.",
+    summary:
+      "Exported text is messy. A handful of SQL string functions fix most of it: trim and lowercase values, join fields safely, split out parts, and strip characters with regex.",
+    publishedAt: "2026-10-29",
+    updatedAt: "2026-10-29",
+    category: "Learn SQL",
+    keywords: [
+      "SQL string functions",
+      "SQL clean text",
+      "DuckDB regexp_replace",
+      "SQL split_part",
+    ],
+    relatedGuideSlugs: [
+      "sql-where-filtering-data",
+      "query-csv-files-with-sql",
+      "sql-null-missing-values",
+    ],
+    relatedLessonIds: [
+      "string-functions-case-trim",
+      "string-functions-concat",
+      "string-functions-extract",
+      "string-functions-replace",
+      "filtering-like",
+    ],
+    sections: [
+      {
+        id: "why-text-needs-cleaning",
+        title: "Why text needs cleaning before you analyze it",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Text exported from forms, CRMs, and spreadsheets is full of invisible differences: trailing spaces, random capital letters, and phone numbers typed five different ways. To SQL, 'BOB@example.org ' and 'bob@example.org' are different values, so counts, joins, and duplicate checks go wrong.",
+          },
+          {
+            kind: "paragraph",
+            text: "The examples use a deliberately messy contacts table from the String Functions chapter in SQL for Files, a browser SQL editor that runs DuckDB locally on CSV, JSON, and Parquet files.",
+          },
+        ],
+      },
+      {
+        id: "case-and-trim",
+        title: "Fix letter case and spaces with LOWER, UPPER, and TRIM",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "LOWER and UPPER change case; TRIM removes spaces from both ends, and LTRIM or RTRIM from one end. Nest them to normalize a value in one expression.",
+          },
+          {
+            kind: "code",
+            code: "SELECT id, LOWER(TRIM(email)) AS clean_email\nFROM contacts_raw\nWHERE email IS NOT NULL\nORDER BY id;",
+          },
+        ],
+      },
+      {
+        id: "concatenate-safely",
+        title: "Concatenate safely around NULL",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "The || operator joins text, but any NULL part turns the whole result into NULL. concat skips NULL values, and concat_ws joins with a separator while skipping NULL values, so optional fields do not leave doubled separators.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  id,\n  TRIM(full_name) || ' from ' || TRIM(city) AS display_name,\n  concat_ws(' | ', TRIM(full_name), email, phone) AS contact_card\nFROM contacts_raw\nORDER BY id;",
+          },
+        ],
+      },
+      {
+        id: "extract-parts",
+        title: "Extract parts with SPLIT_PART, STRPOS, and SUBSTRING",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "When a value has a clear separator, SPLIT_PART is the most readable way to pull out a piece, such as the domain of an email. STRPOS finds where a substring starts, and SUBSTRING, LEFT, and RIGHT take characters by position. Positions start at 1.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  SPLIT_PART(LOWER(TRIM(email)), '@', 2) AS email_domain,\n  COUNT(*) AS contacts\nFROM contacts_raw\nWHERE email IS NOT NULL\nGROUP BY email_domain\nORDER BY contacts DESC;",
+          },
+        ],
+      },
+      {
+        id: "replace-with-regex",
+        title: "Strip characters with REPLACE and REGEXP_REPLACE",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "REPLACE swaps one fixed string for another. For character classes, such as everything that is not a digit, use REGEXP_REPLACE with a regular expression.",
+          },
+          {
+            kind: "code",
+            code: "SELECT id, REGEXP_REPLACE(phone, '[^0-9]', '', 'g') AS phone_digits\nFROM contacts_raw\nWHERE phone IS NOT NULL\nORDER BY id;",
+          },
+          {
+            kind: "callout",
+            title: "Do not forget the 'g' flag",
+            text: "In DuckDB, REGEXP_REPLACE replaces only the first match unless you pass 'g' as the fourth argument. Without it, only the first non-digit character disappears.",
+          },
+        ],
+      },
+      {
+        id: "clean-once-reuse",
+        title: "Clean once, then query the clean table",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Instead of repeating the same cleanup in every query, create a cleaned copy of the table once and point later queries at it.",
+          },
+          {
+            kind: "code",
+            code: "CREATE OR REPLACE TABLE contacts_clean AS\nSELECT\n  id,\n  TRIM(full_name) AS full_name,\n  LOWER(TRIM(email)) AS email,\n  REGEXP_REPLACE(phone, '[^0-9]', '', 'g') AS phone_digits,\n  TRIM(city) AS city\nFROM contacts_raw;",
+          },
+        ],
+      },
+      {
+        id: "practice-string-functions",
+        title: "Practice string functions",
+        blocks: [
+          {
+            kind: "steps",
+            items: [
+              "Open the String Functions chapter in the SQL for Files Learn SQL course.",
+              "Load the contacts_raw sample table.",
+              "Solve the four challenges: normalize emails, build display names, extract domains, and clean phone numbers.",
+              "Use the same functions on a messy CSV export of your own.",
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
     slug: "introduction-to-sql-select-columns-aliases-sorting",
     title: "Introduction to SQL: SELECT, Columns, Aliases, and Sorting Results",
     description:
@@ -1216,7 +1770,7 @@ export const guides: Guide[] = [
     summary:
       "DuckDB list lambdas let you map, filter, and reduce arrays inside SQL, creating compact pipelines for nested list data.",
     publishedAt: "2026-05-09",
-    updatedAt: "2026-05-09",
+    updatedAt: "2026-10-29",
     category: "Learn SQL",
     keywords: [
       "DuckDB list_transform",
@@ -1288,7 +1842,12 @@ export const guides: Guide[] = [
           },
           {
             kind: "code",
-            code: "SELECT customer,\n  COALESCE(\n    list_reduce(\n      list_filter(prices, lambda p : p > 10),\n      lambda a, b : a + b\n    ),\n    0\n  ) AS expensive_total\nFROM orders\nORDER BY customer;",
+            code: "SELECT customer,\n  list_reduce(\n    list_filter(prices, lambda p : p > 10),\n    lambda a, b : a + b,\n    0\n  ) AS expensive_total\nFROM orders\nORDER BY customer;",
+          },
+          {
+            kind: "callout",
+            title: "Empty lists need a starting value",
+            text: "In current DuckDB versions, list_reduce raises an error on an empty list instead of returning NULL. When a filter can remove every element, pass a starting value such as 0 as the third argument.",
           },
         ],
       },
@@ -1671,20 +2230,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "query-csv-files-with-sql",
-    title: "How to Query CSV Files with SQL in Your Browser",
+    title: "How to Analyze a CSV File with SQL: A Step-by-Step Walkthrough",
     description:
-      "Learn how to load CSV files into SQL for Files, inspect columns, run SQL queries, aggregate data, and export results without uploading your data.",
+      "Walk through a full CSV analysis with SQL: add the file, check detected columns with DESCRIBE and SUMMARIZE, filter, aggregate, join a second CSV, and export.",
     summary:
-      "Use SQL for Files as a local CSV analysis workspace: add a file, inspect the generated table, write SQL, and export the rows you need.",
+      "From raw CSV export to answer: confirm the detected column types, filter and aggregate with SQL, join a lookup file, and export only the result you need.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "CSV analysis",
     keywords: [
-      "query CSV with SQL",
-      "browser CSV analysis",
-      "DuckDB WASM CSV",
-      "local CSV query tool",
+      "analyze CSV with SQL",
+      "CSV analysis walkthrough",
+      "DuckDB DESCRIBE SUMMARIZE",
+      "join two CSV files",
     ],
+    relatedPagePath: "/query-csv-with-sql",
     howTo: true,
     relatedGuideSlugs: [
       "sql-examples-for-csv-json-parquet",
@@ -1734,6 +2294,33 @@ export const guides: Guide[] = [
             kind: "callout",
             title: "Advanced CSV options",
             text: "If your CSV uses a custom delimiter, skipped rows, unusual quote character, or a regional decimal separator, use advanced add options before creating the table.",
+          },
+        ],
+      },
+      {
+        id: "check-columns",
+        title: "Check the detected column types before you trust them",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "CSV files only contain text, so DuckDB infers each column type while it reads the file. Most of the time the guess is right, but a date stored in an unusual format or a number with a thousands separator can arrive as VARCHAR. Checking types first saves confusing results later.",
+          },
+          {
+            kind: "code",
+            code: "DESCRIBE sales;",
+          },
+          {
+            kind: "paragraph",
+            text: "DESCRIBE lists every column with its detected type. SUMMARIZE goes further and profiles each column with min, max, approximate distinct count, and null percentage, which is a fast way to spot empty columns or outliers.",
+          },
+          {
+            kind: "code",
+            code: "SUMMARIZE sales;",
+          },
+          {
+            kind: "callout",
+            title: "When a type is wrong",
+            text: "If a date or number column shows up as VARCHAR, add the file again with the matching date format, decimal separator, or null string in the advanced options, or convert the column in SQL with CAST or TRY_CAST.",
           },
         ],
       },
@@ -1805,20 +2392,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "query-json-files-with-sql",
-    title: "How to Analyze JSON Files Locally with SQL",
+    title: "How to Flatten Nested JSON with SQL: Structs, Lists, and UNNEST",
     description:
-      "Use SQL for Files to query JSON arrays and NDJSON files locally with DuckDB WASM, including filtering, flattening, and aggregation examples.",
+      "Flatten nested JSON and NDJSON with DuckDB SQL: read struct fields with dot notation, expand arrays into rows with UNNEST, and summarize the flattened records.",
     summary:
-      "Load JSON or NDJSON into a local DuckDB table, then use SQL to inspect records, filter fields, and work with nested values.",
+      "Nested JSON becomes STRUCT and LIST columns in DuckDB. Learn how to reach into structs, turn arrays into rows, and aggregate the flattened result.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "JSON analysis",
     keywords: [
-      "query JSON with SQL",
-      "local JSON analysis",
+      "flatten nested JSON SQL",
       "NDJSON SQL",
-      "DuckDB WASM JSON",
+      "DuckDB UNNEST JSON",
+      "JSON struct dot notation",
     ],
+    relatedPagePath: "/query-json-with-sql",
     howTo: true,
     relatedGuideSlugs: [
       "sql-examples-for-csv-json-parquet",
@@ -1894,8 +2482,27 @@ export const guides: Guide[] = [
         ],
       },
       {
+        id: "struct-fields",
+        title: "Read nested objects with dot notation",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "When DuckDB reads JSON, nested objects usually become STRUCT columns and arrays become LIST columns. A struct field can be read with dot notation, even several levels deep.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  order_id,\n  customer.name AS customer_name,\n  customer.address.city AS city\nFROM orders;",
+          },
+          {
+            kind: "callout",
+            title: "Check the inferred shape first",
+            text: "If the objects in a file have inconsistent shapes, DuckDB may keep a field as JSON text instead of a STRUCT. Run DESCRIBE on the table to see which columns are STRUCT, LIST, or JSON before writing the query.",
+          },
+        ],
+      },
+      {
         id: "nested-json",
-        title: "Work with nested JSON",
+        title: "Turn arrays into rows with UNNEST",
         blocks: [
           {
             kind: "paragraph",
@@ -1921,20 +2528,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "query-parquet-files-in-browser",
-    title: "How to Query Parquet Files in the Browser",
+    title: "Parquet vs CSV for SQL Analysis: Types, Columnar Reads, and Memory Limits",
     description:
-      "Query Parquet files directly in your browser with DuckDB WASM, inspect schemas, aggregate columns, and keep analysis local.",
+      "Why Parquet often beats CSV for SQL analysis: stored column types, columnar reads, and compression, plus what changes when you query Parquet inside a browser.",
     summary:
-      "Use browser-based DuckDB to inspect Parquet files, run fast analytical queries, and export compact results without a local database install.",
+      "Parquet stores typed columns that engines can read selectively. See what that means for SQL analysis and where browser memory still sets the limit.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "Parquet analysis",
     keywords: [
-      "query Parquet in browser",
-      "Parquet SQL tool",
+      "Parquet vs CSV",
+      "Parquet columnar format",
+      "Parquet schema SQL",
       "DuckDB WASM Parquet",
-      "local Parquet analysis",
     ],
+    relatedPagePath: "/query-parquet-with-sql",
     howTo: true,
     relatedGuideSlugs: [
       "duckdb-wasm-browser-sql",
@@ -1963,6 +2571,25 @@ export const guides: Guide[] = [
               "Analytical queries can read only the columns they need.",
               "Parquet is common in data warehouses, lakehouses, and Python/R workflows.",
             ],
+          },
+        ],
+      },
+      {
+        id: "parquet-vs-csv",
+        title: "Parquet vs CSV at a glance",
+        blocks: [
+          {
+            kind: "list",
+            items: [
+              "Types: Parquet stores each column's type in the file. CSV stores text, so types are inferred when the file is read.",
+              "Reads: Parquet is columnar, so an engine can read only the columns a query needs. CSV has to be parsed row by row.",
+              "Size: Parquet compresses each column and is often much smaller than the same data exported as CSV.",
+              "Editing: CSV opens in any text editor or spreadsheet. Parquet needs a tool that understands the format, such as DuckDB.",
+            ],
+          },
+          {
+            kind: "paragraph",
+            text: "For SQL analysis this usually means fewer type surprises and faster scans with Parquet, while CSV stays the most portable format for sharing small results.",
           },
         ],
       },
@@ -2015,7 +2642,7 @@ export const guides: Guide[] = [
         blocks: [
           {
             kind: "paragraph",
-            text: "Parquet can be efficient, but SQL for Files still runs inside browser memory. Very large files may hit browser limits earlier than a native DuckDB process or server-side database.",
+            text: "Parquet can be efficient, but SQL for Files still runs inside browser memory. When you add a file, the app loads the whole file into a DuckDB table, so the memory you need depends on the full file rather than the columns a later query reads. Very large files may hit browser limits earlier than a native DuckDB process or server-side database.",
           },
           {
             kind: "callout",
@@ -2028,24 +2655,26 @@ export const guides: Guide[] = [
   },
   {
     slug: "sql-examples-for-csv-json-parquet",
-    title: "Practical SQL Examples for CSV, JSON, and Parquet Files",
+    title: "SQL Cheat Sheet for Data Analysis: Filter, Group, Join, Dates, and Ranking",
     description:
-      "Copy practical SQL examples for filtering, grouping, joining, sorting, and analyzing local CSV, JSON, and Parquet files.",
+      "A compact SQL cheat sheet for everyday data analysis: preview rows, filter, aggregate, join, bucket dates, rank rows, label values, and combine results.",
     summary:
-      "A compact collection of SQL patterns you can adapt for local file analysis in SQL for Files.",
+      "One pattern per common analysis question, from previewing a new table to ranking rows inside groups, each linked to a lesson where you can practice it.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "SQL examples",
     keywords: [
-      "SQL examples",
-      "CSV SQL examples",
-      "JSON SQL examples",
-      "Parquet SQL examples",
+      "SQL cheat sheet",
+      "SQL for data analysis",
+      "common SQL patterns",
+      "SQL query patterns",
     ],
+    relatedPagePath: "/sql-examples-for-files",
     relatedGuideSlugs: [
-      "query-csv-files-with-sql",
-      "query-json-files-with-sql",
-      "query-parquet-files-in-browser",
+      "sql-case-when-conditional-logic",
+      "sql-subqueries-vs-ctes",
+      "sql-window-functions-over-partition-running-total",
+      "sql-string-functions-clean-text",
     ],
     relatedLessonIds: [
       "intro-first-query",
@@ -2054,6 +2683,10 @@ export const guides: Guide[] = [
       "joins-inner",
       "dates-filtering",
       "window-functions-row-number",
+      "case-when-basics",
+      "ctes-with",
+      "set-operations-union",
+      "string-functions-case-trim",
     ],
     sections: [
       {
@@ -2140,6 +2773,62 @@ export const guides: Guide[] = [
           },
         ],
       },
+      {
+        id: "label-rows-with-case",
+        title: "Label rows with CASE WHEN",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "CASE WHEN adds if/else logic per row, for buckets, flags, and readable labels. Check IS NULL first so missing values do not fall into the ELSE branch.",
+          },
+          {
+            kind: "code",
+            code: "SELECT\n  order_id,\n  CASE\n    WHEN revenue IS NULL THEN 'missing'\n    WHEN revenue < 100 THEN 'small'\n    ELSE 'large'\n  END AS order_size\nFROM orders;",
+          },
+        ],
+      },
+      {
+        id: "multi-step-with-cte",
+        title: "Break a question into steps with WITH",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "A CTE names an intermediate result so the final query stays readable. It is also how you filter on aggregates or window function results.",
+          },
+          {
+            kind: "code",
+            code: "WITH customer_totals AS (\n  SELECT customer_id, SUM(revenue) AS total_revenue\n  FROM orders\n  GROUP BY customer_id\n)\nSELECT *\nFROM customer_totals\nWHERE total_revenue > 1000\nORDER BY total_revenue DESC;",
+          },
+        ],
+      },
+      {
+        id: "combine-results",
+        title: "Stack files with UNION ALL",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "When the same data arrives in several files, such as one export per month, stack them with UNION ALL and add a label column so you can still tell them apart.",
+          },
+          {
+            kind: "code",
+            code: "SELECT 'january' AS source, * FROM orders_january\nUNION ALL\nSELECT 'february' AS source, * FROM orders_february;",
+          },
+        ],
+      },
+      {
+        id: "clean-text",
+        title: "Clean text before you group or join",
+        blocks: [
+          {
+            kind: "paragraph",
+            text: "Trailing spaces and inconsistent capitals split one value into several groups. Normalize text with TRIM and LOWER before grouping, joining, or checking for duplicates.",
+          },
+          {
+            kind: "code",
+            code: "SELECT LOWER(TRIM(email)) AS email, COUNT(*) AS copies\nFROM customers\nGROUP BY LOWER(TRIM(email))\nHAVING COUNT(*) > 1;",
+          },
+        ],
+      },
     ],
   },
   {
@@ -2158,6 +2847,7 @@ export const guides: Guide[] = [
       "WebAssembly SQL engine",
       "local data analysis",
     ],
+    relatedPagePath: "/duckdb-wasm-sql-editor",
     relatedGuideSlugs: [
       "private-local-data-analysis",
       "query-parquet-files-in-browser",
@@ -2236,20 +2926,21 @@ export const guides: Guide[] = [
   },
   {
     slug: "private-local-data-analysis",
-    title: "Private Local Data Analysis in the Browser",
+    title: "Analyzing Sensitive Data in the Browser: What Stays Local and a Safety Checklist",
     description:
-      "Learn how SQL for Files keeps file analysis local in your browser, what is stored locally, and what privacy tradeoffs still matter.",
+      "What local browser processing does and does not protect when you analyze sensitive CSV, JSON, or Parquet files, plus a safety checklist for devices and exports.",
     summary:
       "Understand the local processing model behind SQL for Files and how to work safely with sensitive CSV, JSON, and Parquet files.",
     publishedAt: "2026-05-02",
-    updatedAt: "2026-05-02",
+    updatedAt: "2026-10-29",
     category: "Privacy",
     keywords: [
-      "private data analysis",
-      "local browser data analysis",
+      "analyze sensitive data locally",
+      "browser data privacy checklist",
+      "local processing risks",
       "SQL without upload",
-      "private CSV analysis",
     ],
+    relatedPagePath: "/private-local-data-analysis",
     relatedGuideSlugs: [
       "duckdb-wasm-browser-sql",
       "query-csv-files-with-sql",
@@ -2341,4 +3032,17 @@ export function guidePath(slug: string): string {
 
 export function guideBySlug(slug: string): Guide | undefined {
   return guides.find((guide) => guide.slug === slug);
+}
+
+/**
+ * Guides related to a lesson: the chapter's companion guide first, followed by
+ * guides that list the lesson in relatedLessonIds.
+ */
+export function guidesForLesson(lessonId: string, companionSlug?: string, limit = 3): Guide[] {
+  const companion = companionSlug ? guideBySlug(companionSlug) : undefined;
+  const referencing = guides.filter(
+    (guide) => guide.slug !== companionSlug && guide.relatedLessonIds.includes(lessonId)
+  );
+
+  return [...(companion ? [companion] : []), ...referencing].slice(0, limit);
 }

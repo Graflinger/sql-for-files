@@ -30,10 +30,15 @@ function getValue(row: Record<string, unknown>, column: string): unknown {
 const aggregates: Chapter = {
   id: "aggregates",
   title: "Simple Aggregates",
+  description:
+    "Summarize a whole table into single values with COUNT, SUM, MIN, MAX, and AVG.",
+  guideSlug: "sql-aggregate-functions-count-sum-min-max-avg",
   lessons: [
     {
       id: "aggregates-count",
       title: "COUNT Rows",
+      summary:
+        "Count rows with COUNT(*) and combine it with WHERE to answer how-many questions, such as how many sales a single region recorded.",
       content: `\`COUNT\` tells you how many rows match a condition. It is one of the fastest ways to answer questions like “How many sales did we make?” or “How many sales came from the West region?”
 
 The most common form is \`COUNT(*)\`:
@@ -100,6 +105,8 @@ WHERE region = 'West'
     {
       id: "aggregates-sum",
       title: "SUM Values",
+      summary:
+        "Add up numeric columns with SUM to calculate totals like revenue, and filter first with WHERE to total only one region's sales.",
       content: `\`SUM\` adds the values in a numeric column. It is useful for totals like revenue, quantity, or cost.
 
 For example:
@@ -158,6 +165,8 @@ Like most aggregates, \`SUM\` ignores \`NULL\` values. If no rows match at all, 
     {
       id: "aggregates-count-and-sum",
       title: "COUNT and SUM Together",
+      summary:
+        "Return several aggregates in one query by combining COUNT and SUM, producing a compact one-row summary of a filtered set of sales.",
       content: `Once you understand single aggregates, the next step is combining them. SQL lets you calculate several summaries in the same query.
 
 For example:
@@ -220,6 +229,8 @@ This is very common in reporting and dashboards because one query can return mul
     {
       id: "aggregates-min",
       title: "MIN Finds the Smallest Value",
+      summary:
+        "Find the smallest value in a numeric column with MIN and return it under a clear alias, such as the smallest sale in a sales table.",
       content: `\`MIN\` returns the smallest value in a column.
 
 \`\`\`sql
@@ -274,6 +285,8 @@ This is useful when you want to know the lowest price, earliest date, or smalles
     {
       id: "aggregates-max",
       title: "MAX Finds the Largest Value",
+      summary:
+        "Find the largest value in a column with MAX and alias the result, such as returning the single biggest sale amount from sample data.",
       content: `\`MAX\` returns the largest value in a column.
 
 \`\`\`sql
@@ -326,6 +339,8 @@ This is helpful for questions like “What was the biggest order?” or “What 
     {
       id: "aggregates-avg",
       title: "AVG Computes the Mean",
+      summary:
+        "Calculate the average of a numeric column with AVG, return it with an alias, and practice reading the mean of a small sales table.",
       content: `\`AVG\` calculates the average value of a numeric column.
 
 \`\`\`sql
@@ -380,6 +395,8 @@ FROM sales
     {
       id: "aggregates-min-max-avg",
       title: "MIN, MAX, and AVG Together",
+      summary:
+        "Combine MIN, MAX, and AVG in one SELECT to summarize the spread of a numeric column with its smallest, largest, and average values.",
       content: `After learning each aggregate separately, you can combine them to get a compact summary of the spread of your data.
 
 \`\`\`sql

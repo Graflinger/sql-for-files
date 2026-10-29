@@ -3,10 +3,15 @@ import type { Chapter } from "../../types/learn";
 const dataBasics: Chapter = {
   id: "data-basics",
   title: "Understanding Data",
+  description:
+    "Build the mental model behind SQL: how tables store rows and columns, why data types matter, and how missing values work with NULL.",
+  guideSlug: "what-is-a-database-table",
   lessons: [
     {
       id: "data-basics-tables",
       title: "Tables, Rows, and Columns",
+      summary:
+        "Learn how a database table organizes data into rows and columns, and why that structure is the mental model behind every SQL query.",
       content: `Before writing any SQL, it helps to understand how data is organized in a database.
 
 The core building block is a table. A table is a lot like a spreadsheet: data is arranged in rows and columns.
@@ -20,6 +25,8 @@ This is what makes the data structured: every row follows the same shape. There 
     {
       id: "data-basics-types",
       title: "Data Types",
+      summary:
+        "See how SQL data types such as text, integers, decimals, dates, and booleans decide which comparisons, math, and sorting work on a column.",
       content: `Every column in a table stores a specific kind of data. These are called data types. The most common ones are:
 
 • Text — words and characters, like a name or department ("Alice", "Engineering")
@@ -41,6 +48,8 @@ In the next chapter you will learn your first steps with SQL — the language us
     {
       id: "data-basics-null",
       title: "Missing Values with NULL",
+      summary:
+        "Understand how SQL represents missing or unknown values with NULL, why NULL is not zero or an empty string, and how to test for it with IS NULL.",
       content: `Real data often has missing or unknown values. SQL represents those values with \`NULL\`.
 
 \`NULL\` is not the same as an empty string, zero, or the word "unknown". It means the value is absent.
